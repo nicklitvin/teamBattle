@@ -1,6 +1,9 @@
-class Game {
+import Ship from "./Ship";
+import Position from "./Position";
+
+export default class Game {
     public players : { [playerId : string]: string };
-    public ships : { [shipId: string]: Ship }; 
+    public ships : { [shipId: string]: Ship };
 
     constructor() {
         this.players = {};
@@ -12,8 +15,6 @@ class Game {
     }
 
     public addShip(shipId : string) {
-        this.ships[shipId] = new Ship(shipId);
+        this.ships[shipId] = new Ship(shipId, new Position(5,5));
     }
 }
-
-export default Game;

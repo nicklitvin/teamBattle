@@ -50,4 +50,3 @@ Create lobby
     "Players in lobby: X" + Start
 Redirect players to game
     set UserIds
-
