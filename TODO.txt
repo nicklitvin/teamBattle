@@ -1,0 +1,53 @@
+Game
+    Ships = {shipId: ship}
+    Players = {userId: shipId}
+    Projectiles = []
+    
+    updateState()
+    processMove(player,...info)
+    addPlayer(userId)
+Ship
+    Health = 100
+    x,y
+    width
+    height
+    Speed
+    Damaged speed
+    Friction
+    Roles
+    visibilityRadius
+
+    Move()
+    ProcessMove(userId,ship,..info)
+Roles
+    medicRole:
+    captainRole:
+    scoutRole:
+    shooterRole:
+    addPlayer(role)
+    takeAction(role,ship)
+        - cant take if doing other task 
+
+interface Role
+    players: <userId, startTime>
+    maxCount:
+    actionDuration: 
+    action(ship)
+
+Shooter: Shoots up to max range of vision with click
+Scout: Shoots in direction of click and followsthrough
+Captain: Click to set direction of ship
+
+Ship: Rectangle
+Shot: Line
+Scout: Circle
+
+Map is dark, light when within radius
+Iterate throw game objects to identify which to display (cuttoff problem)
+
+WEB
+Create lobby
+    "Players in lobby: X" + Start
+Redirect players to game
+    set UserIds
+
