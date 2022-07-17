@@ -8,7 +8,7 @@ export default class Shot implements Projectile{
     public speed : number;
     public sideLength : number;
 
-    public expirationTime = 2;
+    public expirationTime : number;
 
     constructor(position : Position, target : Position, time : number, speed : number) {
         this.expirationTime = time;
@@ -22,5 +22,9 @@ export default class Shot implements Projectile{
 
     public move() : void {
         MyMath.move(this.position, this.target, this.speed);
+    }
+
+    public reduceExpirationTime() : void {
+        this.expirationTime -= 1;
     }
 }

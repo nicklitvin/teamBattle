@@ -19,7 +19,7 @@ var Ship = (function () {
         this.medicDiminishPercent = 0.5;
         this.shotSpeed = 5;
         this.shotExpirationTime = 1;
-        this.shotProjectiles = {};
+        this.shots = {};
         this.captain = new Role_1["default"](this.captainCount, Ship.captainTitle);
         this.medic = new Role_1["default"](this.medicCount, Ship.medicTitle);
         this.shooter = new Role_1["default"](this.shooterCount, Ship.shooterTitle);
@@ -99,13 +99,13 @@ var Ship = (function () {
         return [this.captain, this.medic, this.shooter];
     };
     Ship.prototype.isShotAvailable = function (playerId) {
-        if (this.shotProjectiles[playerId]) {
+        if (this.shots[playerId]) {
             return false;
         }
         return true;
     };
     Ship.prototype.shootProjectile = function (playerId, target) {
-        this.shotProjectiles[playerId] = new Shot_1["default"](this.position, target, this.shotExpirationTime, this.shotSpeed);
+        this.shots[playerId] = new Shot_1["default"](this.position, target, this.shotExpirationTime, this.shotSpeed);
     };
     Ship.captainTitle = "captain";
     Ship.medicTitle = "medic";

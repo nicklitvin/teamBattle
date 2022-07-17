@@ -1,7 +1,8 @@
 Jest specific test: npm test -- -t "text in it()"
 
 TODO
-shooter role : square projectiles but small
+move shots and damage Ships
+death
 
 Game
     Ships = {shipId: ship}

@@ -25,7 +25,7 @@ export default class Ship implements Projectile {
     public static readonly shooterTitle = "shooter";
     public static readonly roleSelectKeyword = "select";
 
-    public shotProjectiles : { [playerId : string] : Projectile} = {}
+    public shots : { [playerId : string] : Shot} = {}
 
     public captain = new Role(this.captainCount, Ship.captainTitle);
     public medic = new Role(this.medicCount, Ship.medicTitle);
@@ -51,6 +51,12 @@ export default class Ship implements Projectile {
 
     public move() : void {
         this.position = MyMath.move(this.position, this.target, this.speed);
+        for (let playerId of Object.keys(this.shots)) {
+            let shot = this.shots[playerId];
+            shot.move();
+            shot.reduceExpirationTime();
+            if (!shot.expirationTime) {delete this.shots[playerId]}
+        }
     }
 
     /**
@@ -133,14 +139,14 @@ export default class Ship implements Projectile {
     }
 
     public isShotAvailable(playerId : string) : boolean {
-        if (this.shotProjectiles[playerId]) {
+        if (this.shots[playerId]) {
             return false;
         }
         return true; 
     } 
 
     public shootProjectile(playerId : string, target : Position) : void {
-        this.shotProjectiles[playerId] = new Shot(
+        this.shots[playerId] = new Shot(
             this.position,
             target,
             this.shotExpirationTime,
