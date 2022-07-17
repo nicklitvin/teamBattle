@@ -1,25 +1,29 @@
 import MyMath from "./MyMath";
 import Position from "./Position";
 
-export default class Ship {
-    public readonly id : string;
+const MAP_WIDTH = 16;
+const MAP_HEIGHT = 9;
 
+export default class Ship {
     public health = 100;
-    public width = 0.1;
-    public height = 0.2;
+    public sideLength = 0.2;
     public angle = 0;
     public speed = 0.5;
 
     public position : Position;
     public target : Position; 
 
-    constructor(shipId : string, position : Position) {
-        this.id = shipId;
+    constructor(position : Position) {
         this.position = position.copy();
         this.target = position.copy();
     }
 
     public setTarget(newTarget : Position) : void {
+        newTarget.x = Math.max(this.sideLength/2, newTarget.x);
+        newTarget.x = Math.min(MAP_WIDTH - this.sideLength/2, newTarget.x);
+        newTarget.y = Math.max(this.sideLength/2, newTarget.y);
+        newTarget.y = Math.min(MAP_HEIGHT - this.sideLength/2, newTarget.y);
+
         this.target = newTarget.copy();
     }
 
@@ -27,7 +31,9 @@ export default class Ship {
         let xDiff = this.target.x - this.position.x;
         let yDiff = this.target.y - this.position.y;
 
-        if (xDiff == 0) {
+        if ( (xDiff**2 + yDiff**2)**(1/2) <= this.speed) {
+            this.position = this.target.copy()
+        } else if (xDiff == 0) {
             this.position.y += this.speed * Math.sign(yDiff);
         } else {
             let angle = MyMath.round(Math.atan(yDiff/xDiff));

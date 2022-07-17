@@ -11,7 +11,7 @@ var Game = (function () {
         this.players[playerId] = shipId;
     };
     Game.prototype.addShip = function (shipId) {
-        this.ships[shipId] = new Ship_1["default"](shipId, new Position_1["default"](5, 5));
+        this.ships[shipId] = new Ship_1["default"](new Position_1["default"](5, 5));
     };
     return Game;
 }());

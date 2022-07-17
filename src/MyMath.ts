@@ -1,3 +1,5 @@
+import Position from "./Position";
+
 export default class MyMath {
     private static roundDigit = 4;
 

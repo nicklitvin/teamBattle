@@ -13,7 +13,6 @@ Ship
     height
     Speed
     Damaged speed
-    Friction
     Roles
     visibilityRadius
 

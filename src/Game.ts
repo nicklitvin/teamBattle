@@ -15,6 +15,6 @@ export default class Game {
     }
 
     public addShip(shipId : string) {
-        this.ships[shipId] = new Ship(shipId, new Position(5,5));
+        this.ships[shipId] = new Ship(new Position(5,5));
     }
 }
