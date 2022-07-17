@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+var Position_1 = require("./Position");
 var MyMath = (function () {
     function MyMath() {
     }
@@ -9,6 +10,36 @@ var MyMath = (function () {
         if (val == -0)
             val = 0;
         return val;
+    };
+    MyMath.move = function (from, to, speed) {
+        var xDiff = to.x - from.x;
+        var yDiff = to.y - from.y;
+        var newPosition = from.copy();
+        if (Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), (1 / 2)) <= speed) {
+            newPosition = to.copy();
+        }
+        else if (xDiff == 0) {
+            newPosition.y += speed * Math.sign(yDiff);
+        }
+        else {
+            var angle = MyMath.round(Math.atan(yDiff / xDiff));
+            newPosition.x += Math.cos(angle) * speed * Math.sign(xDiff);
+            newPosition.y += Math.sin(angle) * speed * Math.sign(xDiff);
+        }
+        newPosition.round();
+        return newPosition;
+    };
+    MyMath.extendToMaxRange = function (from, to, speed, time) {
+        var xDiff = to.x - from.x;
+        var yDiff = to.y - from.y;
+        if (speed * time == 0)
+            return from;
+        var currDistanceRatio = Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), (1 / 2)) / (speed * time);
+        xDiff *= 1 / currDistanceRatio;
+        yDiff *= 1 / currDistanceRatio;
+        var newPosition = new Position_1["default"](from.x + xDiff, from.y + yDiff);
+        newPosition.round();
+        return newPosition;
     };
     MyMath.roundDigit = 4;
     return MyMath;

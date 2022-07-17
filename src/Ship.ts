@@ -1,11 +1,12 @@
 import MyMath from "./MyMath";
 import Position from "./Position";
+import Projectile from "./Projectile";
 import Role from "./Role";
 
 const MAP_WIDTH = 16;
 const MAP_HEIGHT = 9;
 
-export default class Ship {
+export default class Ship implements Projectile {
     public health = 100;
     public sideLength = 0.2;
     public speed = 0.5;
@@ -13,14 +14,15 @@ export default class Ship {
     public captainCount = 1;
     public medicCount = 10;
     public shooterCount = 5;
+    public medicHeal = 1;
+    public medicDiminishPercent = 0.5;
 
     public static readonly captainTitle = "captain";
     public static readonly medicTitle = "medic";
     public static readonly shooterTitle = "shooter";
     public static readonly roleSelectKeyword = "select";
 
-    public medicHeal = 1;
-    public medicDiminishPercent = 0.5;
+    public shotProjectiles : { [playerId : string] : Projectile} = {}
 
     public captain = new Role(this.captainCount, Ship.captainTitle);
     public medic = new Role(this.medicCount, Ship.medicTitle);
@@ -45,20 +47,7 @@ export default class Ship {
     }
 
     public move() : void {
-        let xDiff = this.target.x - this.position.x;
-        let yDiff = this.target.y - this.position.y;
-
-        if ( (xDiff**2 + yDiff**2)**(1/2) <= this.speed) {
-            this.position = this.target.copy()
-        } else if (xDiff == 0) {
-            this.position.y += this.speed * Math.sign(yDiff);
-        } else {
-            let angle = MyMath.round(Math.atan(yDiff/xDiff));
-            this.position.x += Math.cos(angle) * this.speed * Math.sign(xDiff);
-            this.position.y += Math.sin(angle) * this.speed * Math.sign(xDiff);
-        }
-
-        this.position.round()
+        this.position = MyMath.move(this.position, this.target, this.speed);
     }
 
     public processPlayerInput(playerId : string, args : any[]) : void {

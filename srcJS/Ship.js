@@ -16,6 +16,7 @@ var Ship = (function () {
         this.shooterCount = 5;
         this.medicHeal = 1;
         this.medicDiminishPercent = 0.5;
+        this.shotProjectiles = {};
         this.captain = new Role_1["default"](this.captainCount, Ship.captainTitle);
         this.medic = new Role_1["default"](this.medicCount, Ship.medicTitle);
         this.shooter = new Role_1["default"](this.shooterCount, Ship.shooterTitle);
@@ -30,20 +31,7 @@ var Ship = (function () {
         this.target = newTarget.copy();
     };
     Ship.prototype.move = function () {
-        var xDiff = this.target.x - this.position.x;
-        var yDiff = this.target.y - this.position.y;
-        if (Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), (1 / 2)) <= this.speed) {
-            this.position = this.target.copy();
-        }
-        else if (xDiff == 0) {
-            this.position.y += this.speed * Math.sign(yDiff);
-        }
-        else {
-            var angle = MyMath_1["default"].round(Math.atan(yDiff / xDiff));
-            this.position.x += Math.cos(angle) * this.speed * Math.sign(xDiff);
-            this.position.y += Math.sin(angle) * this.speed * Math.sign(xDiff);
-        }
-        this.position.round();
+        this.position = MyMath_1["default"].move(this.position, this.target, this.speed);
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {

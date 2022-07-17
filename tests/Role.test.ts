@@ -17,7 +17,6 @@ describe("testing role functions", () => {
         expect(role.getPlayerCount()).toEqual(2);
 
         role.removePlayer("1");
-        console.log(role);
         expect(role.getPlayerCount()).toEqual(1);
         expect(role.isPlayerHere("2")).toEqual(true);
         expect(role.isPlayerHere("1")).toEqual(false);
