@@ -1,14 +1,22 @@
 import MyMath from "./MyMath";
 import Position from "./Position";
+import Role from "./Role";
 
 const MAP_WIDTH = 16;
 const MAP_HEIGHT = 9;
+
+const CAPTAIN_COUNT = 1;
+const CAPTAIN_TITLE = "captain";
+const ROLE_SELECT_KEYWORD = "select";
 
 export default class Ship {
     public health = 100;
     public sideLength = 0.2;
     public angle = 0;
     public speed = 0.5;
+
+    public captain = new Role(CAPTAIN_COUNT, CAPTAIN_TITLE);
+    private roles = [this.captain]
 
     public position : Position;
     public target : Position;
@@ -46,9 +54,48 @@ export default class Ship {
 
     public processPlayerInput(playerId : string, args : any[]) : void {
         try {
-            this.setTarget(new Position(Number(args[0]),Number(args[1])));
+            if (args[0] == ROLE_SELECT_KEYWORD) {
+                this.processPlayerSelect(playerId,args[1]);
+            } else {
+                this.processPlayerRoleInput(playerId,args);
+            }
         } catch {
-            throw Error("input error");
+            console.log("input error");
+        }
+    }
+
+    /**
+     * Removes player's curent role and gives player requested role if possible.
+     * 
+     * @param playerId 
+     * @param role 
+     */
+    private processPlayerSelect(playerId : string, role : string) : void {
+        for (let role of this.roles) {
+            if (role.isPlayerHere(playerId)) {
+                role.removePlayer(playerId);
+                break;
+            }
+        }
+        switch (role) {
+            case CAPTAIN_TITLE : {
+                if (!this.captain.isFull()) this.captain.addPlayer(playerId);
+            }
+        }
+    }
+
+    private processPlayerRoleInput(playerId : string, args : any[]) : void {
+        let playerRole : Role;
+        for (let role of this.roles) {
+            if (role.isPlayerHere(playerId)) {
+                playerRole = role;
+                break;
+            }
+        }
+
+        switch (playerRole.title) {
+            case CAPTAIN_TITLE: 
+               this.setTarget(new Position(Number(args[0]),Number(args[1])));
         }
     }
 }

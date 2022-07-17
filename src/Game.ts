@@ -1,6 +1,11 @@
 import Ship from "./Ship";
 import Position from "./Position";
 
+/**
+ * Game stores ships and which ships each player is associated with.
+ * Game processes player input accordingly. Cannot add players if no
+ * ships exist.
+ */
 export default class Game {
     // players = {PlayerId : ShipId}
     public players : { [playerId : string]: string };
@@ -12,7 +17,11 @@ export default class Game {
     }
 
     public addPlayer(playerId : string, shipId : string) : void {
-        this.players[playerId] = shipId;
+        if (Object.keys(this.ships).includes(shipId)) {
+            this.players[playerId] = shipId;
+        } else {
+            console.log("no such ship");
+        }
     }
 
     public addShip(shipId : string) : void {
@@ -25,7 +34,7 @@ export default class Game {
             let ship = this.ships[shipId];
             ship.processPlayerInput(playerId,args);
         } catch {
-            throw Error("inputError TEMPORARY");
+            console.log("inputError TEMPORARY");
         }
     }
 }

@@ -2,14 +2,20 @@
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Position_1 = require("./Position");
+var Role_1 = require("./Role");
 var MAP_WIDTH = 16;
 var MAP_HEIGHT = 9;
+var CAPTAIN_COUNT = 1;
+var CAPTAIN_TITLE = "captain";
+var ROLE_SELECT_KEYWORD = "select";
 var Ship = (function () {
     function Ship(position) {
         this.health = 100;
         this.sideLength = 0.2;
         this.angle = 0;
         this.speed = 0.5;
+        this.captain = new Role_1["default"](CAPTAIN_COUNT, CAPTAIN_TITLE);
+        this.roles = [this.captain];
         this.position = position.copy();
         this.target = position.copy();
     }
@@ -38,10 +44,44 @@ var Ship = (function () {
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {
-            this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
+            if (args[0] == ROLE_SELECT_KEYWORD) {
+                this.processPlayerSelect(playerId, args[1]);
+            }
+            else {
+                this.processPlayerRoleInput(playerId, args);
+            }
         }
         catch (_a) {
-            throw Error("input error");
+            console.log("input error");
+        }
+    };
+    Ship.prototype.processPlayerSelect = function (playerId, role) {
+        for (var _i = 0, _a = this.roles; _i < _a.length; _i++) {
+            var role_1 = _a[_i];
+            if (role_1.isPlayerHere(playerId)) {
+                role_1.removePlayer(playerId);
+                break;
+            }
+        }
+        switch (role) {
+            case CAPTAIN_TITLE: {
+                if (!this.captain.isFull())
+                    this.captain.addPlayer(playerId);
+            }
+        }
+    };
+    Ship.prototype.processPlayerRoleInput = function (playerId, args) {
+        var playerRole;
+        for (var _i = 0, _a = this.roles; _i < _a.length; _i++) {
+            var role = _a[_i];
+            if (role.isPlayerHere(playerId)) {
+                playerRole = role;
+                break;
+            }
+        }
+        switch (playerRole.title) {
+            case CAPTAIN_TITLE:
+                this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
         }
     };
     return Ship;

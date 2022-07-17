@@ -8,7 +8,12 @@ var Game = (function () {
         this.ships = {};
     }
     Game.prototype.addPlayer = function (playerId, shipId) {
-        this.players[playerId] = shipId;
+        if (Object.keys(this.ships).includes(shipId)) {
+            this.players[playerId] = shipId;
+        }
+        else {
+            console.log("no such ship");
+        }
     };
     Game.prototype.addShip = function (shipId) {
         this.ships[shipId] = new Ship_1["default"](new Position_1["default"](5, 5));
@@ -20,7 +25,7 @@ var Game = (function () {
             ship.processPlayerInput(playerId, args);
         }
         catch (_a) {
-            throw Error("inputError TEMPORARY");
+            console.log("inputError TEMPORARY");
         }
     };
     return Game;

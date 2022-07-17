@@ -26,7 +26,7 @@ describe("testing Ship move", () => {
         ship.move();
         expect(ship.position).toEqual(new Position(7 - ship.speed,1));
     })
-    it("moving straight up", () => {
+    it("should move straight up", () => {
         ship.position = new Position(2,2)
         ship.setTarget(new Position(2,7));
         ship.move();

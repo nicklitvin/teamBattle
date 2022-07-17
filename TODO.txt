@@ -1,3 +1,5 @@
+Jest specific test: npm test -- -t "text in it()"
+
 Game
     Ships = {shipId: ship}
     Players = {userId: shipId}
