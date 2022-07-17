@@ -7,14 +7,18 @@ var MAP_WIDTH = 16;
 var MAP_HEIGHT = 9;
 var CAPTAIN_COUNT = 1;
 var CAPTAIN_TITLE = "captain";
+var MEDIC_COUNT = 10;
+var MEDIC_TITLE = "medic";
+var MEDIC_HEAL = 1;
+var MEDIC_DIMINISH_PERCENT = 0.5;
 var ROLE_SELECT_KEYWORD = "select";
 var Ship = (function () {
     function Ship(position) {
         this.health = 100;
         this.sideLength = 0.2;
-        this.angle = 0;
         this.speed = 0.5;
         this.captain = new Role_1["default"](CAPTAIN_COUNT, CAPTAIN_TITLE);
+        this.medic = new Role_1["default"](MEDIC_COUNT, MEDIC_TITLE);
         this.roles = [this.captain];
         this.position = position.copy();
         this.target = position.copy();
@@ -55,20 +59,24 @@ var Ship = (function () {
             console.log("input error");
         }
     };
-    Ship.prototype.processPlayerSelect = function (playerId, role) {
+    Ship.prototype.processPlayerSelect = function (playerId, requestedRoleTitle) {
         for (var _i = 0, _a = this.roles; _i < _a.length; _i++) {
-            var role_1 = _a[_i];
-            if (role_1.isPlayerHere(playerId)) {
-                role_1.removePlayer(playerId);
+            var role = _a[_i];
+            if (role.isPlayerHere(playerId)) {
+                role.removePlayer(playerId);
                 break;
             }
         }
-        switch (role) {
-            case CAPTAIN_TITLE: {
-                if (!this.captain.isFull())
-                    this.captain.addPlayer(playerId);
+        var requestedRole;
+        for (var _b = 0, _c = this.roles; _b < _c.length; _b++) {
+            var role = _c[_b];
+            if (role.title == requestedRoleTitle) {
+                requestedRole = role;
+                break;
             }
         }
+        if (!requestedRole.isFull())
+            requestedRole.addPlayer(playerId);
     };
     Ship.prototype.processPlayerRoleInput = function (playerId, args) {
         var playerRole;
@@ -82,6 +90,13 @@ var Ship = (function () {
         switch (playerRole.title) {
             case CAPTAIN_TITLE:
                 this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
+        }
+    };
+    Ship.prototype.heal = function () {
+        var medics = this.medic.getPlayerCount();
+        if (medics) {
+            var heal = MEDIC_HEAL * (1 - Math.pow(MEDIC_DIMINISH_PERCENT, medics)) / (1 - MEDIC_DIMINISH_PERCENT);
+            this.health = Math.min(100, this.health + heal);
         }
     };
     return Ship;

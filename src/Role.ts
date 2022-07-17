@@ -29,4 +29,8 @@ export default class Role {
         if (index == -1) return false;
         else return true;
     }
+
+    public getPlayerCount() : number {
+        return this.playerIds.length;
+    }
 }

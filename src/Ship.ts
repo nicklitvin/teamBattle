@@ -7,15 +7,20 @@ const MAP_HEIGHT = 9;
 
 const CAPTAIN_COUNT = 1;
 const CAPTAIN_TITLE = "captain";
+const MEDIC_COUNT = 10;
+const MEDIC_TITLE = "medic";
+const MEDIC_HEAL = 1;
+const MEDIC_DIMINISH_PERCENT = 0.5;
+
 const ROLE_SELECT_KEYWORD = "select";
 
 export default class Ship {
     public health = 100;
     public sideLength = 0.2;
-    public angle = 0;
     public speed = 0.5;
 
     public captain = new Role(CAPTAIN_COUNT, CAPTAIN_TITLE);
+    public medic = new Role(MEDIC_COUNT, MEDIC_TITLE);
     private roles = [this.captain]
 
     public position : Position;
@@ -70,18 +75,21 @@ export default class Ship {
      * @param playerId 
      * @param role 
      */
-    private processPlayerSelect(playerId : string, role : string) : void {
+    private processPlayerSelect(playerId : string, requestedRoleTitle : string) : void {
         for (let role of this.roles) {
             if (role.isPlayerHere(playerId)) {
                 role.removePlayer(playerId);
                 break;
             }
         }
-        switch (role) {
-            case CAPTAIN_TITLE : {
-                if (!this.captain.isFull()) this.captain.addPlayer(playerId);
+        let requestedRole : Role;
+        for (let role of this.roles) {
+            if (role.title == requestedRoleTitle) {
+                requestedRole = role;
+                break;
             }
         }
+        if (!requestedRole.isFull()) requestedRole.addPlayer(playerId);
     }
 
     private processPlayerRoleInput(playerId : string, args : any[]) : void {
@@ -96,6 +104,14 @@ export default class Ship {
         switch (playerRole.title) {
             case CAPTAIN_TITLE: 
                this.setTarget(new Position(Number(args[0]),Number(args[1])));
+        }
+    }
+
+    public heal() : void {
+        let medics = this.medic.getPlayerCount();
+        if (medics) {
+            let heal = MEDIC_HEAL * (1 - MEDIC_DIMINISH_PERCENT ** medics) / (1 - MEDIC_DIMINISH_PERCENT);
+            this.health = Math.min(100,this.health + heal);
         }
     }
 }

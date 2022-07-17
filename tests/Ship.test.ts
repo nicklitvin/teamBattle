@@ -47,3 +47,26 @@ describe("testing Ship move", () => {
         expect(ship.target).toEqual(new Position(ship.sideLength/2,ship.sideLength/2));
     })
 })
+// changing MEDIC constansts in ship.ts will break tests
+describe("testing medic heal", () => {
+    it("should not heal ship", () => {
+        let ship = new Ship(new Position(1,1));
+        ship.health = 50;
+        ship.heal();
+        expect(ship.health).toEqual(50);
+    })
+    it("should heal ship", () => {
+        let ship = new Ship(new Position(1,1));
+        ship.medic.addPlayer("1");
+        ship.medic.addPlayer("2");
+        ship.health = 50;
+        ship.heal();
+        expect(ship.health).toEqual(51.5);
+    })
+    it("should not overheal", () => {
+        let ship = new Ship(new Position(1,1));
+        ship.medic.addPlayer("1");
+        ship.heal();
+        expect(ship.health).toEqual(100);
+    })
+})

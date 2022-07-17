@@ -3,7 +3,6 @@ Jest specific test: npm test -- -t "text in it()"
 Game
     Ships = {shipId: ship}
     Players = {userId: shipId}
-    Projectiles = []
     
     updateState()
     processMove(player,...info)
@@ -11,25 +10,22 @@ Game
 Ship
     Health = 100
     x,y
-    width
-    height
+    side
     Speed
     Damaged speed
     Roles
     visibilityRadius
+    Projectiles = []
 
     Move()
     ProcessMove(userId,ship,..info)
 Roles
-    medicRole:
-    captainRole:
     scoutRole:
     shooterRole:
-    addPlayer(role)
     takeAction(role,ship)
         - cant take if doing other task 
 
-interface Role
+special Role
     players: <userId, startTime>
     maxCount:
     actionDuration: 
