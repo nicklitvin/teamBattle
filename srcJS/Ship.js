@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
+var Position_1 = require("./Position");
 var MAP_WIDTH = 16;
 var MAP_HEIGHT = 9;
 var Ship = (function () {
@@ -34,6 +35,14 @@ var Ship = (function () {
             this.position.y += Math.sin(angle) * this.speed * Math.sign(xDiff);
         }
         this.position.round();
+    };
+    Ship.prototype.processPlayerInput = function (playerId, args) {
+        try {
+            this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
+        }
+        catch (_a) {
+            throw Error("input error");
+        }
     };
     return Ship;
 }());

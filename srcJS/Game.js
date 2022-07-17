@@ -13,6 +13,16 @@ var Game = (function () {
     Game.prototype.addShip = function (shipId) {
         this.ships[shipId] = new Ship_1["default"](new Position_1["default"](5, 5));
     };
+    Game.prototype.processPlayerInput = function (playerId, args) {
+        try {
+            var shipId = this.players[playerId];
+            var ship = this.ships[shipId];
+            ship.processPlayerInput(playerId, args);
+        }
+        catch (_a) {
+            throw Error("inputError TEMPORARY");
+        }
+    };
     return Game;
 }());
 exports["default"] = Game;

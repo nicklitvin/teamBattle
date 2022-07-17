@@ -11,7 +11,7 @@ export default class Ship {
     public speed = 0.5;
 
     public position : Position;
-    public target : Position; 
+    public target : Position;
 
     constructor(position : Position) {
         this.position = position.copy();
@@ -42,5 +42,13 @@ export default class Ship {
         }
 
         this.position.round()
+    }
+
+    public processPlayerInput(playerId : string, args : any[]) : void {
+        try {
+            this.setTarget(new Position(Number(args[0]),Number(args[1])));
+        } catch {
+            throw Error("input error");
+        }
     }
 }
