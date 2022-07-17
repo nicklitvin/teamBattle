@@ -3,6 +3,7 @@ exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Position_1 = require("./Position");
 var Role_1 = require("./Role");
+var Shot_1 = require("./Shot");
 var MAP_WIDTH = 16;
 var MAP_HEIGHT = 9;
 var Ship = (function () {
@@ -16,6 +17,8 @@ var Ship = (function () {
         this.shooterCount = 5;
         this.medicHeal = 1;
         this.medicDiminishPercent = 0.5;
+        this.shotSpeed = 5;
+        this.shotExpirationTime = 1;
         this.shotProjectiles = {};
         this.captain = new Role_1["default"](this.captainCount, Ship.captainTitle);
         this.medic = new Role_1["default"](this.medicCount, Ship.medicTitle);
@@ -76,6 +79,11 @@ var Ship = (function () {
         switch (playerRole.title) {
             case Ship.captainTitle:
                 this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
+            case Ship.shooterTitle: {
+                if (this.isShotAvailable(playerId)) {
+                    this.shootProjectile(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
+                }
+            }
         }
     };
     Ship.prototype.heal = function () {
@@ -89,6 +97,15 @@ var Ship = (function () {
     };
     Ship.prototype.getRoles = function () {
         return [this.captain, this.medic, this.shooter];
+    };
+    Ship.prototype.isShotAvailable = function (playerId) {
+        if (this.shotProjectiles[playerId]) {
+            return false;
+        }
+        return true;
+    };
+    Ship.prototype.shootProjectile = function (playerId, target) {
+        this.shotProjectiles[playerId] = new Shot_1["default"](this.position, target, this.shotExpirationTime, this.shotSpeed);
     };
     Ship.captainTitle = "captain";
     Ship.medicTitle = "medic";

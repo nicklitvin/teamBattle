@@ -108,3 +108,36 @@ describe("testing role select", () => {
         expect(ship.medic.getPlayerCount()).toEqual(1);
     })
 })
+
+describe("testing shooting", () => {
+    it("should shoot", () => {
+        let playerId = "id";
+        let ship = new Ship();
+        let shootTarget = new Position(3,4);
+
+        ship.position = new Position(0,0);
+        ship.shotSpeed = 5;
+        ship.shotExpirationTime = 1;
+
+        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        expect(ship.shooter.getPlayerCount()).toEqual(1);
+
+        ship.processPlayerInput(playerId,[shootTarget.x,shootTarget.y]);
+        expect(ship.shotProjectiles[playerId].target).toEqual(shootTarget);
+        expect(ship.isShotAvailable(playerId)).toEqual(false);
+        
+        ship.processPlayerInput(playerId,[0,0]);
+        expect(ship.shotProjectiles[playerId].target).toEqual(shootTarget);
+    })
+    it("should default up", () => {
+        let playerId = "id";
+        let ship = new Ship();
+        ship.position = new Position(0,0);
+        ship.shotSpeed = 5;
+        ship.shotExpirationTime = 1;
+        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        ship.processPlayerInput(playerId,[ship.position.x,ship.position.y]);
+
+        expect(ship.shotProjectiles[playerId].target).toEqual(new Position(0,5));
+    })
+})

@@ -2,6 +2,7 @@ import MyMath from "./MyMath";
 import Position from "./Position";
 import Projectile from "./Projectile";
 import Role from "./Role";
+import Shot from "./Shot";
 
 const MAP_WIDTH = 16;
 const MAP_HEIGHT = 9;
@@ -16,6 +17,8 @@ export default class Ship implements Projectile {
     public shooterCount = 5;
     public medicHeal = 1;
     public medicDiminishPercent = 0.5;
+    public shotSpeed = 5;
+    public shotExpirationTime = 1;
 
     public static readonly captainTitle = "captain";
     public static readonly medicTitle = "medic";
@@ -50,6 +53,12 @@ export default class Ship implements Projectile {
         this.position = MyMath.move(this.position, this.target, this.speed);
     }
 
+    /**
+     * Takes in player input and performs action if possible.
+     * 
+     * @param playerId 
+     * @param args 
+     */
     public processPlayerInput(playerId : string, args : any[]) : void {
         try {
             if (args[0] == Ship.roleSelectKeyword) {
@@ -97,6 +106,15 @@ export default class Ship implements Projectile {
         switch (playerRole.title) {
             case Ship.captainTitle: 
                this.setTarget(new Position(Number(args[0]),Number(args[1])));
+            case Ship.shooterTitle: {
+                if (this.isShotAvailable(playerId)) {
+                    this.shootProjectile(
+                        playerId,
+                        new Position(Number(args[0]),Number(args[1]))
+                    );
+                }
+            }
+                
         }
     }
 
@@ -110,7 +128,23 @@ export default class Ship implements Projectile {
         }
     }
 
-    private getRoles() : Role[] {
+    public getRoles() : Role[] {
         return [this.captain, this.medic, this.shooter];
+    }
+
+    public isShotAvailable(playerId : string) : boolean {
+        if (this.shotProjectiles[playerId]) {
+            return false;
+        }
+        return true; 
+    } 
+
+    public shootProjectile(playerId : string, target : Position) : void {
+        this.shotProjectiles[playerId] = new Shot(
+            this.position,
+            target,
+            this.shotExpirationTime,
+            this.shotSpeed
+        );
     }
 }

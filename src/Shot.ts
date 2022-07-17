@@ -5,14 +5,14 @@ import Projectile from "./Projectile";
 export default class Shot implements Projectile{
     public position : Position;
     public target : Position;
-    public speed = 2;
-    public sideLength = 0.1;
+    public speed : number;
+    public sideLength : number;
 
     public expirationTime = 2;
 
-    constructor(position : Position, target : Position, time? : number, speed? : number) {
-        if (time) this.expirationTime = time;
-        if (speed) this.speed = speed;
+    constructor(position : Position, target : Position, time : number, speed : number) {
+        this.expirationTime = time;
+        this.speed = speed;
 
         this.position = position;
         this.target = MyMath.extendToMaxRange(this.position,target,

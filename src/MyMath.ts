@@ -42,7 +42,9 @@ export default class MyMath {
         
         if (speed * time == 0) return from;
         let currDistanceRatio = (xDiff**2 + yDiff**2)**(1/2) / (speed * time);
-        
+
+        if (!currDistanceRatio) return new Position(from.x,from.y + speed * time);
+
         xDiff *= 1/currDistanceRatio;
         yDiff *= 1/currDistanceRatio;
         

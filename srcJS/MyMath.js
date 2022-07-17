@@ -35,6 +35,8 @@ var MyMath = (function () {
         if (speed * time == 0)
             return from;
         var currDistanceRatio = Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), (1 / 2)) / (speed * time);
+        if (!currDistanceRatio)
+            return new Position_1["default"](from.x, from.y + speed * time);
         xDiff *= 1 / currDistanceRatio;
         yDiff *= 1 / currDistanceRatio;
         var newPosition = new Position_1["default"](from.x + xDiff, from.y + yDiff);
