@@ -1,7 +1,6 @@
 "use strict";
 exports.__esModule = true;
 var Ship_1 = require("./Ship");
-var Position_1 = require("./Position");
 var Game = (function () {
     function Game() {
         this.players = {};
@@ -12,11 +11,10 @@ var Game = (function () {
             this.players[playerId] = shipId;
         }
         else {
-            console.log("no such ship");
         }
     };
     Game.prototype.addShip = function (shipId) {
-        this.ships[shipId] = new Ship_1["default"](new Position_1["default"](5, 5));
+        this.ships[shipId] = new Ship_1["default"]();
     };
     Game.prototype.processPlayerInput = function (playerId, args) {
         try {
@@ -25,7 +23,6 @@ var Game = (function () {
             ship.processPlayerInput(playerId, args);
         }
         catch (_a) {
-            console.log("inputError TEMPORARY");
         }
     };
     return Game;

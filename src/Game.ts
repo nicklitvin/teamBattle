@@ -1,5 +1,4 @@
 import Ship from "./Ship";
-import Position from "./Position";
 
 /**
  * Game stores ships and which ships each player is associated with.
@@ -20,12 +19,12 @@ export default class Game {
         if (Object.keys(this.ships).includes(shipId)) {
             this.players[playerId] = shipId;
         } else {
-            console.log("no such ship");
+            // console.log("no such ship");
         }
     }
 
     public addShip(shipId : string) : void {
-        this.ships[shipId] = new Ship(new Position(5,5));
+        this.ships[shipId] = new Ship();
     }
 
     public processPlayerInput(playerId : string, args : any[]) : void {
@@ -34,7 +33,7 @@ export default class Game {
             let ship = this.ships[shipId];
             ship.processPlayerInput(playerId,args);
         } catch {
-            console.log("inputError TEMPORARY");
+            // console.log("inputError TEMPORARY");
         }
     }
 }

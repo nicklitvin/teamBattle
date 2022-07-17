@@ -5,28 +5,32 @@ import Role from "./Role";
 const MAP_WIDTH = 16;
 const MAP_HEIGHT = 9;
 
-const CAPTAIN_COUNT = 1;
-const CAPTAIN_TITLE = "captain";
-const MEDIC_COUNT = 10;
-const MEDIC_TITLE = "medic";
-const MEDIC_HEAL = 1;
-const MEDIC_DIMINISH_PERCENT = 0.5;
-
-const ROLE_SELECT_KEYWORD = "select";
-
 export default class Ship {
     public health = 100;
     public sideLength = 0.2;
     public speed = 0.5;
 
-    public captain = new Role(CAPTAIN_COUNT, CAPTAIN_TITLE);
-    public medic = new Role(MEDIC_COUNT, MEDIC_TITLE);
-    private roles = [this.captain]
+    public captainCount = 1;
+    public medicCount = 10;
+    public shooterCount = 5;
+
+    public static readonly captainTitle = "captain";
+    public static readonly medicTitle = "medic";
+    public static readonly shooterTitle = "shooter";
+    public static readonly roleSelectKeyword = "select";
+
+    public medicHeal = 1;
+    public medicDiminishPercent = 0.5;
+
+    public captain = new Role(this.captainCount, Ship.captainTitle);
+    public medic = new Role(this.medicCount, Ship.medicTitle);
+    public shooter = new Role(this.shooterCount, Ship.shooterTitle);
 
     public position : Position;
     public target : Position;
 
-    constructor(position : Position) {
+
+    constructor(position : Position = new Position(1,1)) {
         this.position = position.copy();
         this.target = position.copy();
     }
@@ -59,13 +63,13 @@ export default class Ship {
 
     public processPlayerInput(playerId : string, args : any[]) : void {
         try {
-            if (args[0] == ROLE_SELECT_KEYWORD) {
+            if (args[0] == Ship.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
             } else {
                 this.processPlayerRoleInput(playerId,args);
             }
         } catch {
-            console.log("input error");
+            // console.log("input error");
         }
     }
 
@@ -76,14 +80,14 @@ export default class Ship {
      * @param role 
      */
     private processPlayerSelect(playerId : string, requestedRoleTitle : string) : void {
-        for (let role of this.roles) {
+        for (let role of this.getRoles()) {
             if (role.isPlayerHere(playerId)) {
                 role.removePlayer(playerId);
                 break;
             }
         }
         let requestedRole : Role;
-        for (let role of this.roles) {
+        for (let role of this.getRoles()) {
             if (role.title == requestedRoleTitle) {
                 requestedRole = role;
                 break;
@@ -94,7 +98,7 @@ export default class Ship {
 
     private processPlayerRoleInput(playerId : string, args : any[]) : void {
         let playerRole : Role;
-        for (let role of this.roles) {
+        for (let role of this.getRoles()) {
             if (role.isPlayerHere(playerId)) {
                 playerRole = role;
                 break;
@@ -102,7 +106,7 @@ export default class Ship {
         }
 
         switch (playerRole.title) {
-            case CAPTAIN_TITLE: 
+            case Ship.captainTitle: 
                this.setTarget(new Position(Number(args[0]),Number(args[1])));
         }
     }
@@ -110,8 +114,14 @@ export default class Ship {
     public heal() : void {
         let medics = this.medic.getPlayerCount();
         if (medics) {
-            let heal = MEDIC_HEAL * (1 - MEDIC_DIMINISH_PERCENT ** medics) / (1 - MEDIC_DIMINISH_PERCENT);
+            let heal = this.medicHeal * 
+                (1 - this.medicDiminishPercent ** medics) / 
+                (1 - this.medicDiminishPercent);
             this.health = Math.min(100,this.health + heal);
         }
+    }
+
+    private getRoles() : Role[] {
+        return [this.captain, this.medic, this.shooter];
     }
 }

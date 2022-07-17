@@ -17,14 +17,13 @@ var Role = (function () {
     };
     Role.prototype.removePlayer = function (playerId) {
         var index = this.playerIds.indexOf(playerId);
-        this.playerIds.splice(index);
+        this.playerIds.splice(index, 1);
     };
     Role.prototype.isPlayerHere = function (playerId) {
         var index = this.playerIds.indexOf(playerId);
         if (index == -1)
             return false;
-        else
-            return true;
+        return true;
     };
     Role.prototype.getPlayerCount = function () {
         return this.playerIds.length;

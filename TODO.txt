@@ -1,5 +1,8 @@
 Jest specific test: npm test -- -t "text in it()"
 
+TODO
+shooter role : square projectiles but small
+
 Game
     Ships = {shipId: ship}
     Players = {userId: shipId}

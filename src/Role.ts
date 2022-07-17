@@ -21,13 +21,13 @@ export default class Role {
 
     public removePlayer(playerId : string) : void {
         let index = this.playerIds.indexOf(playerId);
-        this.playerIds.splice(index);
+        this.playerIds.splice(index,1);
     }
 
     public isPlayerHere(playerId : string) : boolean {
         let index = this.playerIds.indexOf(playerId);
         if (index == -1) return false;
-        else return true;
+        return true;
     }
 
     public getPlayerCount() : number {

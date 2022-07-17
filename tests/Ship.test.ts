@@ -47,16 +47,18 @@ describe("testing Ship move", () => {
         expect(ship.target).toEqual(new Position(ship.sideLength/2,ship.sideLength/2));
     })
 })
-// changing MEDIC constansts in ship.ts will break tests
+
 describe("testing medic heal", () => {
     it("should not heal ship", () => {
-        let ship = new Ship(new Position(1,1));
+        let ship = new Ship();
+        ship.medicHeal = 1;
         ship.health = 50;
         ship.heal();
         expect(ship.health).toEqual(50);
     })
     it("should heal ship", () => {
-        let ship = new Ship(new Position(1,1));
+        let ship = new Ship();
+        ship.medicHeal = 1;
         ship.medic.addPlayer("1");
         ship.medic.addPlayer("2");
         ship.health = 50;
@@ -64,9 +66,45 @@ describe("testing medic heal", () => {
         expect(ship.health).toEqual(51.5);
     })
     it("should not overheal", () => {
-        let ship = new Ship(new Position(1,1));
+        let ship = new Ship();
+        ship.medicHeal = 1;
         ship.medic.addPlayer("1");
         ship.heal();
         expect(ship.health).toEqual(100);
+    })
+})
+
+describe("testing role select", () => {
+    it("should not error", () => {
+        let ship = new Ship();
+        ship.processPlayerInput(
+            "id",
+            [Ship.roleSelectKeyword, "badRole"]
+        );
+    })
+    let ship = new Ship();
+    let id = "id0";
+
+    it("should select/deselect role", () => {
+        ship.processPlayerInput(
+            id,
+            [Ship.roleSelectKeyword, Ship.shooterTitle]
+        );
+        ship.processPlayerInput(
+            "id1",
+            [Ship.roleSelectKeyword, Ship.shooterTitle]
+        );
+        expect(ship.shooter.getPlayerCount()).toEqual(2);
+        expect(ship.captain.getPlayerCount()).toEqual(0);
+        expect(ship.medic.getPlayerCount()).toEqual(0);
+
+        ship.processPlayerInput(
+            id,
+            [Ship.roleSelectKeyword, Ship.medicTitle]
+        );
+
+        expect(ship.shooter.getPlayerCount()).toEqual(1);
+        expect(ship.captain.getPlayerCount()).toEqual(0);
+        expect(ship.medic.getPlayerCount()).toEqual(1);
     })
 })
