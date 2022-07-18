@@ -4,6 +4,6 @@ export default interface Projectile {
     position : Position;
     target : Position;
     speed : number;
-    sideLength : number;
+    radius : number;
     move() : void;
 }

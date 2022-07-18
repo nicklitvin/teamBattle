@@ -10,7 +10,7 @@ var Ship = (function () {
     function Ship(position) {
         if (position === void 0) { position = new Position_1["default"](1, 1); }
         this.health = 100;
-        this.sideLength = 0.2;
+        this.radius = 0.2;
         this.speed = 0.5;
         this.captainCount = 1;
         this.medicCount = 10;
@@ -19,6 +19,7 @@ var Ship = (function () {
         this.medicDiminishPercent = 0.5;
         this.shotSpeed = 5;
         this.shotExpirationTime = 1;
+        this.shotDamage = 10;
         this.shots = {};
         this.captain = new Role_1["default"](this.captainCount, Ship.captainTitle);
         this.medic = new Role_1["default"](this.medicCount, Ship.medicTitle);
@@ -27,14 +28,23 @@ var Ship = (function () {
         this.target = position.copy();
     }
     Ship.prototype.setTarget = function (newTarget) {
-        newTarget.x = Math.max(this.sideLength / 2, newTarget.x);
-        newTarget.x = Math.min(MAP_WIDTH - this.sideLength / 2, newTarget.x);
-        newTarget.y = Math.max(this.sideLength / 2, newTarget.y);
-        newTarget.y = Math.min(MAP_HEIGHT - this.sideLength / 2, newTarget.y);
+        newTarget.x = Math.max(this.radius, newTarget.x);
+        newTarget.x = Math.min(MAP_WIDTH - this.radius, newTarget.x);
+        newTarget.y = Math.max(this.radius, newTarget.y);
+        newTarget.y = Math.min(MAP_HEIGHT - this.radius, newTarget.y);
         this.target = newTarget.copy();
     };
     Ship.prototype.move = function () {
         this.position = MyMath_1["default"].move(this.position, this.target, this.speed);
+        for (var _i = 0, _a = Object.entries(this.shots); _i < _a.length; _i++) {
+            var entry = _a[_i];
+            var playerId = entry[0];
+            var shot = entry[1];
+            shot.move();
+            shot.reduceExpirationTime();
+            if (!shot.expirationTime)
+                this.deleteShot(playerId);
+        }
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {
@@ -106,6 +116,15 @@ var Ship = (function () {
     };
     Ship.prototype.shootProjectile = function (playerId, target) {
         this.shots[playerId] = new Shot_1["default"](this.position, target, this.shotExpirationTime, this.shotSpeed);
+    };
+    Ship.prototype.deleteShot = function (playerId) {
+        delete this.shots[playerId];
+    };
+    Ship.prototype.setId = function (id) {
+        this.id = id;
+    };
+    Ship.prototype.takeDamage = function () {
+        this.health -= this.shotDamage;
     };
     Ship.captainTitle = "captain";
     Ship.medicTitle = "medic";

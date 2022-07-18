@@ -6,7 +6,7 @@ export default class Shot implements Projectile{
     public position : Position;
     public target : Position;
     public speed : number;
-    public sideLength : number;
+    public radius = 0.1;
 
     public expirationTime : number;
 
@@ -21,7 +21,7 @@ export default class Shot implements Projectile{
     }
 
     public move() : void {
-        MyMath.move(this.position, this.target, this.speed);
+        this.position = MyMath.move(this.position, this.target, this.speed);
     }
 
     public reduceExpirationTime() : void {

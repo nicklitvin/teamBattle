@@ -1,3 +1,5 @@
+import MyMath from "./MyMath";
+import Position from "./Position";
 import Ship from "./Ship";
 
 /**
@@ -6,7 +8,7 @@ import Ship from "./Ship";
  * ships exist.
  */
 export default class Game {
-    // players = {PlayerId : ShipId}
+    /** players = {PlayerId : ShipId} */
     public players : { [playerId : string]: string };
     public ships : { [shipId: string]: Ship };
 
@@ -23,8 +25,9 @@ export default class Game {
         }
     }
 
-    public addShip(shipId : string) : void {
-        this.ships[shipId] = new Ship();
+    public addShip(shipId : string, position? : Position) : void {
+        this.ships[shipId] = new Ship(position);
+        this.ships[shipId].setId(shipId);
     }
 
     public processPlayerInput(playerId : string, args : any[]) : void {
@@ -34,6 +37,32 @@ export default class Game {
             ship.processPlayerInput(playerId,args);
         } catch {
             // console.log("inputError TEMPORARY");
+        }
+    }
+
+    public update() : void {
+        for (let ship of Object.values(this.ships)) {
+            ship.move();
+        }
+
+        for (let ship of Object.values(this.ships)) {
+            for (let enemy of Object.values(this.ships)) {
+                if (ship.id == enemy.id) continue;
+
+                for (let shotEntry of Object.entries(enemy.shots)) {
+                    let shooter = shotEntry[0];
+                    let shot = shotEntry[1];
+
+                    if (MyMath.doCirclesIntersect(shot,ship)) {
+                        ship.takeDamage();
+                        enemy.deleteShot(shooter);
+
+                        if (!ship.health) {
+                            delete this.ships[ship.id];
+                        }
+                    }
+                }
+            }
         }
     }
 }

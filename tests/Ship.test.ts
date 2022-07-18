@@ -40,11 +40,11 @@ describe("testing Ship move", () => {
     })
     it("should stay within boundary", () => {
         ship.setTarget(new Position(20,-1));
-        expect(ship.target).toEqual(new Position(16-ship.sideLength/2,ship.sideLength/2));
+        expect(ship.target).toEqual(new Position(16-ship.radius,ship.radius));
     })
     it("should stay within boundary 1", () => {
         ship.setTarget(new Position(0.05,0.05));
-        expect(ship.target).toEqual(new Position(ship.sideLength/2,ship.sideLength/2));
+        expect(ship.target).toEqual(new Position(ship.radius,ship.radius));
     })
 })
 

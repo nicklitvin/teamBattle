@@ -8,8 +8,10 @@ const MAP_WIDTH = 16;
 const MAP_HEIGHT = 9;
 
 export default class Ship implements Projectile {
+    public id : string;
+
     public health = 100;
-    public sideLength = 0.2;
+    public radius = 0.2;
     public speed = 0.5;
 
     public captainCount = 1;
@@ -19,6 +21,7 @@ export default class Ship implements Projectile {
     public medicDiminishPercent = 0.5;
     public shotSpeed = 5;
     public shotExpirationTime = 1;
+    public shotDamage = 10;
 
     public static readonly captainTitle = "captain";
     public static readonly medicTitle = "medic";
@@ -41,21 +44,24 @@ export default class Ship implements Projectile {
     }
 
     public setTarget(newTarget : Position) : void {
-        newTarget.x = Math.max(this.sideLength/2, newTarget.x);
-        newTarget.x = Math.min(MAP_WIDTH - this.sideLength/2, newTarget.x);
-        newTarget.y = Math.max(this.sideLength/2, newTarget.y);
-        newTarget.y = Math.min(MAP_HEIGHT - this.sideLength/2, newTarget.y);
+        newTarget.x = Math.max(this.radius, newTarget.x);
+        newTarget.x = Math.min(MAP_WIDTH - this.radius, newTarget.x);
+        newTarget.y = Math.max(this.radius, newTarget.y);
+        newTarget.y = Math.min(MAP_HEIGHT - this.radius, newTarget.y);
 
         this.target = newTarget.copy();
     }
 
     public move() : void {
         this.position = MyMath.move(this.position, this.target, this.speed);
-        for (let playerId of Object.keys(this.shots)) {
-            let shot = this.shots[playerId];
+
+        for (let entry of Object.entries(this.shots)) {
+            let playerId = entry[0];
+            let shot = entry[1];
+            
             shot.move();
             shot.reduceExpirationTime();
-            if (!shot.expirationTime) {delete this.shots[playerId]}
+            if (!shot.expirationTime) this.deleteShot(playerId); 
         }
     }
 
@@ -152,5 +158,17 @@ export default class Ship implements Projectile {
             this.shotExpirationTime,
             this.shotSpeed
         );
+    }
+
+    public deleteShot(playerId : string) : void {
+        delete this.shots[playerId]
+    }
+
+    public setId(id : string) : void {
+        this.id = id;
+    }
+
+    public takeDamage() : void {
+        this.health -= this.shotDamage;
     }
 }

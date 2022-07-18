@@ -1,8 +1,7 @@
 Jest specific test: npm test -- -t "text in it()"
 
 TODO
-move shots and damage Ships
-death
+write tests for ship shooting
 
 Game
     Ships = {shipId: ship}
