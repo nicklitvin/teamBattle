@@ -15,6 +15,11 @@ var Shot = (function () {
     Shot.prototype.reduceExpirationTime = function () {
         this.expirationTime -= 1;
     };
+    Shot.prototype.getRadius = function () { return this.radius; };
+    Shot.prototype.getSpeed = function () { return this.speed; };
+    Shot.prototype.getPosition = function () { return this.position; };
+    Shot.prototype.getTarget = function () { return this.target; };
+    Shot.prototype.getExpiration = function () { return this.expirationTime; };
     return Shot;
 }());
 exports["default"] = Shot;

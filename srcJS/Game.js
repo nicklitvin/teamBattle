@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Ship_1 = require("./Ship");
@@ -36,23 +47,25 @@ var Game = (function () {
             var ship = _c[_b];
             for (var _d = 0, _e = Object.values(this.ships); _d < _e.length; _d++) {
                 var enemy = _e[_d];
-                if (ship.id == enemy.id)
+                if (ship.getId() == enemy.getId())
                     continue;
-                for (var _f = 0, _g = Object.entries(enemy.shots); _f < _g.length; _f++) {
+                for (var _f = 0, _g = Object.entries(enemy.getShots()); _f < _g.length; _f++) {
                     var shotEntry = _g[_f];
                     var shooter = shotEntry[0];
                     var shot = shotEntry[1];
                     if (MyMath_1["default"].doCirclesIntersect(shot, ship)) {
                         ship.takeDamage();
                         enemy.deleteShot(shooter);
-                        if (!ship.health) {
-                            delete this.ships[ship.id];
+                        if (!ship.getHealth()) {
+                            delete this.ships[ship.getId()];
                         }
                     }
                 }
             }
         }
     };
+    Game.prototype.getPlayers = function () { return __assign({}, this.players); };
+    Game.prototype.getShips = function () { return __assign({}, this.ships); };
     return Game;
 }());
 exports["default"] = Game;

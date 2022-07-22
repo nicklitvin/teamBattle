@@ -1,5 +1,5 @@
 export default class Role {
-    public title : string;
+    private title : string;
     private playerIds : string[] = []
     private capacity : number;
 
@@ -30,7 +30,6 @@ export default class Role {
         return true;
     }
 
-    public getPlayerCount() : number {
-        return this.playerIds.length;
-    }
+    public getPlayerCount() {return this.playerIds.length;} 
+    public getTitle() : string {return this.title;}
 }

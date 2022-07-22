@@ -9,8 +9,8 @@ import Ship from "./Ship";
  */
 export default class Game {
     /** players = {PlayerId : ShipId} */
-    public players : { [playerId : string]: string };
-    public ships : { [shipId: string]: Ship };
+    private players : { [playerId : string]: string };
+    private ships : { [shipId: string]: Ship };
 
     constructor() {
         this.players = {};
@@ -47,9 +47,9 @@ export default class Game {
 
         for (let ship of Object.values(this.ships)) {
             for (let enemy of Object.values(this.ships)) {
-                if (ship.id == enemy.id) continue;
+                if (ship.getId() == enemy.getId()) continue;
 
-                for (let shotEntry of Object.entries(enemy.shots)) {
+                for (let shotEntry of Object.entries(enemy.getShots())) {
                     let shooter = shotEntry[0];
                     let shot = shotEntry[1];
 
@@ -57,12 +57,15 @@ export default class Game {
                         ship.takeDamage();
                         enemy.deleteShot(shooter);
 
-                        if (!ship.health) {
-                            delete this.ships[ship.id];
+                        if (!ship.getHealth()) {
+                            delete this.ships[ship.getId()];
                         }
                     }
                 }
             }
         }
     }
+
+    public getPlayers() {return {...this.players};}
+    public getShips() {return {...this.ships};}
 }

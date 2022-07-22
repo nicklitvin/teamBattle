@@ -25,9 +25,8 @@ var Role = (function () {
             return false;
         return true;
     };
-    Role.prototype.getPlayerCount = function () {
-        return this.playerIds.length;
-    };
+    Role.prototype.getPlayerCount = function () { return this.playerIds.length; };
+    Role.prototype.getTitle = function () { return this.title; };
     return Role;
 }());
 exports["default"] = Role;

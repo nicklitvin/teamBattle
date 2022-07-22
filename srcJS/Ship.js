@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Position_1 = require("./Position");
@@ -14,9 +25,9 @@ var Ship = (function () {
         this.speed = 0.5;
         this.captainCount = 1;
         this.medicCount = 10;
-        this.shooterCount = 5;
         this.medicHeal = 1;
         this.medicDiminishPercent = 0.5;
+        this.shooterCount = 5;
         this.shotSpeed = 5;
         this.shotExpirationTime = 1;
         this.shotDamage = 10;
@@ -47,7 +58,7 @@ var Ship = (function () {
             var shot = entry[1];
             shot.move();
             shot.reduceExpirationTime();
-            if (!shot.expirationTime)
+            if (!shot.getExpiration())
                 this.deleteShot(playerId);
         }
     };
@@ -78,7 +89,7 @@ var Ship = (function () {
         var requestedRole;
         for (var _b = 0, _c = this.getRoles(); _b < _c.length; _b++) {
             var role = _c[_b];
-            if (role.title == requestedRoleTitle) {
+            if (role.getTitle() == requestedRoleTitle) {
                 requestedRole = role;
                 break;
             }
@@ -95,7 +106,7 @@ var Ship = (function () {
                 break;
             }
         }
-        switch (playerRole.title) {
+        switch (playerRole.getTitle()) {
             case Ship.captainTitle:
                 this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
                 break;
@@ -149,11 +160,46 @@ var Ship = (function () {
     Ship.prototype.deleteScout = function (playerId) {
         delete this.scouts[playerId];
     };
-    Ship.prototype.setId = function (id) {
-        this.id = id;
-    };
     Ship.prototype.takeDamage = function () {
         this.health -= this.shotDamage;
+    };
+    Ship.prototype.setId = function (id) { this.id = id; };
+    Ship.prototype.setHealth = function (health) { this.health = health; };
+    Ship.prototype.setRadius = function (radius) { this.radius = radius; };
+    Ship.prototype.setSpeed = function (speed) { this.speed = speed; };
+    Ship.prototype.setScoutCount = function (count) { this.scoutCount = count; };
+    Ship.prototype.setScoutSpeed = function (speed) { this.scoutSpeed = speed; };
+    Ship.prototype.setScoutExpiration = function (time) { this.scoutExpirationTime = time; };
+    Ship.prototype.setShooterCount = function (count) { this.shooterCount = count; };
+    Ship.prototype.setShooterSpeed = function (speed) { this.shotSpeed = speed; };
+    Ship.prototype.setShooterExpiration = function (time) { this.shotExpirationTime = time; };
+    Ship.prototype.setMedicCount = function (count) { this.medicCount = count; };
+    Ship.prototype.setMedicHeal = function (heal) { this.medicHeal = heal; };
+    Ship.prototype.setMedicDiminish = function (percent) { this.medicDiminishPercent = percent; };
+    Ship.prototype.setCaptainCount = function (count) { this.captainCount = count; };
+    Ship.prototype.setPosition = function (pos) { this.position = pos; };
+    Ship.prototype.getId = function () { return this.id; };
+    Ship.prototype.getShots = function () { return __assign({}, this.shots); };
+    Ship.prototype.getScouts = function () { return __assign({}, this.scouts); };
+    Ship.prototype.getHealth = function () { return this.health; };
+    Ship.prototype.getRadius = function () { return this.radius; };
+    Ship.prototype.getSpeed = function () { return this.speed; };
+    Ship.prototype.getPosition = function () { return this.position; };
+    Ship.prototype.getTarget = function () { return this.target; };
+    Ship.prototype.getShooterDamage = function () { return this.shotDamage; };
+    Ship.prototype.getRole = function (role) {
+        switch (role) {
+            case Ship.captainTitle:
+                return this.captain;
+            case Ship.scoutTitle:
+                return this.scout;
+            case Ship.medicTitle:
+                return this.medic;
+            case Ship.shooterTitle:
+                return this.shooter;
+            default:
+                return null;
+        }
     };
     Ship.captainTitle = "captain";
     Ship.medicTitle = "medic";

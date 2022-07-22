@@ -8,23 +8,26 @@ const MAP_WIDTH = 16;
 const MAP_HEIGHT = 9;
 
 export default class Ship implements Projectile {
-    public id : string;
+    private id : string;
 
-    public health = 100;
-    public radius = 0.2;
-    public speed = 0.5;
+    private health = 100;
+    private radius = 0.2;
+    private speed = 0.5;
 
-    public captainCount = 1;
-    public medicCount = 10;
-    public shooterCount = 5;
-    public medicHeal = 1;
-    public medicDiminishPercent = 0.5;
-    public shotSpeed = 5;
-    public shotExpirationTime = 1;
-    public shotDamage = 10;
-    public scoutCount = 3;
-    public scoutSpeed = 3;
-    public scoutExpirationTime = 1;
+    private captainCount = 1;
+
+    private medicCount = 10;
+    private medicHeal = 1;
+    private medicDiminishPercent = 0.5;
+
+    private shooterCount = 5;
+    private shotSpeed = 5;
+    private shotExpirationTime = 1;
+    private shotDamage = 10;
+
+    private scoutCount = 3;
+    private scoutSpeed = 3;
+    private scoutExpirationTime = 1;
 
     /** Add this.ROLEtitle to this.getRoles to work properly */
     public static readonly captainTitle = "captain";
@@ -33,17 +36,16 @@ export default class Ship implements Projectile {
     public static readonly scoutTitle = "scout";
     public static readonly roleSelectKeyword = "select";
 
-    public shots : { [playerId : string] : Shot} = {};
-    public scouts : { [playerId : string] : Shot} = {};
+    private shots : { [playerId : string] : Shot} = {};
+    private scouts : { [playerId : string] : Shot} = {};
 
-    public captain = new Role(this.captainCount, Ship.captainTitle);
-    public medic = new Role(this.medicCount, Ship.medicTitle);
-    public shooter = new Role(this.shooterCount, Ship.shooterTitle);
-    public scout = new Role(this.scoutCount, Ship.scoutTitle);
+    private captain = new Role(this.captainCount, Ship.captainTitle);
+    private medic = new Role(this.medicCount, Ship.medicTitle);
+    private shooter = new Role(this.shooterCount, Ship.shooterTitle);
+    private scout = new Role(this.scoutCount, Ship.scoutTitle);
 
-    public position : Position;
-    public target : Position;
-
+    private position : Position;
+    private target : Position;
 
     constructor(position : Position = new Position(1,1)) {
         this.position = position.copy();
@@ -68,7 +70,7 @@ export default class Ship implements Projectile {
 
             shot.move();
             shot.reduceExpirationTime();
-            if (!shot.expirationTime) this.deleteShot(playerId); 
+            if (!shot.getExpiration()) this.deleteShot(playerId); 
         }
     }
 
@@ -77,7 +79,7 @@ export default class Ship implements Projectile {
      * 
      * ex:
      * 
-     * args = [Ship.selectKeyword, Ship.role]
+     * args = [Ship.selectKeyword, Ship.roleTitle]
      * 
      * args = [x,y]
      * 
@@ -118,7 +120,7 @@ export default class Ship implements Projectile {
         }
         let requestedRole : Role;
         for (let role of this.getRoles()) {
-            if (role.title == requestedRoleTitle) {
+            if (role.getTitle() == requestedRoleTitle) {
                 requestedRole = role;
                 break;
             }
@@ -135,7 +137,7 @@ export default class Ship implements Projectile {
             }
         }
 
-        switch (playerRole.title) {
+        switch (playerRole.getTitle()) {
             case Ship.captainTitle: 
                this.setTarget(new Position(Number(args[0]),Number(args[1])));
                break;
@@ -214,11 +216,64 @@ export default class Ship implements Projectile {
         delete this.scouts[playerId];
     }
 
-    public setId(id : string) : void {
-        this.id = id;
-    }
-
     public takeDamage() : void {
         this.health -= this.shotDamage;
     }
+
+    // SET AND GET FUNCTIONS
+    public setId(id : string) : void {this.id = id;}
+
+    public setHealth(health : number) {this.health = health;}
+    public setRadius(radius : number) {this.radius = radius;}
+    public setSpeed(speed : number) {this.speed = speed}
+    
+    public setScoutCount(count : number) {this.scoutCount = count;}
+    public setScoutSpeed(speed : number) {this.scoutSpeed = speed;}
+    public setScoutExpiration(time : number) {this.scoutExpirationTime = time;}
+
+    public setShooterCount(count : number) {this.shooterCount = count;}
+    public setShooterSpeed(speed : number) {this.shotSpeed = speed;}
+    public setShooterExpiration(time : number) {this.shotExpirationTime = time;}
+
+    public setMedicCount(count : number) {this.medicCount = count;}
+    public setMedicHeal(heal : number) {this.medicHeal = heal;}
+    public setMedicDiminish(percent : number) {this.medicDiminishPercent = percent;}
+
+    public setCaptainCount(count : number) {this.captainCount = count;}
+
+    public setPosition(pos : Position) {this.position = pos;}
+
+    public getId() {return this.id}
+    public getShots() { return {...this.shots};}
+    public getScouts() {return {...this.scouts};}
+    public getHealth() {return this.health;}
+    public getRadius() {return this.radius;}
+    public getSpeed() {return this.speed;}
+    public getPosition() {return this.position;}
+    public getTarget() {return this.target;}
+    public getShooterDamage() {return this.shotDamage;}
+
+    /**
+     * @param role 
+     * @returns clone of roleTitle and its properties
+     */
+    public getRole(role : string) : Role {
+        switch (role) {
+            case Ship.captainTitle:
+                return this.captain;
+                // return structuredClone(this.captain);
+            case Ship.scoutTitle:
+                return this.scout;
+                // return structuredClone(this.scout);
+            case Ship.medicTitle:
+                return this.medic;
+                // return structuredClone(this.medic);
+            case Ship.shooterTitle:
+                return this.shooter;
+                // return structuredClone(this.shooter);
+            default:
+                return null;            
+        }
+    }
+
 }

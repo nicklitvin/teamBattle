@@ -1,48 +1,12 @@
 Jest specific test: npm test -- -t "text in it()"
 
 TODO
-make variables private
 create ship vision
-Draw 
-
-Game
-    Ships = {shipId: ship}
-    Players = {userId: shipId}
-    
-    updateState()
-    processMove(player,...info)
-    addPlayer(userId)
-Ship
-    Health = 100
-    x,y
-    side
-    Speed
-    Damaged speed
-    Roles
-    visibilityRadius
-    Projectiles = []
-
-    Move()
-    ProcessMove(userId,ship,..info)
-Roles
-    scoutRole:
-    shooterRole:
-    takeAction(role,ship)
-        - cant take if doing other task 
-
-special Role
-    players: <userId, startTime>
-    maxCount:
-    actionDuration: 
-    action(ship)
+Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click
 Scout: Shoots in direction of click and followsthrough
 Captain: Click to set direction of ship
-
-Ship: Rectangle, color
-Shot: Line, white if yours, black else
-Scout: Circle, color
 
 Map is dark, light when within radius
 Iterate throw game objects to identify which to display (cuttoff problem)

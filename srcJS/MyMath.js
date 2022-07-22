@@ -44,9 +44,9 @@ var MyMath = (function () {
         return newPosition;
     };
     MyMath.doCirclesIntersect = function (c1, c2) {
-        var dist = Math.pow((Math.pow((c2.position.x - c1.position.x), 2) +
-            Math.pow((c2.position.y - c1.position.y), 2)), (1 / 2));
-        if (dist <= c1.radius + c2.radius)
+        var dist = Math.pow((Math.pow((c2.getPosition().x - c1.getPosition().x), 2) +
+            Math.pow((c2.getPosition().y - c1.getPosition().y), 2)), (1 / 2));
+        if (dist <= c1.getRadius() + c2.getRadius())
             return true;
         return false;
     };
