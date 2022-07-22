@@ -77,16 +77,18 @@ describe("testing medic heal", () => {
 describe("testing role select", () => {
     it("should not error", () => {
         let ship = new Ship();
+        let playerId = "id";
         ship.processPlayerInput(
-            "id",
+            playerId,
             [Ship.roleSelectKeyword, "badRole"]
         );
-    })
-    
-    let ship = new Ship();
-    let id = "id0";
 
+        ship.processPlayerInput(playerId, [0,0])
+    })
     it("should select/deselect role", () => {
+        let ship = new Ship();
+        let id = "id0";
+
         ship.processPlayerInput(
             id,
             [Ship.roleSelectKeyword, Ship.shooterTitle]
@@ -107,6 +109,34 @@ describe("testing role select", () => {
         expect(ship.shooter.getPlayerCount()).toEqual(1);
         expect(ship.captain.getPlayerCount()).toEqual(0);
         expect(ship.medic.getPlayerCount()).toEqual(1);
+    })
+
+    it("should stop role change midshot", () => {
+        let ship = new Ship();
+        let playerId = "0";
+        ship.shotExpirationTime = 1;
+        
+        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        expect(ship.shooter.getPlayerCount()).toEqual(1);
+
+        ship.processPlayerInput(playerId,[1,1]);
+        expect(ship.shots[playerId]).toBeTruthy();
+        expect(ship.scouts[playerId]).toBeFalsy();
+        
+        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);
+        expect(ship.shooter.getPlayerCount()).toEqual(1);
+        expect(ship.scout.getPlayerCount()).toEqual(0);
+
+        ship.move();
+        expect(ship.shots[playerId]).toBeFalsy();
+
+        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);
+        expect(ship.shooter.getPlayerCount()).toEqual(0);
+        expect(ship.scout.getPlayerCount()).toEqual(1);
+
+        ship.processPlayerInput(playerId,[1,1]);
+        expect(ship.shots[playerId]).toBeFalsy();
+        expect(ship.scouts[playerId]).toBeTruthy();
     })
 })
 

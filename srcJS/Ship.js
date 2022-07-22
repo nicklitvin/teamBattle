@@ -64,6 +64,10 @@ var Ship = (function () {
         }
     };
     Ship.prototype.processPlayerSelect = function (playerId, requestedRoleTitle) {
+        if (Object.keys(this.shots).includes(playerId) ||
+            Object.keys(this.scouts).includes(playerId)) {
+            return;
+        }
         for (var _i = 0, _a = this.getRoles(); _i < _a.length; _i++) {
             var role = _a[_i];
             if (role.isPlayerHere(playerId)) {
@@ -94,15 +98,18 @@ var Ship = (function () {
         switch (playerRole.title) {
             case Ship.captainTitle:
                 this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
+                break;
             case Ship.shooterTitle: {
                 if (this.isShotAvailable(playerId)) {
                     this.shootProjectile(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
                 }
+                break;
             }
             case Ship.scoutTitle: {
                 if (this.isScoutAvailable(playerId)) {
                     this.sendScout(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
                 }
+                break;
             }
         }
     };

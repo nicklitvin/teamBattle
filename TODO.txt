@@ -1,7 +1,8 @@
 Jest specific test: npm test -- -t "text in it()"
 
 TODO
-stop quick role changes
+make variables private
+create ship vision
 Draw 
 
 Game

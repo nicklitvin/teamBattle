@@ -75,6 +75,12 @@ export default class Ship implements Projectile {
     /**
      * Takes in player input and performs action if possible.
      * 
+     * ex:
+     * 
+     * args = [Ship.selectKeyword, Ship.role]
+     * 
+     * args = [x,y]
+     * 
      * @param playerId 
      * @param args 
      */
@@ -97,6 +103,13 @@ export default class Ship implements Projectile {
      * @param role 
      */
     private processPlayerSelect(playerId : string, requestedRoleTitle : string) : void {
+        if (
+            Object.keys(this.shots).includes(playerId) ||
+            Object.keys(this.scouts).includes(playerId)) 
+        {
+            return
+        } 
+
         for (let role of this.getRoles()) {
             if (role.isPlayerHere(playerId)) {
                 role.removePlayer(playerId);
@@ -125,6 +138,7 @@ export default class Ship implements Projectile {
         switch (playerRole.title) {
             case Ship.captainTitle: 
                this.setTarget(new Position(Number(args[0]),Number(args[1])));
+               break;
             case Ship.shooterTitle: {
                 if (this.isShotAvailable(playerId)) {
                     this.shootProjectile(
@@ -132,6 +146,7 @@ export default class Ship implements Projectile {
                         new Position(Number(args[0]),Number(args[1]))
                     );
                 }
+                break;
             }
             case Ship.scoutTitle: {
                 if (this.isScoutAvailable(playerId)) {
@@ -140,8 +155,8 @@ export default class Ship implements Projectile {
                         new Position(Number(args[0]),Number(args[1]))
                     );
                 }
+                break;
             }
-                
         }
     }
 
