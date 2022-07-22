@@ -1,7 +1,8 @@
 Jest specific test: npm test -- -t "text in it()"
 
 TODO
-write tests for ship shooting
+stop quick role changes
+Draw 
 
 Game
     Ships = {shipId: ship}
@@ -38,9 +39,9 @@ Shooter: Shoots up to max range of vision with click
 Scout: Shoots in direction of click and followsthrough
 Captain: Click to set direction of ship
 
-Ship: Rectangle
-Shot: Line
-Scout: Circle
+Ship: Rectangle, color
+Shot: Line, white if yours, black else
+Scout: Circle, color
 
 Map is dark, light when within radius
 Iterate throw game objects to identify which to display (cuttoff problem)

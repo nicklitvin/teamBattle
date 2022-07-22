@@ -82,6 +82,7 @@ describe("testing role select", () => {
             [Ship.roleSelectKeyword, "badRole"]
         );
     })
+    
     let ship = new Ship();
     let id = "id0";
 
@@ -140,11 +141,13 @@ describe("testing shooting", () => {
 
         expect(ship.shots[playerId].target).toEqual(new Position(0,5));
     })
-    it("should expire shot", () => {let playerId = "id";
+    it("should expire shot", () => {
+        let playerId = "id";
         let ship = new Ship();
         ship.position = new Position(0,0);
         ship.shotSpeed = 5;
         ship.shotExpirationTime = 2;
+        
         ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
         ship.processPlayerInput(playerId,[ship.position.x,ship.position.y]);
         expect(ship.shots[playerId]).toBeTruthy();
@@ -154,5 +157,24 @@ describe("testing shooting", () => {
 
         ship.move();
         expect(ship.shots[playerId]).toBeFalsy();
+    })
+    it("should send scout", () => {
+        let playerId = "id";
+        let ship = new Ship();
+        let scoutTarget = new Position(3,4);
+
+        ship.position = new Position(0,0);
+        ship.scoutSpeed = 2.5;
+        ship.scoutExpirationTime = 2;
+
+        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);
+        expect(ship.scout.getPlayerCount()).toEqual(1);
+
+        ship.processPlayerInput(playerId,[scoutTarget.x,scoutTarget.y]);
+        expect(ship.scouts[playerId].target).toEqual(scoutTarget);
+        expect(ship.isScoutAvailable(playerId)).toEqual(false);
+        
+        ship.processPlayerInput(playerId,[0,0]);
+        expect(ship.scouts[playerId].target).toEqual(scoutTarget);
     })
 })

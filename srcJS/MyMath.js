@@ -46,7 +46,6 @@ var MyMath = (function () {
     MyMath.doCirclesIntersect = function (c1, c2) {
         var dist = Math.pow((Math.pow((c2.position.x - c1.position.x), 2) +
             Math.pow((c2.position.y - c1.position.y), 2)), (1 / 2));
-        console.log(dist, c1.radius + c2.radius);
         if (dist <= c1.radius + c2.radius)
             return true;
         return false;

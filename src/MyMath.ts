@@ -57,7 +57,6 @@ export default class MyMath {
     public static doCirclesIntersect(c1 : Projectile, c2 : Projectile) : boolean {
         let dist = ((c2.position.x - c1.position.x)**2 +
             (c2.position.y - c1.position.y)**2) ** (1/2);
-        console.log(dist,c1.radius + c2.radius)
         if (dist <= c1.radius + c2.radius) return true;
         return false;
     }

@@ -71,8 +71,8 @@ describe("testing game combat", () => {
         let ship = game.ships[shipId];
         let enemy = game.ships[enemyId];
 
-        ship.radius = 0.5
-        enemy.radius = 0.5
+        ship.radius = 0.5;
+        enemy.radius = 0.5;
         ship.shotSpeed = 1;
         ship.shotExpirationTime = 2;
 
@@ -81,6 +81,32 @@ describe("testing game combat", () => {
         game.update();
 
         expect(game.ships[enemyId].health).toEqual(ship.health - ship.shotDamage);
+        expect(game.ships[shipId].shots[playerId]).toBeFalsy();
+    })
+    it("should kill ship", () => {
+        let game = new Game();
+        let playerId = "player1";
+        let shipId = "ship1";
+        let enemyId = "ship2";
+
+        game.addShip(shipId,new Position(5,5));
+        game.addShip(enemyId,new Position(6,5));
+        game.addPlayer(playerId,shipId);
+
+        let ship = game.ships[shipId];
+        let enemy = game.ships[enemyId];
+
+        ship.radius = 0.5;
+        enemy.radius = 0.5;
+        enemy.health = ship.shotDamage;
+        ship.shotSpeed = 1;
+        ship.shotExpirationTime = 2;
+
+        game.ships[shipId].shootProjectile(playerId,new Position(10,5));
+        expect(game.ships[shipId].shots[playerId]).toBeTruthy();
+        game.update();
+
+        expect(game.ships[enemyId]).toBeFalsy();
         expect(game.ships[shipId].shots[playerId]).toBeFalsy();
     })
 })

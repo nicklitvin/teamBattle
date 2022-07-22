@@ -22,17 +22,24 @@ export default class Ship implements Projectile {
     public shotSpeed = 5;
     public shotExpirationTime = 1;
     public shotDamage = 10;
+    public scoutCount = 3;
+    public scoutSpeed = 3;
+    public scoutExpirationTime = 1;
 
+    /** Add this.ROLEtitle to this.getRoles to work properly */
     public static readonly captainTitle = "captain";
     public static readonly medicTitle = "medic";
     public static readonly shooterTitle = "shooter";
+    public static readonly scoutTitle = "scout";
     public static readonly roleSelectKeyword = "select";
 
-    public shots : { [playerId : string] : Shot} = {}
+    public shots : { [playerId : string] : Shot} = {};
+    public scouts : { [playerId : string] : Shot} = {};
 
     public captain = new Role(this.captainCount, Ship.captainTitle);
     public medic = new Role(this.medicCount, Ship.medicTitle);
     public shooter = new Role(this.shooterCount, Ship.shooterTitle);
+    public scout = new Role(this.scoutCount, Ship.scoutTitle);
 
     public position : Position;
     public target : Position;
@@ -58,7 +65,7 @@ export default class Ship implements Projectile {
         for (let entry of Object.entries(this.shots)) {
             let playerId = entry[0];
             let shot = entry[1];
-            
+
             shot.move();
             shot.reduceExpirationTime();
             if (!shot.expirationTime) this.deleteShot(playerId); 
@@ -126,6 +133,14 @@ export default class Ship implements Projectile {
                     );
                 }
             }
+            case Ship.scoutTitle: {
+                if (this.isScoutAvailable(playerId)) {
+                    this.sendScout(
+                        playerId,
+                        new Position(Number(args[0]),Number(args[1]))
+                    );
+                }
+            }
                 
         }
     }
@@ -141,7 +156,7 @@ export default class Ship implements Projectile {
     }
 
     public getRoles() : Role[] {
-        return [this.captain, this.medic, this.shooter];
+        return [this.captain, this.medic, this.shooter, this.scout];
     }
 
     public isShotAvailable(playerId : string) : boolean {
@@ -150,6 +165,13 @@ export default class Ship implements Projectile {
         }
         return true; 
     } 
+
+    public isScoutAvailable(playerId : string) : boolean {
+        if (this.scouts[playerId]) {
+            return false;
+        }
+        return true; 
+    }
 
     public shootProjectile(playerId : string, target : Position) : void {
         this.shots[playerId] = new Shot(
@@ -160,8 +182,21 @@ export default class Ship implements Projectile {
         );
     }
 
+    public sendScout(playerId : string, target : Position) : void {
+        this.scouts[playerId] = new Shot(
+            this.position,
+            target,
+            this.scoutExpirationTime,
+            this.scoutSpeed
+        );
+    }
+
     public deleteShot(playerId : string) : void {
-        delete this.shots[playerId]
+        delete this.shots[playerId];
+    }
+
+    public deleteScout(playerId: string) : void {
+        delete this.scouts[playerId];
     }
 
     public setId(id : string) : void {

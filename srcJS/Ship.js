@@ -20,10 +20,15 @@ var Ship = (function () {
         this.shotSpeed = 5;
         this.shotExpirationTime = 1;
         this.shotDamage = 10;
+        this.scoutCount = 3;
+        this.scoutSpeed = 3;
+        this.scoutExpirationTime = 1;
         this.shots = {};
+        this.scouts = {};
         this.captain = new Role_1["default"](this.captainCount, Ship.captainTitle);
         this.medic = new Role_1["default"](this.medicCount, Ship.medicTitle);
         this.shooter = new Role_1["default"](this.shooterCount, Ship.shooterTitle);
+        this.scout = new Role_1["default"](this.scoutCount, Ship.scoutTitle);
         this.position = position.copy();
         this.target = position.copy();
     }
@@ -94,6 +99,11 @@ var Ship = (function () {
                     this.shootProjectile(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
                 }
             }
+            case Ship.scoutTitle: {
+                if (this.isScoutAvailable(playerId)) {
+                    this.sendScout(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
+                }
+            }
         }
     };
     Ship.prototype.heal = function () {
@@ -106,7 +116,7 @@ var Ship = (function () {
         }
     };
     Ship.prototype.getRoles = function () {
-        return [this.captain, this.medic, this.shooter];
+        return [this.captain, this.medic, this.shooter, this.scout];
     };
     Ship.prototype.isShotAvailable = function (playerId) {
         if (this.shots[playerId]) {
@@ -114,11 +124,23 @@ var Ship = (function () {
         }
         return true;
     };
+    Ship.prototype.isScoutAvailable = function (playerId) {
+        if (this.scouts[playerId]) {
+            return false;
+        }
+        return true;
+    };
     Ship.prototype.shootProjectile = function (playerId, target) {
         this.shots[playerId] = new Shot_1["default"](this.position, target, this.shotExpirationTime, this.shotSpeed);
     };
+    Ship.prototype.sendScout = function (playerId, target) {
+        this.scouts[playerId] = new Shot_1["default"](this.position, target, this.scoutExpirationTime, this.scoutSpeed);
+    };
     Ship.prototype.deleteShot = function (playerId) {
         delete this.shots[playerId];
+    };
+    Ship.prototype.deleteScout = function (playerId) {
+        delete this.scouts[playerId];
     };
     Ship.prototype.setId = function (id) {
         this.id = id;
@@ -129,6 +151,7 @@ var Ship = (function () {
     Ship.captainTitle = "captain";
     Ship.medicTitle = "medic";
     Ship.shooterTitle = "shooter";
+    Ship.scoutTitle = "scout";
     Ship.roleSelectKeyword = "select";
     return Ship;
 }());
