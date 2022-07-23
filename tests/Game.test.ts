@@ -124,3 +124,43 @@ describe("testing game combat", () => {
         expect(shipData.shotsSent[playerId]).toBeFalsy();
     })
 })
+describe("testing vision", () => {
+    it("should see properly", () => {
+        let game = new Game();
+        let gameData = game.getData();
+
+        let shipId = "ship1";
+        let enemyId = "ship2";
+        game.addShip(shipId,new Position(5,5));
+        game.addShip(enemyId,new Position(6,5));
+
+        let ship = gameData.ships[shipId];
+        let shipData = ship.getData();
+        shipData.vision = 1;
+
+        let see = game.getVisibleProjectiles(ship);
+        expect(see.length).toEqual(2);
+
+        shipData.position = new Position(4,5);
+        see = game.getVisibleProjectiles(ship);
+        expect(see.length).toEqual(1);
+
+        shipData.shooterSpeed = 1;
+        shipData.shooterExpirationTime = 2;
+        ship.shootProjectile("1",new Position(3,5));
+        
+        shipData.scoutSpeed = 1;
+        shipData.scoutExpirationTime = 2;
+        ship.sendScout("1",new Position(3,5));
+
+        ship.move();
+
+        see = game.getVisibleProjectiles(ship);
+        expect(see.length).toEqual(3);
+
+        ship.move();
+        
+        see = game.getVisibleProjectiles(ship);
+        expect(see.length).toEqual(1);
+    })
+})

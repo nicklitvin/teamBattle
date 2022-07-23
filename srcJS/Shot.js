@@ -11,8 +11,6 @@ var Shot = (function () {
     }
     Shot.prototype.move = function () {
         this.position = MyMath_1["default"].move(this.position, this.target, this.speed);
-    };
-    Shot.prototype.reduceExpirationTime = function () {
         this.expirationTime -= 1;
     };
     return Shot;

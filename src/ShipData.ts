@@ -13,6 +13,7 @@ export default class ShipData implements Projectile {
     public target : Position;
 
     public health = 100;
+    public vision = 3;
 
     public captainCount = 1;
 
@@ -26,7 +27,7 @@ export default class ShipData implements Projectile {
     public shooterDamage = 10;
 
     public scoutCount = 3;
-    public scoutsSentpeed = 3;
+    public scoutSpeed = 3;
     public scoutExpirationTime = 1;
 
     public shotsSent : { [playerId : string] : Shot} = {};

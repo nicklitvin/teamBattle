@@ -57,6 +57,30 @@ var Game = (function () {
             }
         }
     };
+    Game.prototype.getVisibleProjectiles = function (ship) {
+        var list = [];
+        var shipData = ship.getData();
+        for (var _i = 0, _a = Object.values(this._gameData.ships); _i < _a.length; _i++) {
+            var enemy = _a[_i];
+            var enemyData = enemy.getData();
+            if (MyMath_1["default"].getDistanceBetween(shipData, enemyData) <= shipData.vision) {
+                list.push(shipData);
+            }
+            for (var _b = 0, _c = Object.values(enemyData.shotsSent); _b < _c.length; _b++) {
+                var shot = _c[_b];
+                if (MyMath_1["default"].getDistanceBetween(shipData, shot) <= shipData.vision) {
+                    list.push(shot);
+                }
+            }
+            for (var _d = 0, _e = Object.values(enemyData.scoutsSent); _d < _e.length; _d++) {
+                var shot = _e[_d];
+                if (MyMath_1["default"].getDistanceBetween(shipData, shot) <= shipData.vision) {
+                    list.push(shot);
+                }
+            }
+        }
+        return list;
+    };
     Game.prototype.getData = function () { return this._gameData; };
     return Game;
 }());

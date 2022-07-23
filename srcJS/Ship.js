@@ -11,7 +11,6 @@ var Ship = (function () {
         this._mapWidth = 16;
         this._mapHeight = 9;
         this._data.position = position.copy();
-        this._data.target = position.copy();
     }
     Ship.prototype.setTarget = function (newTarget) {
         newTarget.x = Math.max(this._data.radius, newTarget.x);
@@ -21,13 +20,14 @@ var Ship = (function () {
         this._data.target = newTarget.copy();
     };
     Ship.prototype.move = function () {
-        this._data.position = MyMath_1["default"].move(this._data.position, this._data.target, this._data.speed);
+        if (this._data.target) {
+            this._data.position = MyMath_1["default"].move(this._data.position, this._data.target, this._data.speed);
+        }
         for (var _i = 0, _a = Object.entries(this._data.shotsSent); _i < _a.length; _i++) {
             var entry = _a[_i];
             var playerId = entry[0];
             var shot = entry[1];
             shot.move();
-            shot.reduceExpirationTime();
             if (!shot.expirationTime)
                 this.deleteShot(playerId);
         }
@@ -36,7 +36,6 @@ var Ship = (function () {
             var playerId = entry[0];
             var scout = entry[1];
             scout.move();
-            scout.reduceExpirationTime();
             if (!scout.expirationTime)
                 this.deleteScout(playerId);
         }
@@ -128,7 +127,7 @@ var Ship = (function () {
         this._data.shotsSent[playerId] = new Shot_1["default"](this._data.position, target, this._data.shooterExpirationTime, this._data.shooterSpeed);
     };
     Ship.prototype.sendScout = function (playerId, target) {
-        this._data.scoutsSent[playerId] = new Shot_1["default"](this._data.position, target, this._data.scoutExpirationTime, this._data.scoutsSentpeed);
+        this._data.scoutsSent[playerId] = new Shot_1["default"](this._data.position, target, this._data.scoutExpirationTime, this._data.scoutSpeed);
     };
     Ship.prototype.deleteShot = function (playerId) {
         delete this._data.shotsSent[playerId];

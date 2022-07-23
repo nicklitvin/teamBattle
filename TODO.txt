@@ -1,7 +1,4 @@
-Jest specific test: npm test -- -t "text in it()"
-
 TODO
-ship vision
 Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click

@@ -21,9 +21,6 @@ export default class Shot implements Projectile {
 
     public move() : void {
         this.position = MyMath.move(this.position, this.target, this.speed);
-    }
-
-    public reduceExpirationTime() : void {
         this.expirationTime -= 1;
     }
 }

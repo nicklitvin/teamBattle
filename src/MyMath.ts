@@ -61,4 +61,10 @@ export default class MyMath {
         if (dist <= c1.radius + c2.radius) return true;
         return false;
     }
+
+    public static getDistanceBetween(c1 : Projectile, c2 : Projectile) : number {
+        let val = ((c2.position.x - c1.position.x)**2 + 
+            (c2.position.y - c1.position.y)**2) ** (1/2);
+        return this.round(val);
+    }
 }

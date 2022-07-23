@@ -219,7 +219,7 @@ describe("testing shooting", () => {
         let scoutTarget = new Position(3,4);
 
         shipData.position =new Position(0,0);
-        shipData.scoutsSentpeed = 2.5;
+        shipData.scoutSpeed = 2.5;
         shipData.scoutExpirationTime = 2;
 
         ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);

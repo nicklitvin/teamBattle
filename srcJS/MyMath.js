@@ -50,6 +50,11 @@ var MyMath = (function () {
             return true;
         return false;
     };
+    MyMath.getDistanceBetween = function (c1, c2) {
+        var val = Math.pow((Math.pow((c2.position.x - c1.position.x), 2) +
+            Math.pow((c2.position.y - c1.position.y), 2)), (1 / 2));
+        return this.round(val);
+    };
     MyMath.roundDigit = 4;
     return MyMath;
 }());

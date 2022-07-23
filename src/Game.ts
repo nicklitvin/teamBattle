@@ -1,6 +1,7 @@
 import GameData from "./GameData";
 import MyMath from "./MyMath";
 import Position from "./Position";
+import { Projectile } from "./Projectile";
 import Ship from "./Ship";
 
 /**
@@ -66,6 +67,34 @@ export default class Game {
                 }
             }
         }
+    }
+
+    /**
+     * @param ship 
+     * @returns All projectiles within its vision (including itself)
+     */
+    public getVisibleProjectiles(ship : Ship) : Projectile[] {
+        let list : Projectile[] = [];
+        let shipData = ship.getData();
+
+        for (let enemy of Object.values(this._gameData.ships)) {
+            let enemyData = enemy.getData();
+
+            if (MyMath.getDistanceBetween(shipData,enemyData) <= shipData.vision) {
+                list.push(shipData);
+            }
+            for (let shot of Object.values(enemyData.shotsSent)) {
+                if (MyMath.getDistanceBetween(shipData,shot) <= shipData.vision) {
+                    list.push(shot)
+                }
+            }
+            for (let shot of Object.values(enemyData.scoutsSent)) {
+                if (MyMath.getDistanceBetween(shipData,shot) <= shipData.vision) {
+                    list.push(shot)
+                }
+            }
+        }
+        return list;
     }
 
     /**

@@ -18,7 +18,7 @@ export default class Ship implements ProjectileContainer {
 
     constructor(position : Position = new Position(1,1)) {
         this._data.position = position.copy();
-        this._data.target = position.copy();
+        // this._data.target = position.copy();
     }
 
     public setTarget(newTarget : Position) : void {
@@ -31,24 +31,25 @@ export default class Ship implements ProjectileContainer {
     }
 
     public move() : void {
-        this._data.position = MyMath.move(
-            this._data.position, this._data.target, this._data.speed
-        );
+        if (this._data.target) {
+            this._data.position = MyMath.move(
+                this._data.position, this._data.target, this._data.speed
+            );
+        }
 
         for (let entry of Object.entries(this._data.shotsSent)) {
             let playerId = entry[0];
             let shot = entry[1];
 
             shot.move();
-            shot.reduceExpirationTime();
             if (!shot.expirationTime) this.deleteShot(playerId); 
+
         }
         for (let entry of Object.entries(this._data.scoutsSent)) {
             let playerId = entry[0];
             let scout = entry[1];
 
             scout.move();
-            scout.reduceExpirationTime();
             if (!scout.expirationTime) this.deleteScout(playerId); 
         }
     }
@@ -176,7 +177,7 @@ export default class Ship implements ProjectileContainer {
             this._data.position,
             target,
             this._data.scoutExpirationTime,
-            this._data.scoutsSentpeed
+            this._data.scoutSpeed
         );
     }
 
