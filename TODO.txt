@@ -1,7 +1,7 @@
 Jest specific test: npm test -- -t "text in it()"
 
 TODO
-create ship vision
+ship vision
 Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click

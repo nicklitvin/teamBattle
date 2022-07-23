@@ -1,13 +1,13 @@
 import MyMath from "./MyMath";
 import Position from "./Position";
-import Projectile from "./Projectile";
+import {Projectile} from "./Projectile";
 
-export default class Shot implements Projectile{
-    private position : Position;
-    private target : Position;
-    private speed : number;
-    private radius = 0.1;
-    private expirationTime : number;
+export default class Shot implements Projectile {
+    public position : Position;
+    public target : Position;
+    public speed : number;
+    public radius = 0.1;
+    public expirationTime : number;
 
     constructor(position : Position, target : Position, time : number, speed : number) {
         this.expirationTime = time;
@@ -26,10 +26,4 @@ export default class Shot implements Projectile{
     public reduceExpirationTime() : void {
         this.expirationTime -= 1;
     }
-
-    public getRadius() {return this.radius;}
-    public getSpeed() {return this.speed;}
-    public getPosition(){return this.position;}
-    public getTarget() {return this.target;}
-    public getExpiration() {return this.expirationTime;}
 }

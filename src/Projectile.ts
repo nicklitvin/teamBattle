@@ -1,9 +1,12 @@
 import Position from "./Position";
 
-export default interface Projectile {
-    move() : void;
-    getSpeed() : number;
-    getRadius() : number;
-    getPosition() : Position;
-    getTarget() : Position;
+export interface Projectile {
+    speed : number;
+    radius : number;
+    position : Position;
+    target : Position;
+}
+
+export interface ProjectileContainer {
+    getProjectileData() : Projectile;
 }

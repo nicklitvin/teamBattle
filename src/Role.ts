@@ -1,7 +1,7 @@
 export default class Role {
-    private title : string;
-    private playerIds : string[] = []
-    private capacity : number;
+    public title : string;
+    public playerIds : string[] = []
+    public capacity : number;
 
     constructor(capacity : number, title : string) {
         this.title = title;
@@ -31,5 +31,4 @@ export default class Role {
     }
 
     public getPlayerCount() {return this.playerIds.length;} 
-    public getTitle() : string {return this.title;}
 }
