@@ -1,5 +1,5 @@
-import Ship from "../src/Ship"
-import Position from "../src/Position"
+import Ship from "../src/game/Ship"
+import Position from "../src/game/Position"
 
 describe("testing Ship move", () => {
     let ship = new Ship(new Position(1,1));

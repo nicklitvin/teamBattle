@@ -1,4 +1,7 @@
 TODO
+Browser dont use commonjs, only node but project compiles to one of 2 fix
+Remove target setting function
+maybe just write client-side in js
 Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click

@@ -1,6 +1,6 @@
-import Game from "../src/Game";
-import Position from "../src/Position";
-import Ship from "../src/Ship";
+import Game from "../src/game/Game";
+import Position from "../src/game/Position";
+import Ship from "../src/game/Ship";
 
 describe("testing player/role adding", () => {
     it("should add player to players", () => {

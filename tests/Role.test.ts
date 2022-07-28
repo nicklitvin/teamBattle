@@ -1,4 +1,4 @@
-import Role from "../src/Role"
+import Role from "../src/game/Role"
 
 describe("testing role functions", () => {
     it("should add player to role", () => {

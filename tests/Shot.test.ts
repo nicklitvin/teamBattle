@@ -1,5 +1,5 @@
-import Position from "../src/Position";
-import Shot from "../src/Shot"
+import Position from "../src/game/Position";
+import Shot from "../src/game/Shot"
 
 describe("testing shot", () => {
     it("should squish target", () => {

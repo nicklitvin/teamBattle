@@ -18,7 +18,6 @@ export default class Ship implements ProjectileContainer {
 
     constructor(position : Position = new Position(1,1)) {
         this._data.position = position.copy();
-        // this._data.target = position.copy();
     }
 
     public setTarget(newTarget : Position) : void {
