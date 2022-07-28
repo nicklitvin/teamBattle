@@ -1,8 +1,9 @@
 TODO
 Lobby
-    join/leave
-    store players/sockets
-    start game for leader
+    create file w/ all socket messages, JSON?
+    handle disconnect
+    start button game for leader
+    lobby.close = true/false
 
 Browser dont use commonjs, only node but project compiles to one of 2 fix
 Remove target setting function

@@ -10,6 +10,9 @@ var Lobby = (function () {
     Lobby.prototype.getData = function () {
         return this._data;
     };
+    Lobby.prototype.addPlayer = function (id) {
+        this._data.players.push(id);
+    };
     return Lobby;
 }());
 exports["default"] = Lobby;

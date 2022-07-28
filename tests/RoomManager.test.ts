@@ -1,6 +1,7 @@
 import LobbyManager from "../src/lobby/LobbyManager"
 import * as express from "express";
 import { Server } from "socket.io";
+import Lobby from "../src/lobby/Lobby";
 
 const app : any = express();
 const server = app.listen(5000);
@@ -13,9 +14,19 @@ describe("testing LobbyManager", () => {
     it("should create lobby", () => {
         let id = lobbyManager.createId("test")
         let lobby = lobbyManager.createLobby(id);
+        let lobbyData = lobby.getData();
 
-        expect(data.lobbys[id]).toBeTruthy();
-        expect(lobby.getData().redirect).toEqual(`lobby?r=${id}`)
+        expect(data.lobbies[id]).toBeTruthy();
+        expect(lobbyData.players.length).toEqual(0);
+        expect(lobbyData.redirect).toEqual(`lobby?r=${id}`);
+        expect(data.players).toEqual({});
+    })
+    it("should not conflict ids", () => {
+        let id = lobbyManager.createId("1");
+        data.lobbies[id] = new Lobby(id);
+
+        let id1 = lobbyManager.createId("1");
+        expect(id == id1).toBeFalsy();
     })
 })
 

@@ -11,4 +11,8 @@ export default class Lobby {
     public getData() : LobbyData { 
         return this._data;
     }
+
+    public addPlayer(id : string) {
+        this._data.players.push(id);
+    }
 }

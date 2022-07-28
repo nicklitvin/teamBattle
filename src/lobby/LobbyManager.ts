@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import LobbyManagerData from "./LobbyManagerData";
-import { hash } from "object-hash";
+import * as hash from "object-hash";
 import Lobby from "./Lobby";
 
 export default class LobbyManager {
@@ -13,41 +13,74 @@ export default class LobbyManager {
     private setupIoCommunication(io : Server) : void {
         io.on("connection", (socket : Socket) => {
             socket.on("createLobby", () => {
-                this.addPlayer(socket);
-                let lobby = this.createLobby(socket.id);
-                this.sendPlayerToLobby(socket,lobby);
+                this.socketCreateLobby(socket);
+            })
+            socket.on("joinLobby", (...args) => {
+                try {
+                    let lobbyId : string = args[0];
+                    this.socketJoinLobby(socket,lobbyId);
+                } catch {
+                    console.log("error join");
+                }
             })
         })
+    }
+
+    public socketCreateLobby(socket : Socket) {
+        let lobby = this.createLobby(socket.id);
+        this.sendPlayerToLobby(socket,lobby);
+        console.log("creating lobby",lobby.getData().id);
     }
     
     public createLobby(socketId : string) : Lobby {
         let id = this.createId(socketId);
         let lobby = new Lobby(id);
-        this._data.lobbys[id] = lobby;
+
+        this._data.lobbies[id] = lobby;
         return lobby;
     }
 
     public addPlayer(socket : Socket) {
         this._data.players[socket.id] = socket;
+        console.log("adding player",socket.id);
     }
 
-    public sendPlayerToLobby(socket : Socket, lobby : Lobby) {
+    private sendPlayerToLobby(socket : Socket, lobby : Lobby) {
         socket.emit("redirect", lobby.getData().redirect);
     }
 
     public createId(id : string) : string {
         while (true) {
             id = id.substring(0,this._data.lobbyIdLength);
-            if (Object.keys(this._data.lobbys).includes(id)) {
-                id = hash(id);
+            if (Object.keys(this._data.lobbies).includes(id)) {
+                id = hash.sha1(id);
             } else {
                 break;
             }
         }
+        console.log("created id",id);
         return id;
     }
 
     public getData() : LobbyManagerData {
         return this._data;
+    }
+
+    private sendPlayerId(socket : Socket, playerId : string) : void {
+        socket.emit("setId",playerId);
+    }
+
+    public socketJoinLobby(socket : Socket, lobbyId : string) {
+        if (Object.keys(this._data.lobbies).includes(lobbyId)) {
+            this.addPlayer(socket);
+            this.sendPlayerId(socket,socket.id);
+            
+            let lobby = this._data.lobbies[lobbyId];
+            lobby.addPlayer(socket.id);
+
+            console.log("player joined",socket.id);
+        } else {
+            console.log("cant join room",lobbyId);
+        }
     }
 }

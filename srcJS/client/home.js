@@ -5,11 +5,11 @@ class ClientLobby {
     }
 
     createLobby(){
-        this.socket.emit('createLobby')
+        this.socket.emit("createLobby");
     }
 
     setup() {
-        this.socket.on('redirect', (url)=>{
+        this.socket.on("redirect", (url)=>{
             window.location.href += url
         })
     }

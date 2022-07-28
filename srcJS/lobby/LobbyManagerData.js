@@ -3,7 +3,7 @@ exports.__esModule = true;
 var LobbyManagerData = (function () {
     function LobbyManagerData() {
         this.players = {};
-        this.lobbys = {};
+        this.lobbies = {};
         this.lobbyIdLength = 6;
     }
     return LobbyManagerData;
