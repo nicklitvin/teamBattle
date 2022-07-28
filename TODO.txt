@@ -1,4 +1,9 @@
 TODO
+Lobby
+    join/leave
+    store players/sockets
+    start game for leader
+
 Browser dont use commonjs, only node but project compiles to one of 2 fix
 Remove target setting function
 maybe just write client-side in js

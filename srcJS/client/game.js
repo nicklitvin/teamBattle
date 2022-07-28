@@ -1,9 +1,19 @@
-const socket = io();
+class ClientLobby {
+    constructor() {
+        this.socket = io();
+        this.setup();
+    }
 
-function createRoom(){
-    socket.emit('createRoom')
+    createLobby(){
+        this.socket.emit('createLobby')
+    }
+
+    setup() {
+        this.socket.on('redirect', (url)=>{
+            window.location.href += url
+        })
+    }
 }
 
-socket.on('redirect', (url)=>{
-    window.location.href += url
-})
+lobby = new ClientLobby();
+
