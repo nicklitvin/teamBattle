@@ -2,7 +2,7 @@
 exports.__esModule = true;
 var LobbyData = (function () {
     function LobbyData() {
-        this.players = [];
+        this.players = new Set();
     }
     return LobbyData;
 }());

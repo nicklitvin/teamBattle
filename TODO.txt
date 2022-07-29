@@ -1,13 +1,9 @@
 TODO
 Lobby
-    create file w/ all socket messages, JSON?
-    handle disconnect
     start button game for leader
     lobby.close = true/false
 
-Browser dont use commonjs, only node but project compiles to one of 2 fix
 Remove target setting function
-maybe just write client-side in js
 Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click
@@ -16,9 +12,3 @@ Captain: Click to set direction of ship
 
 Map is dark, light when within radius
 Iterate throw game objects to identify which to display (cuttoff problem)
-
-WEB
-Create lobby
-    "Players in lobby: X" + Start
-Redirect players to game
-    set UserIds

@@ -2,8 +2,8 @@
     "compilerOptions": {
         "module" : "CommonJS",
         "removeComments": true,
-        "outDir": "./srcJS",
+        "outDir": "srcJS",
         "resolveJsonModule": true,
     },
-    "exclude": ["node_modules","tests"],
+    "exclude": ["node_modules","tests"]
 }

@@ -11,7 +11,13 @@ var Lobby = (function () {
         return this._data;
     };
     Lobby.prototype.addPlayer = function (id) {
-        this._data.players.push(id);
+        this._data.players.add(id);
+    };
+    Lobby.prototype.removePlayer = function (id) {
+        this._data.players["delete"](id);
+    };
+    Lobby.prototype.getPlayerCount = function () {
+        return this._data.players.size;
     };
     return Lobby;
 }());

@@ -1,8 +1,10 @@
-import { Socket } from "socket.io";
 import Lobby from "./Lobby";
+import Player from "./Player";
 
 export default class LobbyManagerData {
-    public players : {[playerId : string] : Socket} = {};
+    /** socketId : playerId */
+    public sockets : {[socketId : string] : string} = {};
+    public players : {[playerId : string] : Player} = {};
     public lobbies : {[lobbyId : string] : Lobby} = {};
 
     public lobbyIdLength = 6;

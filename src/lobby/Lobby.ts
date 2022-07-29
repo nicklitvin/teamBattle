@@ -5,7 +5,7 @@ export default class Lobby {
 
     constructor(id) {
         this._data.id = id;
-        this._data.redirect = `lobby?r=${id}`
+        this._data.redirect = `lobby?r=${id}`;
     }
 
     public getData() : LobbyData { 
@@ -13,6 +13,14 @@ export default class Lobby {
     }
 
     public addPlayer(id : string) {
-        this._data.players.push(id);
+        this._data.players.add(id);
+    }
+
+    public removePlayer(id : string) {
+        this._data.players.delete(id);
+    }
+
+    public getPlayerCount() {
+        return this._data.players.size;
     }
 }

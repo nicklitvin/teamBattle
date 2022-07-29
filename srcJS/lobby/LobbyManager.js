@@ -3,6 +3,8 @@ exports.__esModule = true;
 var LobbyManagerData_1 = require("./LobbyManagerData");
 var hash = require("object-hash");
 var Lobby_1 = require("./Lobby");
+var SocketMessages = require("../client/socketMessages.json");
+var Player_1 = require("./Player");
 var LobbyManager = (function () {
     function LobbyManager(io) {
         this._data = new LobbyManagerData_1["default"]();
@@ -11,10 +13,13 @@ var LobbyManager = (function () {
     LobbyManager.prototype.setupIoCommunication = function (io) {
         var _this = this;
         io.on("connection", function (socket) {
-            socket.on("createLobby", function () {
+            socket.on(SocketMessages.disconnect, function () {
+                _this.socketRemovePlayer(socket);
+            });
+            socket.on(SocketMessages.createLobby, function () {
                 _this.socketCreateLobby(socket);
             });
-            socket.on("joinLobby", function () {
+            socket.on(SocketMessages.joinLobby, function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
@@ -40,12 +45,8 @@ var LobbyManager = (function () {
         this._data.lobbies[id] = lobby;
         return lobby;
     };
-    LobbyManager.prototype.addPlayer = function (socket) {
-        this._data.players[socket.id] = socket;
-        console.log("adding player", socket.id);
-    };
     LobbyManager.prototype.sendPlayerToLobby = function (socket, lobby) {
-        socket.emit("redirect", lobby.getData().redirect);
+        socket.emit(SocketMessages.redirect, lobby.getData().redirect);
     };
     LobbyManager.prototype.createId = function (id) {
         while (true) {
@@ -64,18 +65,35 @@ var LobbyManager = (function () {
         return this._data;
     };
     LobbyManager.prototype.sendPlayerId = function (socket, playerId) {
-        socket.emit("setId", playerId);
+        socket.emit(SocketMessages.setId, playerId);
     };
     LobbyManager.prototype.socketJoinLobby = function (socket, lobbyId) {
-        if (Object.keys(this._data.lobbies).includes(lobbyId)) {
-            this.addPlayer(socket);
+        if (this._data.lobbies[lobbyId]) {
             this.sendPlayerId(socket, socket.id);
+            this._data.sockets[socket.id] = socket.id;
+            this._data.players[socket.id] = new Player_1["default"](lobbyId, socket);
             var lobby = this._data.lobbies[lobbyId];
             lobby.addPlayer(socket.id);
             console.log("player joined", socket.id);
         }
         else {
             console.log("cant join room", lobbyId);
+        }
+    };
+    LobbyManager.prototype.socketRemovePlayer = function (socket) {
+        if (this._data.sockets[socket.id]) {
+            var playerId = this._data.sockets[socket.id];
+            var player = this._data.players[playerId];
+            var lobby = this._data.lobbies[player.lobbyId];
+            lobby.removePlayer(playerId);
+            console.log(lobby.getPlayerCount());
+            if (lobby.getPlayerCount() == 0) {
+                console.log("deleting room", lobby.getData().id);
+                delete this._data.lobbies[lobby.getData().id];
+            }
+            delete this._data.sockets[socket.id];
+            delete this._data.players[playerId];
+            console.log("removing player", this._data.players);
         }
     };
     return LobbyManager;

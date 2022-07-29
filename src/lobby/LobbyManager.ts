@@ -2,7 +2,8 @@ import { Server, Socket } from "socket.io";
 import LobbyManagerData from "./LobbyManagerData";
 import * as hash from "object-hash";
 import Lobby from "./Lobby";
-import * as SocketMessages from "../../srcJS/client/socketMessages.json";
+import * as SocketMessages from "../client/socketMessages.json";
+import Player from "./Player";
 
 export default class LobbyManager {
     private _data = new LobbyManagerData();
@@ -13,6 +14,9 @@ export default class LobbyManager {
 
     private setupIoCommunication(io : Server) : void {
         io.on("connection", (socket : Socket) => {
+            socket.on(SocketMessages.disconnect, () => {
+                this.socketRemovePlayer(socket);
+            })
             socket.on(SocketMessages.createLobby, () => {
                 this.socketCreateLobby(socket);
             })
@@ -41,11 +45,6 @@ export default class LobbyManager {
         return lobby;
     }
 
-    public addPlayer(socket : Socket) {
-        this._data.players[socket.id] = socket;
-        console.log("adding player",socket.id);
-    }
-
     private sendPlayerToLobby(socket : Socket, lobby : Lobby) {
         socket.emit(SocketMessages.redirect, lobby.getData().redirect);
     }
@@ -72,9 +71,10 @@ export default class LobbyManager {
     }
 
     public socketJoinLobby(socket : Socket, lobbyId : string) {
-        if (Object.keys(this._data.lobbies).includes(lobbyId)) {
-            this.addPlayer(socket);
+        if (this._data.lobbies[lobbyId]) {
             this.sendPlayerId(socket,socket.id);
+            this._data.sockets[socket.id] = socket.id;
+            this._data.players[socket.id] = new Player(lobbyId,socket);
             
             let lobby = this._data.lobbies[lobbyId];
             lobby.addPlayer(socket.id);
@@ -82,6 +82,25 @@ export default class LobbyManager {
             console.log("player joined",socket.id);
         } else {
             console.log("cant join room",lobbyId);
+        }
+    }
+
+    public socketRemovePlayer(socket : Socket) {
+        if (this._data.sockets[socket.id]) {
+            let playerId = this._data.sockets[socket.id];
+            let player = this._data.players[playerId];
+            let lobby = this._data.lobbies[player.lobbyId];
+
+            lobby.removePlayer(playerId);
+            console.log(lobby.getPlayerCount())
+            if (lobby.getPlayerCount() == 0) {
+                console.log("deleting room",lobby.getData().id);
+                delete this._data.lobbies[lobby.getData().id];
+            }
+
+            delete this._data.sockets[socket.id];
+            delete this._data.players[playerId];
+            console.log("removing player",Object.keys(this._data.players).length);
         }
     }
 }
