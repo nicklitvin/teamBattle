@@ -1,9 +1,8 @@
 TODO
-Lobby
-    start button game for leader
-    lobby.close = true/false
-
+fix bug when joining twice in same browser
+start game and return to lobby
 Remove target setting function
+enemy search
 Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click

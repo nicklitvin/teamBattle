@@ -4,5 +4,8 @@
     "redirect": "redirect",
     "setId": "setId",
     "disconnect": "disconnect",
-    "localStorageId": "id"
+    "localStorageId": "id",
+    "countUpdate": "countUpdate",
+    "captainPower": "captainPower",
+    "startGame": "startGame"
 }

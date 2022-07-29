@@ -28,6 +28,13 @@ export default class LobbyManager {
                     console.log("error join");
                 }
             })
+            socket.on(SocketMessages.startGame, () => {
+                try {
+                    this.socketStartGame(socket);
+                } catch {
+                    console.log("not legit start");
+                }
+            })
         })
     }
 
@@ -66,18 +73,17 @@ export default class LobbyManager {
         return this._data;
     }
 
-    private sendPlayerId(socket : Socket, playerId : string) : void {
-        socket.emit(SocketMessages.setId,playerId);
-    }
-
     public socketJoinLobby(socket : Socket, lobbyId : string) {
         if (this._data.lobbies[lobbyId]) {
-            this.sendPlayerId(socket,socket.id);
             this._data.sockets[socket.id] = socket.id;
             this._data.players[socket.id] = new Player(lobbyId,socket);
+
+            socket.emit(SocketMessages.setId,socket.id);
             
             let lobby = this._data.lobbies[lobbyId];
             lobby.addPlayer(socket.id);
+
+            this.sendLobbyUpdate(lobby);
 
             console.log("player joined",socket.id);
         } else {
@@ -92,15 +98,51 @@ export default class LobbyManager {
             let lobby = this._data.lobbies[player.lobbyId];
 
             lobby.removePlayer(playerId);
-            console.log(lobby.getPlayerCount())
             if (lobby.getPlayerCount() == 0) {
                 console.log("deleting room",lobby.getData().id);
                 delete this._data.lobbies[lobby.getData().id];
+            } else {
+                this.sendLobbyUpdate(lobby);
             }
 
             delete this._data.sockets[socket.id];
             delete this._data.players[playerId];
-            console.log("removing player",Object.keys(this._data.players).length);
+
+            console.log("removing player, global players left: ",
+                Object.keys(this._data.players).length
+            );
+        }
+    }
+
+    public sendLobbyUpdate(lobby : Lobby) {
+        let data = lobby.getData();
+        let players = data.players.values();
+        let captain = data.captain;
+        let text = data.countText;
+
+        while (true) {
+            let next = players.next();
+            let playerId = next.value;
+            let done = next.done;
+            
+            if (done) break;
+
+            let socket = this._data.players[playerId].socket;
+            socket.emit(SocketMessages.countUpdate,text);
+            
+            if (playerId == captain) {
+                socket.emit(SocketMessages.captainPower);
+            }
+        }
+    }
+
+    public socketStartGame(socket : Socket) {
+        let playerId = this._data.sockets[socket.id];
+        let lobbyId = this._data.players[playerId].lobbyId;
+        let lobby = this._data.lobbies[lobbyId];
+
+        if (playerId == lobby.getData().captain) {
+            console.log("start game in lobby: ",lobbyId);
         }
     }
 }

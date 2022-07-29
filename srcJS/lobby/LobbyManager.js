@@ -32,6 +32,14 @@ var LobbyManager = (function () {
                     console.log("error join");
                 }
             });
+            socket.on(SocketMessages.startGame, function () {
+                try {
+                    _this.socketStartGame(socket);
+                }
+                catch (_a) {
+                    console.log("not legit start");
+                }
+            });
         });
     };
     LobbyManager.prototype.socketCreateLobby = function (socket) {
@@ -64,16 +72,14 @@ var LobbyManager = (function () {
     LobbyManager.prototype.getData = function () {
         return this._data;
     };
-    LobbyManager.prototype.sendPlayerId = function (socket, playerId) {
-        socket.emit(SocketMessages.setId, playerId);
-    };
     LobbyManager.prototype.socketJoinLobby = function (socket, lobbyId) {
         if (this._data.lobbies[lobbyId]) {
-            this.sendPlayerId(socket, socket.id);
             this._data.sockets[socket.id] = socket.id;
             this._data.players[socket.id] = new Player_1["default"](lobbyId, socket);
+            socket.emit(SocketMessages.setId, socket.id);
             var lobby = this._data.lobbies[lobbyId];
             lobby.addPlayer(socket.id);
+            this.sendLobbyUpdate(lobby);
             console.log("player joined", socket.id);
         }
         else {
@@ -86,14 +92,42 @@ var LobbyManager = (function () {
             var player = this._data.players[playerId];
             var lobby = this._data.lobbies[player.lobbyId];
             lobby.removePlayer(playerId);
-            console.log(lobby.getPlayerCount());
             if (lobby.getPlayerCount() == 0) {
                 console.log("deleting room", lobby.getData().id);
                 delete this._data.lobbies[lobby.getData().id];
             }
+            else {
+                this.sendLobbyUpdate(lobby);
+            }
             delete this._data.sockets[socket.id];
             delete this._data.players[playerId];
-            console.log("removing player", this._data.players);
+            console.log("removing player", Object.keys(this._data.players).length);
+        }
+    };
+    LobbyManager.prototype.sendLobbyUpdate = function (lobby) {
+        var data = lobby.getData();
+        var players = data.players.values();
+        var captain = data.captain;
+        var text = data.countText;
+        while (true) {
+            var next = players.next();
+            var playerId = next.value;
+            var done = next.done;
+            if (done)
+                break;
+            var socket = this._data.players[playerId].socket;
+            socket.emit(SocketMessages.countUpdate, text);
+            if (playerId == captain) {
+                socket.emit(SocketMessages.captainPower);
+            }
+        }
+    };
+    LobbyManager.prototype.socketStartGame = function (socket) {
+        var playerId = this._data.sockets[socket.id];
+        var lobbyId = this._data.players[playerId].lobbyId;
+        var lobby = this._data.lobbies[lobbyId];
+        if (playerId == lobby.getData().captain) {
+            console.log("start game in lobby: ", lobbyId);
         }
     };
     return LobbyManager;

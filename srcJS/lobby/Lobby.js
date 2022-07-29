@@ -11,13 +11,25 @@ var Lobby = (function () {
         return this._data;
     };
     Lobby.prototype.addPlayer = function (id) {
+        if (this.getPlayerCount() == 0) {
+            this._data.captain = id;
+        }
         this._data.players.add(id);
+        this.updateCountText();
     };
     Lobby.prototype.removePlayer = function (id) {
         this._data.players["delete"](id);
+        if (this._data.captain == id && this.getPlayerCount() > 0) {
+            var players = this._data.players.values();
+            this._data.captain = players.next().value;
+        }
+        this.updateCountText();
     };
     Lobby.prototype.getPlayerCount = function () {
         return this._data.players.size;
+    };
+    Lobby.prototype.updateCountText = function () {
+        this._data.countText = "Players in lobby: ".concat(this.getPlayerCount());
     };
     return Lobby;
 }());

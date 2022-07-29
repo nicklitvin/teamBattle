@@ -29,12 +29,24 @@ class Lobby {
         element.innerHTML = `lobby: ${roomId}`;
     }
 
+    startGame() {
+        this.socket.emit(SocketMessages.startGame)
+    }
+
     setup() {
         this.updateTitle();
 
         this.socket.on(SocketMessages.setId, (id) => {
             localStorage.setItem(SocketMessages.localStorageId,id);
             console.log("new ID",id);
+        })
+        this.socket.on(SocketMessages.countUpdate, (txt) => {
+            let element = document.getElementById("lobbyStatus");
+            element.innerHTML = txt;
+        })
+        this.socket.on(SocketMessages.captainPower, () => {
+            let element = document.getElementById("gameStarter");
+            element.style.display = "block";
         })
     }
 }
