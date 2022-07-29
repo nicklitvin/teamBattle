@@ -2,20 +2,21 @@ import { Server, Socket } from "socket.io";
 import LobbyManagerData from "./LobbyManagerData";
 import * as hash from "object-hash";
 import Lobby from "./Lobby";
+import * as SocketMessages from "../../srcJS/client/socketMessages.json";
 
 export default class LobbyManager {
     private _data = new LobbyManagerData();
 
     constructor(io : Server) {
-        this.setupIoCommunication(io)
+        this.setupIoCommunication(io);
     }
 
     private setupIoCommunication(io : Server) : void {
         io.on("connection", (socket : Socket) => {
-            socket.on("createLobby", () => {
+            socket.on(SocketMessages.createLobby, () => {
                 this.socketCreateLobby(socket);
             })
-            socket.on("joinLobby", (...args) => {
+            socket.on(SocketMessages.joinLobby, (...args) => {
                 try {
                     let lobbyId : string = args[0];
                     this.socketJoinLobby(socket,lobbyId);
@@ -46,7 +47,7 @@ export default class LobbyManager {
     }
 
     private sendPlayerToLobby(socket : Socket, lobby : Lobby) {
-        socket.emit("redirect", lobby.getData().redirect);
+        socket.emit(SocketMessages.redirect, lobby.getData().redirect);
     }
 
     public createId(id : string) : string {
@@ -67,7 +68,7 @@ export default class LobbyManager {
     }
 
     private sendPlayerId(socket : Socket, playerId : string) : void {
-        socket.emit("setId",playerId);
+        socket.emit(SocketMessages.setId,playerId);
     }
 
     public socketJoinLobby(socket : Socket, lobbyId : string) {

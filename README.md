@@ -5,7 +5,11 @@ keeping themselves afloat.
 
 # Project State
 
-Currently designing and testing game fundamentals. No visuals or server.
+Complete: Game fundamentals
+
+Currently designing and testing server functionality.
+
+TODO: Game visuals
 
 # Setup
 

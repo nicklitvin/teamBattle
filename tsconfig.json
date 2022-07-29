@@ -3,6 +3,7 @@
         "module" : "CommonJS",
         "removeComments": true,
         "outDir": "./srcJS",
+        "resolveJsonModule": true,
     },
     "exclude": ["node_modules","tests"],
 }

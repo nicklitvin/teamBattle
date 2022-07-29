@@ -1,3 +1,5 @@
+import SocketMessages from "../socketMessages.json" assert {type : "json"};
+
 class Lobby {
     constructor() {
         this.socket = io();
@@ -5,22 +7,37 @@ class Lobby {
         this.joinLobby();
     }
 
-    joinLobby() {
-        var split = window.location.href.split("?");
+    getRoomId() {
+        let split = window.location.href.split("?");
+
         for (let txt of split) {
             if (txt.substring(0,2) == "r=") {
                 let roomId = txt.split("=")[1];
-                this.socket.emit("joinLobby", roomId);
+                return roomId;
             }
         }
     }
 
+    joinLobby() {
+        let roomId = this.getRoomId();
+        this.socket.emit(SocketMessages.joinLobby, roomId);
+    }
+
+    updateTitle() {
+        let roomId = this.getRoomId();
+        let element = document.getElementById("title");
+        element.innerHTML = `lobby: ${roomId}`;
+    }
+
     setup() {
-        this.socket.on("setId", (id) => {
-            localStorage.setItem("id",id);
+        this.updateTitle();
+
+        this.socket.on(SocketMessages.setId, (id) => {
+            localStorage.setItem(SocketMessages.localStorageId,id);
             console.log("new ID",id);
         })
     }
 }
 
-lobby = new Lobby();
+const lobby = new Lobby();
+window.lobby = lobby;

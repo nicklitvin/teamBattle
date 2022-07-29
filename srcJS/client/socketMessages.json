@@ -1,0 +1,7 @@
+{
+    "createLobby": "createLobby",
+    "joinLobby": "joinLobby",
+    "redirect": "redirect",
+    "setId": "setId",
+    "localStorageId": "id"
+}
