@@ -1,8 +1,8 @@
 TODO
-fix bug when joining twice in same browser
-start game and return to lobby
-Remove target setting function
-enemy search
+lobby dont remove from lobby when game starts, close lobby to joiners
+joinGame and create game to control
+safe return to lobby, can leave
+
 Draw (map, ui)
 
 Shooter: Shoots up to max range of vision with click

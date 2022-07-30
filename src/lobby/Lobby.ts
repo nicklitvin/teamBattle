@@ -5,7 +5,8 @@ export default class Lobby {
 
     constructor(id) {
         this._data.id = id;
-        this._data.redirect = `lobby?r=${id}`;
+        this._data.redirectToLobby = `lobby?r=${id}`;
+        this._data.redirectToGame = `game?r=${id}`;
     }
 
     public getData() : LobbyData { 

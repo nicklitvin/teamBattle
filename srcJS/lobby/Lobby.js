@@ -5,7 +5,8 @@ var Lobby = (function () {
     function Lobby(id) {
         this._data = new LobbyData_1["default"]();
         this._data.id = id;
-        this._data.redirect = "lobby?r=".concat(id);
+        this._data.redirectToLobby = "lobby?r=".concat(id);
+        this._data.redirectToGame = "game?r=".concat(id);
     }
     Lobby.prototype.getData = function () {
         return this._data;

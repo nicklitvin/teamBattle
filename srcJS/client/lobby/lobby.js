@@ -48,6 +48,9 @@ class Lobby {
             let element = document.getElementById("gameStarter");
             element.style.display = "block";
         })
+        this.socket.on(SocketMessages.redirect, (url)=>{
+            window.location.href = SocketMessages.baseUrl + url;
+        })
     }
 }
 

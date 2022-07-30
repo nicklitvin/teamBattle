@@ -5,6 +5,7 @@ var hash = require("object-hash");
 var Lobby_1 = require("./Lobby");
 var SocketMessages = require("../client/socketMessages.json");
 var Player_1 = require("./Player");
+var GameManager_1 = require("../game/GameManager");
 var LobbyManager = (function () {
     function LobbyManager(io) {
         this._data = new LobbyManagerData_1["default"]();
@@ -54,7 +55,7 @@ var LobbyManager = (function () {
         return lobby;
     };
     LobbyManager.prototype.sendPlayerToLobby = function (socket, lobby) {
-        socket.emit(SocketMessages.redirect, lobby.getData().redirect);
+        socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
     };
     LobbyManager.prototype.createId = function (id) {
         while (true) {
@@ -101,7 +102,7 @@ var LobbyManager = (function () {
             }
             delete this._data.sockets[socket.id];
             delete this._data.players[playerId];
-            console.log("removing player", Object.keys(this._data.players).length);
+            console.log("removing player, global players left: ", Object.keys(this._data.players).length);
         }
     };
     LobbyManager.prototype.sendLobbyUpdate = function (lobby) {
@@ -127,6 +128,19 @@ var LobbyManager = (function () {
         var lobbyId = this._data.players[playerId].lobbyId;
         var lobby = this._data.lobbies[lobbyId];
         if (playerId == lobby.getData().captain) {
+            GameManager_1["default"].startGame(lobbyId);
+            var data = lobby.getData();
+            var players = data.players.values();
+            var redirectUrl = data.redirectToGame;
+            while (true) {
+                var next = players.next();
+                var playerId_1 = next.value;
+                var done = next.done;
+                if (done)
+                    break;
+                var socket_1 = this._data.players[playerId_1].socket;
+                socket_1.emit(SocketMessages.redirect, redirectUrl);
+            }
             console.log("start game in lobby: ", lobbyId);
         }
     };

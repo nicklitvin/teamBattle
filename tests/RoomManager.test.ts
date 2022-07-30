@@ -17,7 +17,7 @@ describe("testing LobbyManager", () => {
         let lobbyData = lobby.getData();
 
         expect(data.lobbies[id]).toBeTruthy();
-        expect(lobbyData.redirect).toEqual(`lobby?r=${id}`);
+        expect(lobbyData.redirectToLobby).toEqual(`lobby?r=${id}`);
     })
     it("should not conflict ids", () => {
         let id = lobbyManager.createId("1");

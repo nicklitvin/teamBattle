@@ -4,6 +4,7 @@ import * as hash from "object-hash";
 import Lobby from "./Lobby";
 import * as SocketMessages from "../client/socketMessages.json";
 import Player from "./Player";
+import GameManager from "../game/GameManager";
 
 export default class LobbyManager {
     private _data = new LobbyManagerData();
@@ -53,7 +54,7 @@ export default class LobbyManager {
     }
 
     private sendPlayerToLobby(socket : Socket, lobby : Lobby) {
-        socket.emit(SocketMessages.redirect, lobby.getData().redirect);
+        socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
     }
 
     public createId(id : string) : string {
@@ -142,6 +143,22 @@ export default class LobbyManager {
         let lobby = this._data.lobbies[lobbyId];
 
         if (playerId == lobby.getData().captain) {
+            GameManager.startGame(lobbyId);
+            
+            let data = lobby.getData();
+            let players = data.players.values();
+            let redirectUrl = data.redirectToGame;
+
+            while (true) {
+                let next = players.next();
+                let playerId = next.value;
+                let done = next.done;
+
+                if (done) break;
+
+                let socket = this._data.players[playerId].socket;
+                socket.emit(SocketMessages.redirect,redirectUrl);
+            }
             console.log("start game in lobby: ",lobbyId);
         }
     }
