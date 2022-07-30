@@ -4,10 +4,13 @@
     "redirect": "redirect",
     "setId": "setId",
     "disconnect": "disconnect",
-    "localStorageId": "id",
     "countUpdate": "countUpdate",
     "captainPower": "captainPower",
     "startGame": "startGame",
+    "joinGame": "joinGame",
 
-    "baseUrl": "http://localhost:5000/"
+    "localStorageId": "id",
+
+    "baseUrl": "http://localhost:5000/",
+    "errorUrlBit": "error"
 }

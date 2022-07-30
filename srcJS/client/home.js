@@ -22,3 +22,9 @@ class ClientLobby {
 const lobby = new ClientLobby();
 window.lobby = lobby;
 
+window.onpageshow = function(e) {
+    if (e.persisted) {
+        window.location.reload();
+    }
+};
+

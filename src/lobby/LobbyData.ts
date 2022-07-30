@@ -5,4 +5,5 @@ export default class LobbyData {
     public players : Set<String> = new Set();
     public captain : string;
     public countText : string;
+    public inGame = false;
 }

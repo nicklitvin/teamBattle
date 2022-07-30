@@ -37,4 +37,12 @@ export default class Lobby {
     public updateCountText() {
         this._data.countText = `Players in lobby: ${this.getPlayerCount()}`;
     }
+
+    public switchToInGameStatus() {
+        this._data.inGame = true;
+    }
+
+    public switchBackFromInGameStatus() {
+        this._data.inGame = false;
+    }
 }

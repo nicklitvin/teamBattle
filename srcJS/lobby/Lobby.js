@@ -32,6 +32,12 @@ var Lobby = (function () {
     Lobby.prototype.updateCountText = function () {
         this._data.countText = "Players in lobby: ".concat(this.getPlayerCount());
     };
+    Lobby.prototype.switchToInGameStatus = function () {
+        this._data.inGame = true;
+    };
+    Lobby.prototype.switchBackFromInGameStatus = function () {
+        this._data.inGame = false;
+    };
     return Lobby;
 }());
 exports["default"] = Lobby;

@@ -1,4 +1,5 @@
 TODO
+delete game if all players left game, timer to end game
 lobby dont remove from lobby when game starts, close lobby to joiners
 joinGame and create game to control
 safe return to lobby, can leave

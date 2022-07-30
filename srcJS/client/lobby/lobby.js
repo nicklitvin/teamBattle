@@ -19,6 +19,7 @@ class Lobby {
     }
 
     joinLobby() {
+        console.log("joining");
         let roomId = this.getRoomId();
         this.socket.emit(SocketMessages.joinLobby, roomId);
     }
@@ -56,3 +57,9 @@ class Lobby {
 
 const lobby = new Lobby();
 window.lobby = lobby;
+
+window.onpageshow = function(e) {
+    if (e.persisted) {
+        window.location.reload();
+    }
+};

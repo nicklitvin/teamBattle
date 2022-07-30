@@ -2,12 +2,10 @@
 exports.__esModule = true;
 var express = require("express");
 var socket_io_1 = require("socket.io");
-var GameManager_1 = require("./game/GameManager");
 var LobbyManager_1 = require("./lobby/LobbyManager");
 var app = express();
 var server = app.listen(5000);
 var io = new socket_io_1.Server(server);
 new LobbyManager_1["default"](io);
-new GameManager_1["default"](io);
 app.use("/", express.static(__dirname + "/client"));
 console.log("running");

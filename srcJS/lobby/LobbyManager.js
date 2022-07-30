@@ -5,10 +5,9 @@ var hash = require("object-hash");
 var Lobby_1 = require("./Lobby");
 var SocketMessages = require("../client/socketMessages.json");
 var Player_1 = require("./Player");
-var GameManager_1 = require("../game/GameManager");
 var LobbyManager = (function () {
     function LobbyManager(io) {
-        this._data = new LobbyManagerData_1["default"]();
+        this._data = new LobbyManagerData_1["default"](io);
         this.setupIoCommunication(io);
     }
     LobbyManager.prototype.setupIoCommunication = function (io) {
@@ -74,16 +73,18 @@ var LobbyManager = (function () {
         return this._data;
     };
     LobbyManager.prototype.socketJoinLobby = function (socket, lobbyId) {
-        if (this._data.lobbies[lobbyId]) {
+        var lobby = this._data.lobbies[lobbyId];
+        if (lobby && !lobby.getData().inGame) {
             this._data.sockets[socket.id] = socket.id;
             this._data.players[socket.id] = new Player_1["default"](lobbyId, socket);
             socket.emit(SocketMessages.setId, socket.id);
-            var lobby = this._data.lobbies[lobbyId];
-            lobby.addPlayer(socket.id);
-            this.sendLobbyUpdate(lobby);
+            var lobby_1 = this._data.lobbies[lobbyId];
+            lobby_1.addPlayer(socket.id);
+            this.sendLobbyUpdate(lobby_1);
             console.log("player joined", socket.id);
         }
         else {
+            socket.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
             console.log("cant join room", lobbyId);
         }
     };
@@ -92,6 +93,9 @@ var LobbyManager = (function () {
             var playerId = this._data.sockets[socket.id];
             var player = this._data.players[playerId];
             var lobby = this._data.lobbies[player.lobbyId];
+            if (lobby.getData().inGame) {
+                return;
+            }
             lobby.removePlayer(playerId);
             if (lobby.getPlayerCount() == 0) {
                 console.log("deleting room", lobby.getData().id);
@@ -124,21 +128,23 @@ var LobbyManager = (function () {
         }
     };
     LobbyManager.prototype.socketStartGame = function (socket) {
-        var playerId = this._data.sockets[socket.id];
-        var lobbyId = this._data.players[playerId].lobbyId;
+        var captainId = this._data.sockets[socket.id];
+        var lobbyId = this._data.players[captainId].lobbyId;
         var lobby = this._data.lobbies[lobbyId];
-        if (playerId == lobby.getData().captain) {
-            GameManager_1["default"].startGame(lobbyId);
+        if (captainId == lobby.getData().captain) {
+            lobby.switchToInGameStatus();
+            this._data.gameManager.startGame(lobbyId);
             var data = lobby.getData();
-            var players = data.players.values();
+            var playerIds = data.players.values();
             var redirectUrl = data.redirectToGame;
             while (true) {
-                var next = players.next();
-                var playerId_1 = next.value;
+                var next = playerIds.next();
+                var playerId = next.value;
                 var done = next.done;
                 if (done)
                     break;
-                var socket_1 = this._data.players[playerId_1].socket;
+                var player = this._data.players[playerId];
+                var socket_1 = player.socket;
                 socket_1.emit(SocketMessages.redirect, redirectUrl);
             }
             console.log("start game in lobby: ", lobbyId);

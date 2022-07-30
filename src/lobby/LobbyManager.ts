@@ -4,12 +4,12 @@ import * as hash from "object-hash";
 import Lobby from "./Lobby";
 import * as SocketMessages from "../client/socketMessages.json";
 import Player from "./Player";
-import GameManager from "../game/GameManager";
 
 export default class LobbyManager {
-    private _data = new LobbyManagerData();
+    private _data : LobbyManagerData;
 
     constructor(io : Server) {
+        this._data = new LobbyManagerData(io);
         this.setupIoCommunication(io);
     }
 
@@ -75,7 +75,8 @@ export default class LobbyManager {
     }
 
     public socketJoinLobby(socket : Socket, lobbyId : string) {
-        if (this._data.lobbies[lobbyId]) {
+        let lobby = this._data.lobbies[lobbyId];
+        if (lobby && !lobby.getData().inGame) {
             this._data.sockets[socket.id] = socket.id;
             this._data.players[socket.id] = new Player(lobbyId,socket);
 
@@ -88,6 +89,7 @@ export default class LobbyManager {
 
             console.log("player joined",socket.id);
         } else {
+            socket.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
             console.log("cant join room",lobbyId);
         }
     }
@@ -97,6 +99,10 @@ export default class LobbyManager {
             let playerId = this._data.sockets[socket.id];
             let player = this._data.players[playerId];
             let lobby = this._data.lobbies[player.lobbyId];
+
+            if (lobby.getData().inGame) {
+                return;
+            }
 
             lobby.removePlayer(playerId);
             if (lobby.getPlayerCount() == 0) {
@@ -138,27 +144,31 @@ export default class LobbyManager {
     }
 
     public socketStartGame(socket : Socket) {
-        let playerId = this._data.sockets[socket.id];
-        let lobbyId = this._data.players[playerId].lobbyId;
+        let captainId = this._data.sockets[socket.id];
+        let lobbyId = this._data.players[captainId].lobbyId;
         let lobby = this._data.lobbies[lobbyId];
 
-        if (playerId == lobby.getData().captain) {
-            GameManager.startGame(lobbyId);
-            
+        if (captainId == lobby.getData().captain) {
+            lobby.switchToInGameStatus();
+            this._data.gameManager.startGame(lobbyId);
+
             let data = lobby.getData();
-            let players = data.players.values();
+            let playerIds = data.players.values();
             let redirectUrl = data.redirectToGame;
 
             while (true) {
-                let next = players.next();
+                let next = playerIds.next();
                 let playerId = next.value;
                 let done = next.done;
 
                 if (done) break;
 
-                let socket = this._data.players[playerId].socket;
+                let player = this._data.players[playerId];
+                let socket = player.socket;
                 socket.emit(SocketMessages.redirect,redirectUrl);
             }
+
+            
             console.log("start game in lobby: ",lobbyId);
         }
     }
