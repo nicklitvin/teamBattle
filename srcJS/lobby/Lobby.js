@@ -34,6 +34,10 @@ var Lobby = (function () {
     };
     Lobby.prototype.switchToInGameStatus = function () {
         this._data.inGame = true;
+        this._data.transition = true;
+    };
+    Lobby.prototype.endTransitionPhase = function () {
+        this._data.transition = false;
     };
     Lobby.prototype.switchBackFromInGameStatus = function () {
         this._data.inGame = false;

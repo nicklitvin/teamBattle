@@ -94,6 +94,7 @@ var LobbyManager = (function () {
             var player = this._data.players[playerId];
             var lobby = this._data.lobbies[player.lobbyId];
             if (lobby.getData().inGame) {
+                player.online = false;
                 return;
             }
             lobby.removePlayer(playerId);

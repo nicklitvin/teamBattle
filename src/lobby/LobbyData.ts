@@ -6,4 +6,5 @@ export default class LobbyData {
     public captain : string;
     public countText : string;
     public inGame = false;
+    public transition = false;
 }

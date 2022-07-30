@@ -101,6 +101,7 @@ export default class LobbyManager {
             let lobby = this._data.lobbies[player.lobbyId];
 
             if (lobby.getData().inGame) {
+                player.online = false;
                 return;
             }
 
@@ -167,7 +168,6 @@ export default class LobbyManager {
                 let socket = player.socket;
                 socket.emit(SocketMessages.redirect,redirectUrl);
             }
-
             
             console.log("start game in lobby: ",lobbyId);
         }

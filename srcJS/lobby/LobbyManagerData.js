@@ -7,7 +7,7 @@ var LobbyManagerData = (function () {
         this.players = {};
         this.lobbies = {};
         this.lobbyIdLength = 6;
-        this.gameManager = new GameManager_1["default"](io, this.players, this.lobbies);
+        this.gameManager = new GameManager_1["default"](io, this);
     }
     return LobbyManagerData;
 }());

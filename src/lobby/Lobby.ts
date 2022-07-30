@@ -40,6 +40,11 @@ export default class Lobby {
 
     public switchToInGameStatus() {
         this._data.inGame = true;
+        this._data.transition = true;
+    }
+
+    public endTransitionPhase() {
+        this._data.transition = false;
     }
 
     public switchBackFromInGameStatus() {
