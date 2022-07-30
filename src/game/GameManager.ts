@@ -42,6 +42,7 @@ export default class GameManager {
             if (this.areAllOffline(lobby)) {
                 this.deleteLobby(lobby);
             }
+            this.endGame(lobby);
         },this._data.transitionTime);
     }
 
@@ -114,5 +115,28 @@ export default class GameManager {
         delete this._data.lobbyData.lobbies[lobbyId];
         delete this._data.games[lobbyId];
         console.log("deleting lobby");
+    }
+
+    public endGame(lobby : Lobby) {
+        lobby.switchBackFromInGameStatus();
+
+        let lobbyData = lobby.getData();
+        let playerIds = lobbyData.players.values();
+
+        while (true) {
+            let next = playerIds.next();
+            let playerId = next.value;
+            let done = next.done;
+            
+            if (done) break;
+
+            let player = this._data.lobbyData.players[playerId];
+            if (!player.online) {
+                delete this._data.lobbyData.sockets[player.socket.id];
+                delete this._data.lobbyData.players[playerId];
+            } else {
+                player.socket.emit(SocketMessages.returnFromGameButton);
+            }
+        }
     }
 }

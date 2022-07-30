@@ -1,9 +1,17 @@
 TODO
-safe return to lobby, can leave, captain reevaluation
+Game
 
-Shooter: Shoots up to max range of vision with click
-Scout: Shoots in direction of click and followsthrough
-Captain: Click to set direction of ship
+Server
+    Clean up Managers
+    Test against hackers
+    Assign random teams
+    Take player input for game
 
-Map is dark, light when within radius
-Iterate throw game objects to identify which to display (cuttoff problem)
+Visuals
+    Map is dark, light when within radius
+    Iterate throw game objects to identify which to display (cuttoff problem)
+
+Cosmetics
+    Show # of players returning
+    game instructions on lobby
+    match-making

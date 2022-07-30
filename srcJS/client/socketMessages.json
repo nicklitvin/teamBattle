@@ -8,6 +8,8 @@
     "captainPower": "captainPower",
     "startGame": "startGame",
     "joinGame": "joinGame",
+    "returnFromGameButton": "returnFromGameButton",
+    "playerIsReturning": "playerIsReturning",
     "localStorageId": "id",
     "baseUrl": "http://localhost:5000/",
     "errorUrlBit": "error"

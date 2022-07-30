@@ -24,7 +24,8 @@ export default class LobbyManager {
             socket.on(SocketMessages.joinLobby, (...args) => {
                 try {
                     let lobbyId : string = args[0];
-                    this.socketJoinLobby(socket,lobbyId);
+                    let playerId : string = args[1];
+                    this.socketJoinLobby(socket,lobbyId,playerId)
                 } catch {
                     console.log("error join");
                 }
@@ -35,6 +36,10 @@ export default class LobbyManager {
                 } catch {
                     console.log("not legit start");
                 }
+            })
+            socket.on(SocketMessages.playerIsReturning, () => {
+                this.socketReturnToLobby(socket);
+                console.log("player is returning");
             })
         })
     }
@@ -74,8 +79,22 @@ export default class LobbyManager {
         return this._data;
     }
 
-    public socketJoinLobby(socket : Socket, lobbyId : string) {
+    public socketJoinLobby(socket : Socket, lobbyId : string, playerId : string) {
         let lobby = this._data.lobbies[lobbyId];
+        if (playerId) {
+            let player = this._data.players[playerId];
+            if (player && player.lobbyId == lobbyId) {
+                let lobby = this._data.lobbies[lobbyId];
+                if (lobby.getData().players.has(playerId)) {
+                    player.returning = false;
+                    player.socket = socket;
+                    this._data.sockets[socket.id] = playerId;
+                    this.sendLobbyUpdate(lobby);
+                    console.log("player returned")
+                    return;
+                }
+            } 
+        }
         if (lobby && !lobby.getData().inGame) {
             this._data.sockets[socket.id] = socket.id;
             this._data.players[socket.id] = new Player(lobbyId,socket);
@@ -102,6 +121,9 @@ export default class LobbyManager {
 
             if (lobby.getData().inGame) {
                 player.online = false;
+                return;
+            }
+            if (player.returning) {
                 return;
             }
 
@@ -172,4 +194,13 @@ export default class LobbyManager {
             console.log("start game in lobby: ",lobbyId);
         }
     }
+
+    public socketReturnToLobby(socket : Socket) {
+        let playerId = this._data.sockets[socket.id];
+        let player = this._data.players[playerId];
+        let lobby = this._data.lobbies[player.lobbyId];
+
+        player.returning = true;
+        socket.emit(SocketMessages.redirect,lobby.getData().redirectToLobby);
+    } 
 }

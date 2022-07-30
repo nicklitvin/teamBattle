@@ -43,6 +43,7 @@ var GameManager = (function () {
             if (_this.areAllOffline(lobby)) {
                 _this.deleteLobby(lobby);
             }
+            _this.endGame(lobby);
         }, this._data.transitionTime);
     };
     GameManager.prototype.socketJoinGame = function (id, lobbyId, socket) {
@@ -102,6 +103,26 @@ var GameManager = (function () {
         delete this._data.lobbyData.lobbies[lobbyId];
         delete this._data.games[lobbyId];
         console.log("deleting lobby");
+    };
+    GameManager.prototype.endGame = function (lobby) {
+        lobby.switchBackFromInGameStatus();
+        var lobbyData = lobby.getData();
+        var playerIds = lobbyData.players.values();
+        while (true) {
+            var next = playerIds.next();
+            var playerId = next.value;
+            var done = next.done;
+            if (done)
+                break;
+            var player = this._data.lobbyData.players[playerId];
+            if (!player.online) {
+                delete this._data.lobbyData.sockets[player.socket.id];
+                delete this._data.lobbyData.players[playerId];
+            }
+            else {
+                player.socket.emit(SocketMessages.returnFromGameButton);
+            }
+        }
     };
     return GameManager;
 }());

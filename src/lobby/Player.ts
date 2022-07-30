@@ -4,6 +4,7 @@ export default class Player {
     public lobbyId: string;
     public socket : Socket;
     public online = true;
+    public returning = false;
 
     constructor(lobbyId: string, socket : Socket) {
         this.lobbyId = lobbyId;

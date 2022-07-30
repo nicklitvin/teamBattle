@@ -21,7 +21,8 @@ class Lobby {
     joinLobby() {
         console.log("joining");
         let roomId = this.getRoomId();
-        this.socket.emit(SocketMessages.joinLobby, roomId);
+        let playerId = localStorage.getItem(SocketMessages.localStorageId);
+        this.socket.emit(SocketMessages.joinLobby, roomId, playerId);
     }
 
     updateTitle() {

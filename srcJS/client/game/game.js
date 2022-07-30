@@ -19,7 +19,17 @@ class Game {
     }
 
     setup() {
+        this.socket.on(SocketMessages.returnFromGameButton, () => {
+            let element = document.getElementById("returnFromGameButton");
+            element.style.display = "block";
+        })
+        this.socket.on(SocketMessages.redirect, (url) => {
+            window.location.href = SocketMessages.baseUrl + url;
+        })
+    }
 
+    returnFromGame() {
+        this.socket.emit(SocketMessages.playerIsReturning);
     }
 
     joinGame() {
@@ -30,6 +40,7 @@ class Game {
 }
 
 const game = new Game();
+window.game = game;
 
 window.onpageshow = function(e) {
     if (e.persisted) {
