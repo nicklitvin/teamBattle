@@ -13,16 +13,16 @@ var Lobby = (function () {
     };
     Lobby.prototype.addPlayer = function (id) {
         if (this.getPlayerCount() == 0) {
-            this._data.captain = id;
+            this._data.leader = id;
         }
         this._data.players.add(id);
         this.updateCountText();
     };
     Lobby.prototype.removePlayer = function (id) {
         this._data.players["delete"](id);
-        if (this._data.captain == id && this.getPlayerCount() > 0) {
+        if (this._data.leader == id && this.getPlayerCount() > 0) {
             var players = this._data.players.values();
-            this._data.captain = players.next().value;
+            this._data.leader = players.next().value;
         }
         this.updateCountText();
     };

@@ -46,7 +46,7 @@ class Lobby {
             let element = document.getElementById("lobbyStatus");
             element.innerHTML = txt;
         })
-        this.socket.on(SocketMessages.captainPower, () => {
+        this.socket.on(SocketMessages.lobbyLeaderRole, () => {
             let element = document.getElementById("gameStarter");
             element.style.display = "block";
         })

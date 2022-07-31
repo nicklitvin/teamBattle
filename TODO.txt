@@ -1,9 +1,6 @@
-TODO
 Game
 
 Server
-    Clean up Managers
-    Test against hackers
     Assign random teams
     Take player input for game
 
@@ -11,7 +8,8 @@ Visuals
     Map is dark, light when within radius
     Iterate throw game objects to identify which to display (cuttoff problem)
 
-Cosmetics
+Later
     Show # of players returning
     game instructions on lobby
     match-making
+    unit testing for sockets

@@ -19,7 +19,7 @@ class Game {
     }
 
     setup() {
-        this.socket.on(SocketMessages.returnFromGameButton, () => {
+        this.socket.on(SocketMessages.showReturnButton, () => {
             let element = document.getElementById("returnFromGameButton");
             element.style.display = "block";
         })
@@ -29,7 +29,7 @@ class Game {
     }
 
     returnFromGame() {
-        this.socket.emit(SocketMessages.playerIsReturning);
+        this.socket.emit(SocketMessages.playerWantsToReturn);
     }
 
     joinGame() {

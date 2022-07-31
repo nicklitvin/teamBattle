@@ -5,11 +5,12 @@
     "setId": "setId",
     "disconnect": "disconnect",
     "countUpdate": "countUpdate",
-    "captainPower": "captainPower",
+    "lobbyLeaderRole": "lobbyLeaderRole",
+    
     "startGame": "startGame",
     "joinGame": "joinGame",
-    "returnFromGameButton": "returnFromGameButton",
-    "playerIsReturning": "playerIsReturning",
+    "showReturnButton": "showReturnButton",
+    "playerWantsToReturn": "playerWantsToReturn",
 
     "localStorageId": "id",
 

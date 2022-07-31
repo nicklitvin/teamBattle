@@ -25,7 +25,7 @@ export default class GameManager {
                     let lobbyId = args[1];
                     this.socketJoinGame(id,lobbyId,socket);
                 } catch {
-                    console.log("player cant join game");
+                    console.log("GameManager.joinGame error");
                 }
             })
         })
@@ -41,18 +41,24 @@ export default class GameManager {
             lobby.endTransitionPhase();
             if (this.areAllOffline(lobby)) {
                 this.deleteLobby(lobby);
+            } else {
+                this.endGame(lobby); // TEMPORARY for testing
             }
-            this.endGame(lobby);
-        },this._data.transitionTime);
+        }, this._data.transitionTime);
     }
 
-    public socketJoinGame(id : string, lobbyId : string, socket : Socket) {
-        if (this._data.lobbyData.lobbies[lobbyId].getData().players.has(id)) {
-            this._data.lobbyData.sockets[socket.id] = id;
-            let player = this._data.lobbyData.players[id];
+    public socketJoinGame(playerId : string, lobbyId : string, socket : Socket) {
+        let lobby = this._data.lobbyData.lobbies[lobbyId];
+
+        if (lobby && lobby.getData().players.has(playerId)) {
+            this._data.lobbyData.sockets[socket.id] = playerId;
+            let player = this._data.lobbyData.players[playerId];
             player.socket = socket;
             player.online = true;
-            console.log("player joined game",id);
+            console.log("player joined game",playerId);
+        } else {
+            socket.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
+            console.log("player cant join game");
         }
     }
 
@@ -64,12 +70,11 @@ export default class GameManager {
 
         if (lobbyData.inGame) {
             player.online = false;
+            console.log("player goes offline");
 
             if (lobbyData.transition) {
                 return;
-            }
-            
-            if (this.areAllOffline(lobby)) {
+            } else if (this.areAllOffline(lobby)) {
                 this.deleteLobby(lobby);
             }
         }
@@ -114,7 +119,7 @@ export default class GameManager {
         }
         delete this._data.lobbyData.lobbies[lobbyId];
         delete this._data.games[lobbyId];
-        console.log("deleting lobby");
+        console.log("deleting lobby",lobbyId);
     }
 
     public endGame(lobby : Lobby) {
@@ -132,10 +137,11 @@ export default class GameManager {
 
             let player = this._data.lobbyData.players[playerId];
             if (!player.online) {
+                lobby.removePlayer(playerId);
                 delete this._data.lobbyData.sockets[player.socket.id];
                 delete this._data.lobbyData.players[playerId];
             } else {
-                player.socket.emit(SocketMessages.returnFromGameButton);
+                player.socket.emit(SocketMessages.showReturnButton);
             }
         }
     }

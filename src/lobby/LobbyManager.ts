@@ -27,19 +27,23 @@ export default class LobbyManager {
                     let playerId : string = args[1];
                     this.socketJoinLobby(socket,lobbyId,playerId)
                 } catch {
-                    console.log("error join");
+                    console.log("Lobbymanager.joinLobby error");
                 }
             })
             socket.on(SocketMessages.startGame, () => {
                 try {
                     this.socketStartGame(socket);
                 } catch {
-                    console.log("not legit start");
+                    console.log("Lobbymanager.startGame error");
                 }
             })
-            socket.on(SocketMessages.playerIsReturning, () => {
-                this.socketReturnToLobby(socket);
-                console.log("player is returning");
+            socket.on(SocketMessages.playerWantsToReturn, () => {
+                try {
+                    this.socketReturnToLobby(socket);
+                } catch {
+                    console.log("LobbyManager.playerWantsToReturn error");
+                }
+                
             })
         })
     }
@@ -71,7 +75,6 @@ export default class LobbyManager {
                 break;
             }
         }
-        console.log("created id",id);
         return id;
     }
 
@@ -81,6 +84,7 @@ export default class LobbyManager {
 
     public socketJoinLobby(socket : Socket, lobbyId : string, playerId : string) {
         let lobby = this._data.lobbies[lobbyId];
+        // check if returning player
         if (playerId) {
             let player = this._data.players[playerId];
             if (player && player.lobbyId == lobbyId) {
@@ -95,6 +99,7 @@ export default class LobbyManager {
                 }
             } 
         }
+        // add player if new
         if (lobby && !lobby.getData().inGame) {
             this._data.sockets[socket.id] = socket.id;
             this._data.players[socket.id] = new Player(lobbyId,socket);
@@ -147,7 +152,7 @@ export default class LobbyManager {
     public sendLobbyUpdate(lobby : Lobby) {
         let data = lobby.getData();
         let players = data.players.values();
-        let captain = data.captain;
+        let captain = data.leader;
         let text = data.countText;
 
         while (true) {
@@ -161,7 +166,7 @@ export default class LobbyManager {
             socket.emit(SocketMessages.countUpdate,text);
             
             if (playerId == captain) {
-                socket.emit(SocketMessages.captainPower);
+                socket.emit(SocketMessages.lobbyLeaderRole);
             }
         }
     }
@@ -171,7 +176,7 @@ export default class LobbyManager {
         let lobbyId = this._data.players[captainId].lobbyId;
         let lobby = this._data.lobbies[lobbyId];
 
-        if (captainId == lobby.getData().captain) {
+        if (captainId == lobby.getData().leader) {
             lobby.switchToInGameStatus();
             this._data.gameManager.startGame(lobbyId);
 
@@ -192,6 +197,8 @@ export default class LobbyManager {
             }
             
             console.log("start game in lobby: ",lobbyId);
+        } else {
+            console.log("false game start");
         }
     }
 
@@ -200,7 +207,12 @@ export default class LobbyManager {
         let player = this._data.players[playerId];
         let lobby = this._data.lobbies[player.lobbyId];
 
-        player.returning = true;
-        socket.emit(SocketMessages.redirect,lobby.getData().redirectToLobby);
+        if (!lobby.getData().inGame) {
+            player.returning = true;
+            socket.emit(SocketMessages.redirect,lobby.getData().redirectToLobby);
+            console.log("player is returning");            
+        } else {
+            console.log("false player return");
+        }
     } 
 }
