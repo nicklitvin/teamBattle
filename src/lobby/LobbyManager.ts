@@ -9,41 +9,40 @@ import SocketWrap from "../socketWrap";
 export default class LobbyManager {
     private _data : LobbyManagerData;
 
-    constructor(io? : Server) {
-        if (io) {
-            this._data = new LobbyManagerData(io);
-            this.setupIoCommunication(io);
-        }
+    constructor(io : Server) {
+        this._data = new LobbyManagerData(io);
+        this.setupIoCommunication(io);
     }
 
     private setupIoCommunication(io : Server) : void {
         io.on("connection", (socket : Socket) => {
             let socketWrap = new SocketWrap(socket);
+
             socket.on(SocketMessages.disconnect, () => {
-                this.socketRemovePlayer(socket);
+                this.socketRemovePlayer(socketWrap);
             })
             socket.on(SocketMessages.createLobby, () => {
                 this.socketCreateLobby(socketWrap);
             })
             socket.on(SocketMessages.joinLobby, (...args) => {
                 try {
-                    let lobbyId : string = args[0];
-                    let playerId : string = args[1];
-                    this.socketJoinLobby(socket,lobbyId,playerId)
+                    let lobbyId : string | undefined = args[0];
+                    let playerId : string | undefined = args[1];
+                    this.socketJoinLobby(socketWrap,lobbyId,playerId)
                 } catch {
                     console.log("Lobbymanager.joinLobby error");
                 }
             })
             socket.on(SocketMessages.startGame, () => {
                 try {
-                    this.socketStartGame(socket);
+                    this.socketStartGame(socketWrap);
                 } catch {
                     console.log("Lobbymanager.startGame error");
                 }
             })
             socket.on(SocketMessages.playerWantsToReturn, () => {
                 try {
-                    this.socketReturnToLobby(socket);
+                    this.socketReturnToLobby(socketWrap);
                 } catch {
                     console.log("LobbyManager.playerWantsToReturn error");
                 }
@@ -52,9 +51,9 @@ export default class LobbyManager {
         })
     }
 
-    public socketCreateLobby(socket : SocketWrap) {
-        let lobby = this.createLobby(socket.id);
-        socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
+    public socketCreateLobby(socketWrap : SocketWrap) {
+        let lobby = this.createLobby(socketWrap.id);
+        socketWrap.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
         console.log("creating lobby",lobby.getData().id);
     }
     
@@ -82,7 +81,7 @@ export default class LobbyManager {
         return this._data;
     }
 
-    public socketJoinLobby(socket : Socket, lobbyId : string, playerId : string) {
+    public socketJoinLobby(socketWrap : SocketWrap, lobbyId : string | undefined , playerId : string | undefined) {
         let lobby = this._data.lobbies[lobbyId];
         // check if returning player
         if (playerId) {
@@ -91,8 +90,8 @@ export default class LobbyManager {
                 let lobby = this._data.lobbies[lobbyId];
                 if (lobby.getData().players.has(playerId)) {
                     player.returning = false;
-                    player.socket = socket;
-                    this._data.sockets[socket.id] = playerId;
+                    player.socketWrap = socketWrap;
+                    this._data.sockets[socketWrap.id] = playerId;
                     this.sendLobbyUpdate(lobby);
                     console.log("player returned")
                     return;
@@ -101,26 +100,26 @@ export default class LobbyManager {
         }
         // add player if new
         if (lobby && !lobby.getData().inGame) {
-            this._data.sockets[socket.id] = socket.id;
-            this._data.players[socket.id] = new Player(lobbyId,socket);
+            this._data.sockets[socketWrap.id] = socketWrap.id;
+            this._data.players[socketWrap.id] = new Player(lobbyId,socketWrap);
 
-            socket.emit(SocketMessages.setId,socket.id);
+            socketWrap.emit(SocketMessages.setId,socketWrap.id);
             
             let lobby = this._data.lobbies[lobbyId];
-            lobby.addPlayer(socket.id);
+            lobby.addPlayer(socketWrap.id);
 
             this.sendLobbyUpdate(lobby);
 
-            console.log("player joined",socket.id);
+            console.log("player joined",socketWrap.id);
         } else {
-            socket.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
+            socketWrap.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
             console.log("cant join room",lobbyId);
         }
     }
 
-    public socketRemovePlayer(socket : Socket) {
-        if (this._data.sockets[socket.id]) {
-            let playerId = this._data.sockets[socket.id];
+    public socketRemovePlayer(socketWrap : SocketWrap) {
+        if (this._data.sockets[socketWrap.id]) {
+            let playerId = this._data.sockets[socketWrap.id];
             let player = this._data.players[playerId];
             let lobby = this._data.lobbies[player.lobbyId];
 
@@ -132,6 +131,13 @@ export default class LobbyManager {
                 return;
             }
 
+            delete this._data.sockets[socketWrap.id];
+            delete this._data.players[playerId];
+
+            console.log("removing player, global players left: ",
+                Object.keys(this._data.players).length
+            );
+
             lobby.removePlayer(playerId);
             if (lobby.getPlayerCount() == 0) {
                 console.log("deleting room",lobby.getData().id);
@@ -139,13 +145,6 @@ export default class LobbyManager {
             } else {
                 this.sendLobbyUpdate(lobby);
             }
-
-            delete this._data.sockets[socket.id];
-            delete this._data.players[playerId];
-
-            console.log("removing player, global players left: ",
-                Object.keys(this._data.players).length
-            );
         }
     }
 
@@ -162,17 +161,17 @@ export default class LobbyManager {
             
             if (done) break;
 
-            let socket = this._data.players[playerId].socket;
-            socket.emit(SocketMessages.countUpdate,text);
+            let socketWrap = this._data.players[playerId].socketWrap;
+            socketWrap.emit(SocketMessages.countUpdate,text);
             
             if (playerId == captain) {
-                socket.emit(SocketMessages.lobbyLeaderRole);
+                socketWrap.emit(SocketMessages.lobbyLeaderRole);
             }
         }
     }
 
-    public socketStartGame(socket : Socket) {
-        let captainId = this._data.sockets[socket.id];
+    public socketStartGame(socketWrap : SocketWrap) {
+        let captainId = this._data.sockets[socketWrap.id];
         let lobbyId = this._data.players[captainId].lobbyId;
         let lobby = this._data.lobbies[lobbyId];
 
@@ -192,8 +191,8 @@ export default class LobbyManager {
                 if (done) break;
 
                 let player = this._data.players[playerId];
-                let socket = player.socket;
-                socket.emit(SocketMessages.redirect,redirectUrl);
+                let socketWrap = player.socketWrap;
+                socketWrap.emit(SocketMessages.redirect,redirectUrl);
             }
             
             console.log("start game in lobby: ",lobbyId);
@@ -202,14 +201,14 @@ export default class LobbyManager {
         }
     }
 
-    public socketReturnToLobby(socket : Socket) {
-        let playerId = this._data.sockets[socket.id];
+    public socketReturnToLobby(socketWrap : SocketWrap) {
+        let playerId = this._data.sockets[socketWrap.id];
         let player = this._data.players[playerId];
         let lobby = this._data.lobbies[player.lobbyId];
 
         if (!lobby.getData().inGame) {
             player.returning = true;
-            socket.emit(SocketMessages.redirect,lobby.getData().redirectToLobby);
+            socketWrap.emit(SocketMessages.redirect,lobby.getData().redirectToLobby);
             console.log("player is returning");            
         } else {
             console.log("false player return");

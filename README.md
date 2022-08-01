@@ -13,7 +13,7 @@ TODO: Game visuals
 
 # Setup
 
-install all packages (Typescript, Jest)
+install all packages (Typescript, Jest, Socket.io, Express, and more)
 
 ``` 
 npm install 
@@ -21,19 +21,16 @@ npm install
 
 # More Info
 
-Jest framework is used for testing with test files located in ./tests
+TS files are located in /src 
+
+TS files are compiled to JS and stored in /srcJS
+
+Client files are located in /srcJS/client (not compiled from TS)
+
+Test files are located in /tests
 
 All tests are run with the following command:
 ```
 npm test
 ```
-
-To run specific test, use the following command:
-```
-npm test -- -t "<insert test name here>"
-```
-
-TS files are located in ./src 
-
-Compiled JS files are located in ./srcJS
 

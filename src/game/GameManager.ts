@@ -4,6 +4,7 @@ import GameManagerData from "./GameManagerData";
 import * as SocketMessages from "../client/socketMessages.json";
 import LobbyManagerData from "../lobby/LobbyManagerData";
 import Lobby from "../lobby/Lobby";
+import SocketWrap from "../socketWrap";
 
 export default class GameManager {
     private _data = new GameManagerData();
@@ -12,9 +13,11 @@ export default class GameManager {
         this._data.lobbyData = data;
 
         io.on("connection", (socket : Socket) => {
+            let socketWrap = new SocketWrap(socket);
+
             socket.on(SocketMessages.disconnect, () => {
                 try {
-                    this.socketLeaveGame(socket);
+                    this.socketLeaveGame(socketWrap);
                 } catch {
                     // console.log("error leaving game");
                 }
@@ -23,14 +26,14 @@ export default class GameManager {
                 try {
                     let id = args[0];
                     let lobbyId = args[1];
-                    this.socketJoinGame(id,lobbyId,socket);
+                    this.socketJoinGame(id,lobbyId,socketWrap);
                 } catch {
                     console.log("GameManager.joinGame error");
                 }
             })
             socket.on(SocketMessages.gameInput, (...args) => {
                 try {
-                    this.socketProcessGameInput(socket,args);
+                    this.socketProcessGameInput(socketWrap,args);
                 } catch {
                     console.log("GameManager.processinput error");
                 }
@@ -54,23 +57,23 @@ export default class GameManager {
         }, this._data.transitionTime);
     }
 
-    public socketJoinGame(playerId : string, lobbyId : string, socket : Socket) {
+    public socketJoinGame(playerId : string, lobbyId : string, socketWrap : SocketWrap) {
         let lobby = this._data.lobbyData.lobbies[lobbyId];
 
         if (lobby && lobby.getData().players.has(playerId)) {
-            this._data.lobbyData.sockets[socket.id] = playerId;
+            this._data.lobbyData.sockets[socketWrap.id] = playerId;
             let player = this._data.lobbyData.players[playerId];
-            player.socket = socket;
+            player.socketWrap = socketWrap;
             player.online = true;
             console.log("player joined game",playerId);
         } else {
-            socket.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
+            socketWrap.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
             console.log("player cant join game");
         }
     }
 
-    public socketLeaveGame(socket : Socket) {
-        let leaverId = this._data.lobbyData.sockets[socket.id];
+    public socketLeaveGame(socketWrap : SocketWrap) {
+        let leaverId = this._data.lobbyData.sockets[socketWrap.id];
         let player = this._data.lobbyData.players[leaverId];
         let lobby = this._data.lobbyData.lobbies[player.lobbyId];
         let lobbyData = lobby.getData();
@@ -121,7 +124,7 @@ export default class GameManager {
 
             let player = this._data.lobbyData.players[playerId];
 
-            delete this._data.lobbyData.sockets[player.socket.id];
+            delete this._data.lobbyData.sockets[player.socketWrap.id];
             delete this._data.lobbyData.players[playerId];
         }
         delete this._data.lobbyData.lobbies[lobbyId];
@@ -145,16 +148,16 @@ export default class GameManager {
             let player = this._data.lobbyData.players[playerId];
             if (!player.online) {
                 lobby.removePlayer(playerId);
-                delete this._data.lobbyData.sockets[player.socket.id];
+                delete this._data.lobbyData.sockets[player.socketWrap.id];
                 delete this._data.lobbyData.players[playerId];
             } else {
-                player.socket.emit(SocketMessages.showReturnButton);
+                player.socketWrap.emit(SocketMessages.showReturnButton);
             }
         }
     }
 
-    public socketProcessGameInput(socket : Socket, ...args : any) {
-        let playerId = this._data.lobbyData.sockets[socket.id];
+    public socketProcessGameInput(socketWrap : SocketWrap, ...args : any) {
+        let playerId = this._data.lobbyData.sockets[socketWrap.id];
         if (playerId) {
             let player = this._data.lobbyData.players[playerId];
             let lobbyData = this._data.lobbyData.lobbies[player.lobbyId].getData();
