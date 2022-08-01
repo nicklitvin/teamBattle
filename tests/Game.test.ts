@@ -1,6 +1,7 @@
 import Game from "../src/game/Game";
 import Position from "../src/game/Position";
 import Ship from "../src/game/Ship";
+import * as SocketMessages from "../src/client/socketMessages.json";
 
 describe("testing player/role adding", () => {
     it("should add player to players", () => {
@@ -39,13 +40,13 @@ describe("testing player/role adding", () => {
         
         game.processPlayerInput(
             playerId,
-            [Ship.roleSelectKeyword,Ship.captainTitle]
+            [SocketMessages.roleSelectKeyword,SocketMessages.captainTitle]
         );
 
         expect(shipData.captain.isPlayerHere(playerId)).toEqual(true);
         game.processPlayerInput(
             playerId,
-            [Ship.roleSelectKeyword,Ship.captainTitle]
+            [SocketMessages.roleSelectKeyword,SocketMessages.captainTitle]
         );
         game.processPlayerInput(playerId,["5","5"]);
         expect(shipData.target).toEqual(moveTarget);
@@ -54,7 +55,7 @@ describe("testing player/role adding", () => {
         game.addPlayer(secondPlayer,shipId);
         game.processPlayerInput(
             secondPlayer,
-            [Ship.roleSelectKeyword,Ship.captainTitle]
+            [SocketMessages.roleSelectKeyword,SocketMessages.captainTitle]
         );
         expect(shipData.captain.isPlayerHere(secondPlayer)).toEqual(false);
 

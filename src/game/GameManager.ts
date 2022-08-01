@@ -28,6 +28,13 @@ export default class GameManager {
                     console.log("GameManager.joinGame error");
                 }
             })
+            socket.on(SocketMessages.gameInput, (...args) => {
+                try {
+                    this.socketProcessGameInput(socket,args);
+                } catch {
+                    console.log("GameManager.processinput error");
+                }
+            })
         })
     }
 
@@ -145,4 +152,17 @@ export default class GameManager {
             }
         }
     }
+
+    public socketProcessGameInput(socket : Socket, ...args : any) {
+        let playerId = this._data.lobbyData.sockets[socket.id];
+        if (playerId) {
+            let player = this._data.lobbyData.players[playerId];
+            let lobbyData = this._data.lobbyData.lobbies[player.lobbyId].getData();
+            let game = this._data.games[player.lobbyId];
+            
+            if (lobbyData.inGame && !lobbyData.transition) {
+                game.processPlayerInput(playerId,args);
+            }
+        }
+    } 
 }

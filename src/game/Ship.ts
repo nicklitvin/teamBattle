@@ -4,17 +4,18 @@ import {Projectile,ProjectileContainer} from "./Projectile";
 import Role from "./Role";
 import ShipData from "./ShipData";
 import Shot from "./Shot";
+import * as SocketMessages from "../client/socketMessages.json";
 
 export default class Ship implements ProjectileContainer {
     private _data = new ShipData();
     private _mapWidth = 16;
     private _mapHeight = 9;
 
-    public static readonly captainTitle = "captain";
-    public static readonly medicTitle = "medic";
-    public static readonly shooterTitle = "shooter";
-    public static readonly scoutTitle = "scout";
-    public static readonly roleSelectKeyword = "select";
+    // public static readonly captainTitle = "captain";
+    // public static readonly medicTitle = "medic";
+    // public static readonly shooterTitle = "shooter";
+    // public static readonly scoutTitle = "scout";
+    // public static readonly roleSelectKeyword = "select";
 
     constructor(position : Position = new Position(1,1)) {
         this._data.position = position.copy();
@@ -63,7 +64,7 @@ export default class Ship implements ProjectileContainer {
      */
     public processPlayerInput(playerId : string, args : any[]) : void {
         try {
-            if (args[0] == Ship.roleSelectKeyword) {
+            if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
             } else {
                 this.processPlayerRoleInput(playerId,args);
@@ -114,10 +115,10 @@ export default class Ship implements ProjectileContainer {
         }
 
         switch (playerRole.title) {
-            case Ship.captainTitle: 
+            case SocketMessages.captainTitle: 
                this.setTarget(new Position(Number(args[0]),Number(args[1])));
                break;
-            case Ship.shooterTitle: {
+            case SocketMessages.shooterTitle: {
                 if (this.isShotAvailable(playerId)) {
                     this.shootProjectile(
                         playerId,
@@ -126,7 +127,7 @@ export default class Ship implements ProjectileContainer {
                 }
                 break;
             }
-            case Ship.scoutTitle: {
+            case SocketMessages.scoutTitle: {
                 if (this.isScoutAvailable(playerId)) {
                     this.sendScout(
                         playerId,

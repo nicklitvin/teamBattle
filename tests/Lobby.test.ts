@@ -17,22 +17,22 @@ describe("testing lobby", () => {
         expect(lobby.getPlayerCount()).toEqual(0);
         expect(data.countText).toEqual("Players in lobby: 0")
     })
-    it("should track captain", () => {
+    it("should track leader", () => {
         let lobby = new Lobby("id");
         let data = lobby.getData();
         let first = "id1";
         let second = "id2";
 
         lobby.addPlayer(first);
-        expect(data.captain).toEqual(first);
+        expect(data.leader).toEqual(first);
 
         lobby.addPlayer(second);
-        expect(data.captain).toEqual(first);
+        expect(data.leader).toEqual(first);
 
         lobby.removePlayer(first);
-        expect(data.captain).toEqual(second);
+        expect(data.leader).toEqual(second);
 
         lobby.removePlayer(second);
-        expect(data.captain).toEqual(second);
+        expect(data.leader).toEqual(second);
     })
 })

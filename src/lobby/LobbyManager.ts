@@ -4,22 +4,26 @@ import * as hash from "object-hash";
 import Lobby from "./Lobby";
 import * as SocketMessages from "../client/socketMessages.json";
 import Player from "./Player";
+import SocketWrap from "../socketWrap";
 
 export default class LobbyManager {
     private _data : LobbyManagerData;
 
-    constructor(io : Server) {
-        this._data = new LobbyManagerData(io);
-        this.setupIoCommunication(io);
+    constructor(io? : Server) {
+        if (io) {
+            this._data = new LobbyManagerData(io);
+            this.setupIoCommunication(io);
+        }
     }
 
     private setupIoCommunication(io : Server) : void {
         io.on("connection", (socket : Socket) => {
+            let socketWrap = new SocketWrap(socket);
             socket.on(SocketMessages.disconnect, () => {
                 this.socketRemovePlayer(socket);
             })
             socket.on(SocketMessages.createLobby, () => {
-                this.socketCreateLobby(socket);
+                this.socketCreateLobby(socketWrap);
             })
             socket.on(SocketMessages.joinLobby, (...args) => {
                 try {
@@ -48,9 +52,9 @@ export default class LobbyManager {
         })
     }
 
-    public socketCreateLobby(socket : Socket) {
+    public socketCreateLobby(socket : SocketWrap) {
         let lobby = this.createLobby(socket.id);
-        this.sendPlayerToLobby(socket,lobby);
+        socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
         console.log("creating lobby",lobby.getData().id);
     }
     
@@ -60,10 +64,6 @@ export default class LobbyManager {
 
         this._data.lobbies[id] = lobby;
         return lobby;
-    }
-
-    private sendPlayerToLobby(socket : Socket, lobby : Lobby) {
-        socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
     }
 
     public createId(id : string) : string {

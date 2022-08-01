@@ -11,6 +11,13 @@
     "joinGame": "joinGame",
     "showReturnButton": "showReturnButton",
     "playerWantsToReturn": "playerWantsToReturn",
+    "gameInput": "gameInput",
+
+    "roleSelectKeyword": "selectKeyword",
+    "captainTitle": "captain",
+    "shooterTitle": "shooter",
+    "scoutTitle": "scout",
+    "medicTitle": "medic",
 
     "localStorageId": "id",
 

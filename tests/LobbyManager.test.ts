@@ -1,31 +1,29 @@
-import LobbyManager from "../src/lobby/LobbyManager"
+import * as SocketMessages from "../src/client/socketMessages.json";
+import SocketWrap from "../src/SocketWrap";
 import * as express from "express";
 import { Server } from "socket.io";
-import Lobby from "../src/lobby/Lobby";
+import LobbyManager from "../src/lobby/LobbyManager";
 
 const app : any = express();
 const server = app.listen(5000);
 const io = new Server(server);
 
-describe("testing LobbyManager", () => {
-    let lobbyManager = new LobbyManager(io);
-    let data = lobbyManager.getData();
+describe("testing lobbyManager", () => {
+    
+    it("should properly create lobby", () => {
+        let lobbyManager = new LobbyManager(io);
+        let data = lobbyManager.getData();
+        let socketWrap = new SocketWrap();
 
-    it("should create lobby", () => {
-        let id = lobbyManager.createId("test")
-        let lobby = lobbyManager.createLobby(id);
-        let lobbyData = lobby.getData();
+        socketWrap.id = "id1";
+        lobbyManager.socketCreateLobby(socketWrap);
+        expect(data.lobbies[socketWrap.id]).toBeTruthy();
 
-        expect(data.lobbies[id]).toBeTruthy();
-        expect(lobbyData.redirectToLobby).toEqual(`lobby?r=${id}`);
-    })
-    it("should not conflict ids", () => {
-        let id = lobbyManager.createId("1");
-        data.lobbies[id] = new Lobby(id);
-
-        let id1 = lobbyManager.createId("1");
-        expect(id == id1).toBeFalsy();
+        let expectedMessage = [
+            SocketMessages.redirect,
+            data.lobbies[socketWrap.id].getData().redirectToLobby
+        ];
+        expect(socketWrap.savedMessages[0]).toEqual(expectedMessage);
     })
 })
-
 server.close();

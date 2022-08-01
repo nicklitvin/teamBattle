@@ -1,8 +1,8 @@
 import Position from "./Position";
 import {Projectile} from "./Projectile";
 import Role from "./Role";
-import Ship from "./Ship";
 import Shot from "./Shot";
+import * as SocketMessages from "../client/socketMessages.json";
 
 export default class ShipData implements Projectile {
     public id : string;
@@ -33,10 +33,10 @@ export default class ShipData implements Projectile {
     public shotsSent : { [playerId : string] : Shot} = {};
     public scoutsSent : { [playerId : string] : Shot} = {};
 
-    public captain = new Role(this.captainCount, Ship.captainTitle);
-    public medic = new Role(this.medicCount, Ship.medicTitle);
-    public shooter = new Role(this.shooterCount, Ship.shooterTitle);
-    public scout = new Role(this.scoutCount, Ship.scoutTitle);
+    public captain = new Role(this.captainCount, SocketMessages.captainTitle);
+    public medic = new Role(this.medicCount, SocketMessages.medicTitle);
+    public shooter = new Role(this.shooterCount, SocketMessages.shooterTitle);
+    public scout = new Role(this.scoutCount, SocketMessages.scoutTitle);
 
     public roles = [this.captain,this.medic,this.shooter,this.scout];
 }

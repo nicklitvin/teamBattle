@@ -13,3 +13,4 @@ Later
     game instructions on lobby
     match-making
     unit testing for sockets
+    Reverse y when sending coordinates

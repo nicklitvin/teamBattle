@@ -1,5 +1,6 @@
 import Ship from "../src/game/Ship"
 import Position from "../src/game/Position"
+import * as SocketMessages from "../src/client/socketMessages.json";
 
 describe("testing Ship move", () => {
     let ship = new Ship(new Position(1,1));
@@ -71,8 +72,8 @@ describe("testing medic heal", () => {
         let shipData = ship.getData();
 
         shipData.medicHeal = 1;
-        ship.processPlayerInput("1",[Ship.roleSelectKeyword,Ship.medicTitle]);
-        ship.processPlayerInput("2",[Ship.roleSelectKeyword,Ship.medicTitle])
+        ship.processPlayerInput("1",[SocketMessages.roleSelectKeyword,SocketMessages.medicTitle]);
+        ship.processPlayerInput("2",[SocketMessages.roleSelectKeyword,SocketMessages.medicTitle])
         
         shipData.health = 50;
         ship.heal();
@@ -83,7 +84,7 @@ describe("testing medic heal", () => {
         let shipData = ship.getData();
 
         shipData.medicHeal = 1;
-        ship.processPlayerInput("1",[Ship.roleSelectKeyword,Ship.medicTitle]);
+        ship.processPlayerInput("1",[SocketMessages.roleSelectKeyword,SocketMessages.medicTitle]);
         ship.heal();
         expect(shipData.health).toEqual(100);
     })
@@ -95,7 +96,7 @@ describe("testing role select", () => {
         let playerId = "id";
         ship.processPlayerInput(
             playerId,
-            [Ship.roleSelectKeyword, "badRole"]
+            [SocketMessages.roleSelectKeyword, "badRole"]
         );
 
         ship.processPlayerInput(playerId, [0,0])
@@ -107,11 +108,11 @@ describe("testing role select", () => {
 
         ship.processPlayerInput(
             id,
-            [Ship.roleSelectKeyword, Ship.shooterTitle]
+            [SocketMessages.roleSelectKeyword, SocketMessages.shooterTitle]
         );
         ship.processPlayerInput(
             "id1",
-            [Ship.roleSelectKeyword, Ship.shooterTitle]
+            [SocketMessages.roleSelectKeyword, SocketMessages.shooterTitle]
         );
         
         expect(shipData.shooter.getPlayerCount()).toEqual(2);
@@ -120,7 +121,7 @@ describe("testing role select", () => {
 
         ship.processPlayerInput(
             id,
-            [Ship.roleSelectKeyword, Ship.medicTitle]
+            [SocketMessages.roleSelectKeyword, SocketMessages.medicTitle]
         );
 
         expect(shipData.shooter.getPlayerCount()).toEqual(1);
@@ -135,21 +136,21 @@ describe("testing role select", () => {
         
         shipData.shooterExpirationTime = 1;
         
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle]);
         expect(shipData.shooter.getPlayerCount()).toEqual(1);
 
         ship.processPlayerInput(playerId,[1,1]);
         expect(shipData.shotsSent[playerId]).toBeTruthy();
         expect(shipData.scoutsSent[playerId]).toBeFalsy();
         
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.scoutTitle]);
         expect(shipData.shooter.getPlayerCount()).toEqual(1);
         expect(shipData.scout.getPlayerCount()).toEqual(0);
 
         ship.move();
         expect(shipData.shotsSent[playerId]).toBeFalsy();
 
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.scoutTitle]);
         expect(shipData.shooter.getPlayerCount()).toEqual(0);
         expect(shipData.scout.getPlayerCount()).toEqual(1);
 
@@ -170,7 +171,7 @@ describe("testing shooting", () => {
         shipData.shooterSpeed = 2.5;
         shipData.shooterExpirationTime = 2;
 
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle]);
         expect(shipData.shooter.getPlayerCount()).toEqual(1);
 
         ship.processPlayerInput(playerId,[shootTarget.x,shootTarget.y]);
@@ -188,7 +189,7 @@ describe("testing shooting", () => {
         shipData.position =new Position(0,0);
         shipData.shooterSpeed = 2.5;
         shipData.shooterExpirationTime = 2;
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle]);
         ship.processPlayerInput(playerId,[shipData.position.x,shipData.position.y]);
 
         expect(shipData.shotsSent[playerId].target).toEqual(new Position(0,5));
@@ -202,7 +203,7 @@ describe("testing shooting", () => {
         shipData.shooterSpeed = 5;
         shipData.shooterExpirationTime = 2;
         
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.shooterTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle]);
         ship.processPlayerInput(playerId,[shipData.position.x,shipData.position.y]);
         expect(shipData.shotsSent[playerId]).toBeTruthy();
 
@@ -222,7 +223,7 @@ describe("testing shooting", () => {
         shipData.scoutSpeed = 2.5;
         shipData.scoutExpirationTime = 2;
 
-        ship.processPlayerInput(playerId,[Ship.roleSelectKeyword,Ship.scoutTitle]);
+        ship.processPlayerInput(playerId,[SocketMessages.roleSelectKeyword,SocketMessages.scoutTitle]);
         expect(shipData.scout.getPlayerCount()).toEqual(1);
 
         ship.processPlayerInput(playerId,[scoutTarget.x,scoutTarget.y]);
