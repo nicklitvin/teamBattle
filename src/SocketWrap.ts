@@ -19,4 +19,8 @@ export default class SocketWrap {
             }
         }
     }
+
+    public clearSavedMessages() {
+        this.savedMessages = [];
+    }
 }

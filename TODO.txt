@@ -5,6 +5,7 @@ Server
     Assign random teams
     Take player input for game
     Player should know own id
+    add commentary
 
 Visuals
     Map is dark, light when within radius
@@ -16,3 +17,4 @@ Later
     match-making
     unit testing for sockets
     Reverse y when sending coordinates
+    lobbyManager.getPlayers should return array
