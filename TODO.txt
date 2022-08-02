@@ -1,11 +1,11 @@
 Game
 
 Server
-    Test hack prevention
     Assign random teams
     Take player input for game
     Player should know own id
-    add commentary
+    add commentary to each class
+    delete players that dont return after x time
 
 Visuals
     Map is dark, light when within radius

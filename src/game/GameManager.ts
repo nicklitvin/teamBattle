@@ -26,7 +26,7 @@ export default class GameManager {
                 try {
                     let id = args[0];
                     let lobbyId = args[1];
-                    this.socketJoinGame(id,lobbyId,socketWrap);
+                    this.socketJoinGame(socketWrap,id,lobbyId);
                 } catch {
                     console.log("GameManager.joinGame error");
                 }
@@ -51,13 +51,13 @@ export default class GameManager {
             lobby.endTransitionPhase();
             if (this.areAllOffline(lobby)) {
                 this.deleteLobby(lobby);
-            } else {
-                this.endGame(lobby); // TEMPORARY for testing
+            } else if (this._data.automaticGameEnd) {
+                this.endGame(lobby);
             }
         }, this._data.transitionTime);
     }
 
-    public socketJoinGame(playerId : string, lobbyId : string, socketWrap : SocketWrap) {
+    public socketJoinGame(socketWrap : SocketWrap, playerId : string, lobbyId : string) {
         let lobby = this._data.lobbyData.lobbies[lobbyId];
 
         if (lobby && lobby.getData().players.has(playerId)) {
@@ -167,5 +167,9 @@ export default class GameManager {
                 game.processPlayerInput(playerId,args);
             }
         }
-    } 
+    }
+    
+    public getData() {
+        return this._data;
+    }
 }

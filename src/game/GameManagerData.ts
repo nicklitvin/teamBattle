@@ -6,4 +6,5 @@ export default class GameManagerData {
     public lobbyData : LobbyManagerData;
     /** unts of time: ms */
     public transitionTime = 1000*5;
+    public automaticGameEnd = false;
 }

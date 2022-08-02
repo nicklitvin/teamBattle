@@ -123,6 +123,8 @@ export default class LobbyManager {
             let player = this._data.players[playerId];
             let lobby = this._data.lobbies[player.lobbyId];
 
+            delete this._data.sockets[socketWrap.id];
+
             if (lobby.getData().inGame) {
                 player.online = false;
                 return;
@@ -130,8 +132,6 @@ export default class LobbyManager {
             if (player.returning) {
                 return;
             }
-
-            delete this._data.sockets[socketWrap.id];
             delete this._data.players[playerId];
 
             console.log("removing player, global players left: ",
@@ -208,10 +208,17 @@ export default class LobbyManager {
 
         if (!lobby.getData().inGame) {
             player.returning = true;
+            delete this._data.sockets[socketWrap.id];
             socketWrap.emit(SocketMessages.redirect,lobby.getData().redirectToLobby);
             console.log("player is returning");            
         } else {
             console.log("false player return");
         }
-    } 
+    }
+    
+    public clearAllData() {
+        this._data.lobbies = {};
+        this._data.players = {};
+        this._data.sockets = {};
+    }
 }
