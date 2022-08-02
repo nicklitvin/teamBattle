@@ -1,12 +1,7 @@
-Test
-    leaving from lobby
-        deleting lobby if alone
-        moving leader role if more
-    joining lobby that does not exist
-
 Game
 
 Server
+    Test hack prevention
     Assign random teams
     Take player input for game
     Player should know own id
