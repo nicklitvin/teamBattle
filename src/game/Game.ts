@@ -1,66 +1,61 @@
-import GameData from "./GameData";
 import MyMath from "./MyMath";
 import Position from "./Position";
-import { Projectile } from "./Projectile";
+import Projectile from "./Projectile";
 import Ship from "./Ship";
 
 /**
  * Game stores ships and which ships each player is associated with.
- * Game processes player input accordingly. Cannot add players if no
- * ships exist.
+ * A player cannot be added without a legit and existing ship.
+ * Can process player input to make an action inside the game.
  */
 export default class Game {
-    /** 
-     * Stores all data relevant to the game.
-     */
-    private _gameData = new GameData(); 
+    /** _players = {PlayerId : ShipId} */
+    public _players : { [playerId : string]: string } = {};
+    public _ships : { [shipId: string]: Ship } = {};
 
-    public addPlayer(playerId : string, shipId : string) : void {
-        if (Object.keys(this._gameData.ships).includes(shipId)) {
-            this._gameData.players[playerId] = shipId;
+    public addPlayer(playerId : string, shipId : string) {
+        if (Object.keys(this._ships).includes(shipId)) {
+            this._players[playerId] = shipId;
         } else {
             // console.log("no such ship");
         }
     }
 
-    public addShip(shipId : string, position? : Position) : void {
-        this._gameData.ships[shipId] = new Ship(position);
-        this._gameData.ships[shipId].getData().id = shipId;
+    public addShip(shipId : string, position? : Position) {
+        this._ships[shipId] = new Ship(position);
+        this._ships[shipId]._id = shipId;
     }
 
-    public processPlayerInput(playerId : string, args : any[]) : void {
+    public processPlayerInput(playerId : string, args : any[])  {
         try {
-            let shipId = this._gameData.players[playerId];
-            let ship = this._gameData.ships[shipId];
+            let shipId = this._players[playerId];
+            let ship = this._ships[shipId];
             ship.processPlayerInput(playerId,args);
         } catch {
             // console.log("game inputError");
         }
     }
 
-    public update() : void {
-        for (let ship of Object.values(this._gameData.ships)) {
+    public update()  {
+        for (let ship of Object.values(this._ships)) {
             ship.move();
         }
 
-        for (let ship of Object.values(this._gameData.ships)) {
-            for (let enemy of Object.values(this._gameData.ships)) {
-                let shipData = ship.getData();
-                let enemyData = enemy.getData();
+        for (let ship of Object.values(this._ships)) {
+            for (let enemy of Object.values(this._ships)) {
 
-                if (shipData.id == enemyData.id) continue;
+                if (ship._id == enemy._id) continue;
 
-                for (let shotEntry of Object.entries(enemyData.shotsSent)) {
+                for (let shotEntry of Object.entries(enemy._shotsSent)) {
                     let shooter = shotEntry[0];
                     let shot = shotEntry[1];
-                    let shipProjectileData = ship.getProjectileData(); 
 
-                    if (MyMath.doCirclesIntersect(shot,shipProjectileData)) {
+                    if (MyMath.doCirclesIntersect(shot,ship)) {
                         ship.takeDamage();
                         enemy.deleteShot(shooter);
 
-                        if (!shipData.health) {
-                            delete this._gameData.ships[shipData.id];
+                        if (ship._health == 0) {
+                            delete this._ships[ship._id];
                             break;
                         }
                     }
@@ -75,30 +70,23 @@ export default class Game {
      */
     public getVisibleProjectiles(ship : Ship) : Projectile[] {
         let list : Projectile[] = [];
-        let shipData = ship.getData();
 
-        for (let enemy of Object.values(this._gameData.ships)) {
-            let enemyData = enemy.getData();
+        for (let enemy of Object.values(this._ships)) {
 
-            if (MyMath.getDistanceBetween(shipData,enemyData) <= shipData.vision) {
-                list.push(shipData);
+            if (MyMath.getDistanceBetween(ship,enemy) <= ship._vision) {
+                list.push(ship);
             }
-            for (let shot of Object.values(enemyData.shotsSent)) {
-                if (MyMath.getDistanceBetween(shipData,shot) <= shipData.vision) {
+            for (let shot of Object.values(enemy._shotsSent)) {
+                if (MyMath.getDistanceBetween(ship,shot) <= ship._vision) {
                     list.push(shot)
                 }
             }
-            for (let shot of Object.values(enemyData.scoutsSent)) {
-                if (MyMath.getDistanceBetween(shipData,shot) <= shipData.vision) {
+            for (let shot of Object.values(enemy._scoutsSent)) {
+                if (MyMath.getDistanceBetween(ship,shot) <= ship._vision) {
                     list.push(shot)
                 }
             }
         }
         return list;
     }
-
-    /**
-     * @returns all game data (NOT A COPY)
-     */
-    public getData() : GameData {return this._gameData}
 }

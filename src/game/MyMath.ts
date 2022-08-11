@@ -1,6 +1,10 @@
 import Position from "./Position";
-import {Projectile} from "./Projectile";
+import Projectile from "./Projectile";
 
+/**
+ * MyMath is a static class that completes specific computations
+ * used in the teamBattle project.
+ */
 export default class MyMath {
     private static roundDigit = 4;
 
@@ -12,7 +16,7 @@ export default class MyMath {
     }
 
     /**
-     * Returns new position after move towards target given speed.
+     * Returns new _position after move towards target given speed.
      * @param from 
      * @param to 
      * @param speed 
@@ -55,16 +59,16 @@ export default class MyMath {
     }
 
     public static doCirclesIntersect(c1 : Projectile, c2 : Projectile) : boolean {
-        let dist = ((c2.position.x - c1.position.x)**2 +
-            (c2.position.y - c1.position.y)**2) ** (1/2);
+        let dist = ((c2._position.x - c1._position.x)**2 +
+            (c2._position.y - c1._position.y)**2) ** (1/2);
             
-        if (dist <= c1.radius + c2.radius) return true;
+        if (dist <= c1._radius + c2._radius) return true;
         return false;
     }
 
     public static getDistanceBetween(c1 : Projectile, c2 : Projectile) : number {
-        let val = ((c2.position.x - c1.position.x)**2 + 
-            (c2.position.y - c1.position.y)**2) ** (1/2);
+        let val = ((c2._position.x - c1._position.x)**2 + 
+            (c2._position.y - c1._position.y)**2) ** (1/2);
         return this.round(val);
     }
 }

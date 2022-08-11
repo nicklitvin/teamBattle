@@ -1,56 +1,81 @@
 import MyMath from "./MyMath";
 import Position from "./Position";
-import {Projectile,ProjectileContainer} from "./Projectile";
+import Projectile from "./Projectile";
 import Role from "./Role";
-import ShipData from "./ShipData";
 import Shot from "./Shot";
 import * as SocketMessages from "../client/socketMessages.json";
 
-export default class Ship implements ProjectileContainer {
-    private _data = new ShipData();
-    private _mapWidth = 16;
-    private _mapHeight = 9;
 
-    // public static readonly captainTitle = "captain";
-    // public static readonly medicTitle = "medic";
-    // public static readonly shooterTitle = "shooter";
-    // public static readonly scoutTitle = "scout";
-    // public static readonly roleSelectKeyword = "select";
+/**
+ * A ship is a projectile that can be used by players to take
+ * certain actions, which it can process. The ship does not
+ * keep track if a player belongs to a ship, but does recognize
+ * if a player has taken a specific action. 
+ */
+
+export default class Ship implements Projectile {
+    public _id : string;
+    public _radius = 0.2;
+    public _speed = 0.5;
+    public _position : Position;
+    public _target : Position;
+    public _health = 100;
+    public _vision = 3;
+    public _captainCount = 1;
+    public _medicCount = 10;
+    public _medicHeal = 1;
+    public _medicDiminishPercent = 0.5;
+    public _shooterCount = 5;
+    public _shooterSpeed = 5;
+    public _shooterExpirationTime = 1;
+    public _shooterDamage = 10;
+    public _scoutCount = 3;
+    public _scoutSpeed = 3;
+    public _scoutExpirationTime = 1;
+    public _shotsSent : { [playerId : string] : Shot} = {};
+    public _scoutsSent : { [playerId : string] : Shot} = {};
+    public _captain = new Role(this._captainCount, SocketMessages.captainTitle);
+    public _medic = new Role(this._medicCount, SocketMessages.medicTitle);
+    public _shooter = new Role(this._shooterCount, SocketMessages.shooterTitle);
+    public _scout = new Role(this._scoutCount, SocketMessages.scoutTitle);
+    public _roles = [this._captain,this._medic,this._shooter,this._scout];
+    public _mapWidth = 16;
+    public _mapHeight = 9;
 
     constructor(position : Position = new Position(1,1)) {
-        this._data.position = position.copy();
+        this._position = position.copy();
     }
 
-    public setTarget(newTarget : Position) : void {
-        newTarget.x = Math.max(this._data.radius, newTarget.x);
-        newTarget.x = Math.min(this._mapWidth - this._data.radius, newTarget.x);
-        newTarget.y = Math.max(this._data.radius, newTarget.y);
-        newTarget.y = Math.min(this._mapHeight - this._data.radius, newTarget.y);
+    public setTarget(newTarget : Position)  {
+        newTarget.x = Math.max(this._radius, newTarget.x);
+        newTarget.x = Math.min(this._mapWidth - this._radius, newTarget.x);
+        newTarget.y = Math.max(this._radius, newTarget.y);
+        newTarget.y = Math.min(this._mapHeight - this._radius, newTarget.y);
 
-        this._data.target = newTarget.copy();
+        this._target = newTarget.copy();
     }
 
-    public move() : void {
-        if (this._data.target) {
-            this._data.position = MyMath.move(
-                this._data.position, this._data.target, this._data.speed
+    public move()  {
+        if (this._target) {
+            this._position = MyMath.move(
+                this._position, this._target, this._speed
             );
         }
 
-        for (let entry of Object.entries(this._data.shotsSent)) {
+        for (let entry of Object.entries(this._shotsSent)) {
             let playerId = entry[0];
             let shot = entry[1];
 
             shot.move();
-            if (!shot.expirationTime) this.deleteShot(playerId); 
+            if (!shot._expirationTime) this.deleteShot(playerId); 
 
         }
-        for (let entry of Object.entries(this._data.scoutsSent)) {
+        for (let entry of Object.entries(this._scoutsSent)) {
             let playerId = entry[0];
             let scout = entry[1];
 
             scout.move();
-            if (!scout.expirationTime) this.deleteScout(playerId); 
+            if (!scout._expirationTime) this.deleteScout(playerId); 
         }
     }
 
@@ -62,7 +87,7 @@ export default class Ship implements ProjectileContainer {
      * @param playerId 
      * @param args 
      */
-    public processPlayerInput(playerId : string, args : any[]) : void {
+    public processPlayerInput(playerId : string, args : any[])  {
         try {
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
@@ -80,23 +105,21 @@ export default class Ship implements ProjectileContainer {
      * @param playerId 
      * @param role 
      */
-    private processPlayerSelect(playerId : string, requestedRoleTitle : string)
-        : void 
-    {
+    private processPlayerSelect(playerId : string, requestedRoleTitle : string) {
         if (
-            Object.keys(this._data.shotsSent).includes(playerId) ||
-            Object.keys(this._data.scoutsSent).includes(playerId)) 
+            Object.keys(this._shotsSent).includes(playerId) ||
+            Object.keys(this._scoutsSent).includes(playerId)) 
         {
             return
         } 
-        for (let role of this._data.roles) {
+        for (let role of this._roles) {
             if (role.isPlayerHere(playerId)) {
                 role.removePlayer(playerId);
                 break;
             }
         }
         let requestedRole : Role;
-        for (let role of this._data.roles) {
+        for (let role of this._roles) {
             if (role.title == requestedRoleTitle) {
                 requestedRole = role;
                 break;
@@ -105,9 +128,9 @@ export default class Ship implements ProjectileContainer {
         if (!requestedRole.isFull()) requestedRole.addPlayer(playerId);
     }
 
-    private processPlayerRoleInput(playerId : string, args : any[]) : void {
+    private processPlayerRoleInput(playerId : string, args : any[])  {
         let playerRole : Role;
-        for (let role of this._data.roles) {
+        for (let role of this._roles) {
             if (role.isPlayerHere(playerId)) {
                 playerRole = role;
                 break;
@@ -139,68 +162,57 @@ export default class Ship implements ProjectileContainer {
         }
     }
 
-    public heal() : void {
-        let medics = this._data.medic.getPlayerCount();
+    public heal()  {
+        let medics = this._medic.getPlayerCount();
         if (medics) {
-            let heal = this._data.medicHeal * 
-                (1 - this._data.medicDiminishPercent ** medics) / 
-                (1 - this._data.medicDiminishPercent);
-            this._data.health = Math.min(100,this._data.health + heal);
+            let heal = this._medicHeal * 
+                (1 - this._medicDiminishPercent ** medics) / 
+                (1 - this._medicDiminishPercent);
+            this._health = Math.min(100,this._health + heal);
         }
     }
 
     public isShotAvailable(playerId : string) : boolean {
-        if (this._data.shotsSent[playerId]) {
+        if (this._shotsSent[playerId]) {
             return false;
         }
         return true; 
     } 
 
     public isScoutAvailable(playerId : string) : boolean {
-        if (this._data.scoutsSent[playerId]) {
+        if (this._scoutsSent[playerId]) {
             return false;
         }
         return true; 
     }
 
-    public shootProjectile(playerId : string, target : Position) : void {
-        this._data.shotsSent[playerId] = new Shot(
-            this._data.position,
+    public shootProjectile(playerId : string, target : Position)  {
+        this._shotsSent[playerId] = new Shot(
+            this._position,
             target,
-            this._data.shooterExpirationTime,
-            this._data.shooterSpeed
+            this._shooterExpirationTime,
+            this._shooterSpeed
         );
     }
 
-    public sendScout(playerId : string, target : Position) : void {
-        this._data.scoutsSent[playerId] = new Shot(
-            this._data.position,
+    public sendScout(playerId : string, target : Position)  {
+        this._scoutsSent[playerId] = new Shot(
+            this._position,
             target,
-            this._data.scoutExpirationTime,
-            this._data.scoutSpeed
+            this._scoutExpirationTime,
+            this._scoutSpeed
         );
     }
 
-    public deleteShot(playerId : string) : void {
-        delete this._data.shotsSent[playerId];
+    public deleteShot(playerId : string)  {
+        delete this._shotsSent[playerId];
     }
 
-    public deleteScout(playerId: string) : void {
-        delete this._data.scoutsSent[playerId];
+    public deleteScout(playerId: string)  {
+        delete this._scoutsSent[playerId];
     }
 
-    public takeDamage() : void {
-        this._data.health -= this._data.shooterDamage;
-    }
-
-    /**
-     * @returns all ship data (NOT A COPY)
-     */
-    public getData() : ShipData {
-        return this._data;
-    }
-
-    public getProjectileData() : Projectile {
-        return this._data;
+    public takeDamage()  {
+        this._health -= this._shooterDamage;
     }
 }

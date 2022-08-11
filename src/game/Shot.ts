@@ -1,26 +1,30 @@
 import MyMath from "./MyMath";
 import Position from "./Position";
-import {Projectile} from "./Projectile";
+import Projectile from "./Projectile";
 
+/**
+ * A shot is a projectile that moves towards a particular target
+ * and contains an expiration data for external purposes.
+ */
 export default class Shot implements Projectile {
-    public position : Position;
-    public target : Position;
-    public speed : number;
-    public radius = 0.1;
-    public expirationTime : number;
+    public _position : Position;
+    public _target : Position;
+    public _speed : number;
+    public _radius = 0.1;
+    public _expirationTime : number;
 
     constructor(position : Position, target : Position, time : number, speed : number) {
-        this.expirationTime = time;
-        this.speed = speed;
+        this._expirationTime = time;
+        this._speed = speed;
 
-        this.position = position;
-        this.target = MyMath.extendToMaxRange(this.position,target,
-            this.speed,this.expirationTime
+        this._position = position;
+        this._target = MyMath.extendToMaxRange(this._position,target,
+            this._speed,this._expirationTime
         );
     }
 
     public move() : void {
-        this.position = MyMath.move(this.position, this.target, this.speed);
-        this.expirationTime -= 1;
+        this._position = MyMath.move(this._position, this._target, this._speed);
+        this._expirationTime -= 1;
     }
 }

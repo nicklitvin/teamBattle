@@ -1,33 +1,29 @@
 import Game from "../src/game/Game";
 import Position from "../src/game/Position";
-import Ship from "../src/game/Ship";
 import * as SocketMessages from "../src/client/socketMessages.json";
 
 describe("testing player/role adding", () => {
     it("should add player to players", () => {
         let game = new Game();
-        let gameData = game.getData();
 
         let playerId = "player1";
         let shipId = "ship1";
 
         game.addShip(shipId);
         game.addPlayer(playerId,shipId);
-        expect(gameData.players[playerId]).toBe(shipId);
+        expect(game._players[playerId]).toBe(shipId);
     })
     it("should not add player to players", () => {
         let game = new Game();
-        let gameData = game.getData();
 
         let playerId = "player1";
         let shipId = "ship1";
 
         game.addPlayer(playerId,shipId);
-        expect(Object.keys(gameData.players).length).toBe(0);
+        expect(Object.keys(game._players).length).toBe(0);
     })
     it("should make one player the captain", () => {
         let game = new Game();
-        let gameData = game.getData();
         let playerId = "player1";
         let shipId = "ship1";
         let moveTarget = new Position(5,5);
@@ -35,21 +31,20 @@ describe("testing player/role adding", () => {
         game.addShip(shipId);
         game.addPlayer(playerId,shipId);
 
-        let ship = gameData.ships[shipId];
-        let shipData = ship.getData();
+        let ship = game._ships[shipId];
         
         game.processPlayerInput(
             playerId,
             [SocketMessages.roleSelectKeyword,SocketMessages.captainTitle]
         );
 
-        expect(shipData.captain.isPlayerHere(playerId)).toEqual(true);
+        expect(ship._captain.isPlayerHere(playerId)).toEqual(true);
         game.processPlayerInput(
             playerId,
             [SocketMessages.roleSelectKeyword,SocketMessages.captainTitle]
         );
         game.processPlayerInput(playerId,["5","5"]);
-        expect(shipData.target).toEqual(moveTarget);
+        expect(ship._target).toEqual(moveTarget);
 
         let secondPlayer = "player2";
         game.addPlayer(secondPlayer,shipId);
@@ -57,16 +52,15 @@ describe("testing player/role adding", () => {
             secondPlayer,
             [SocketMessages.roleSelectKeyword,SocketMessages.captainTitle]
         );
-        expect(shipData.captain.isPlayerHere(secondPlayer)).toEqual(false);
+        expect(ship._captain.isPlayerHere(secondPlayer)).toEqual(false);
 
         game.processPlayerInput(secondPlayer,["9,9"]);
-        expect(shipData.target).toEqual(moveTarget);
+        expect(ship._target).toEqual(moveTarget);
     })
 })
 describe("testing game combat", () => {
     it("should hit ship", () => {
         let game = new Game();
-        let gameData = game.getData();
         let playerId = "player1";
         let shipId = "ship1";
         let enemyId = "ship2";
@@ -75,28 +69,25 @@ describe("testing game combat", () => {
         game.addShip(enemyId,new Position(6,5));
         game.addPlayer(playerId,shipId);
 
-        let ship = gameData.ships[shipId];
-        let shipData = ship.getData();
-        let enemy = gameData.ships[enemyId];
-        let enemyData = enemy.getData();
+        let ship = game._ships[shipId];
+        let enemy = game._ships[enemyId];
 
-        shipData.radius = 0.5;
-        enemyData.radius = 0.5;
-        shipData.shooterSpeed = 1;
-        shipData.shooterExpirationTime = 2;
+        ship._radius = 0.5;
+        enemy._radius = 0.5;
+        ship._shooterSpeed = 1;
+        ship._shooterExpirationTime = 2;
 
-        gameData.ships[shipId].shootProjectile(playerId,new Position(10,5));
-        expect(shipData.shotsSent[playerId]).toBeTruthy();
+        game._ships[shipId].shootProjectile(playerId,new Position(10,5));
+        expect(ship._shotsSent[playerId]).toBeTruthy();
         game.update();
 
-        expect(enemyData.health).toEqual(
-            shipData.health - shipData.shooterDamage
+        expect(enemy._health).toEqual(
+            ship._health - ship._shooterDamage
         );
-        expect(shipData.shotsSent[playerId]).toBeFalsy();
+        expect(ship._shotsSent[playerId]).toBeFalsy();
     })
     it("should kill ship", () => {
         let game = new Game();
-        let gameData = game.getData();
 
         let playerId = "player1";
         let shipId = "ship1";
@@ -106,52 +97,48 @@ describe("testing game combat", () => {
         game.addShip(enemyId,new Position(6,5));
         game.addPlayer(playerId,shipId);
 
-        let ship = gameData.ships[shipId];
-        let shipData = ship.getData();
-        let enemy = gameData.ships[enemyId];
-        let enemyData = enemy.getData();
+        let ship = game._ships[shipId];
+        let enemy = game._ships[enemyId];
 
-        shipData.radius = 0.5;
-        enemyData.radius = 0.5;
-        enemyData.health = shipData.shooterDamage; 
-        shipData.shooterSpeed = 1;
-        shipData.shooterExpirationTime = 2;
+        ship._radius = 0.5;
+        enemy._radius = 0.5;
+        enemy._health = ship._shooterDamage; 
+        ship._shooterSpeed = 1;
+        ship._shooterExpirationTime = 2;
 
-        gameData.ships[shipId].shootProjectile(playerId,new Position(10,5));
-        expect(shipData.shotsSent[playerId]).toBeTruthy();
+        game._ships[shipId].shootProjectile(playerId,new Position(10,5));
+        expect(ship._shotsSent[playerId]).toBeTruthy();
         game.update();
 
-        expect(gameData.ships[enemyId]).toBeFalsy();
-        expect(shipData.shotsSent[playerId]).toBeFalsy();
+        expect(game._ships[enemyId]).toBeFalsy();
+        expect(ship._shotsSent[playerId]).toBeFalsy();
     })
 })
 describe("testing vision", () => {
     it("should see properly", () => {
         let game = new Game();
-        let gameData = game.getData();
 
         let shipId = "ship1";
         let enemyId = "ship2";
         game.addShip(shipId,new Position(5,5));
         game.addShip(enemyId,new Position(6,5));
 
-        let ship = gameData.ships[shipId];
-        let shipData = ship.getData();
-        shipData.vision = 1;
+        let ship = game._ships[shipId];
+        ship._vision = 1;
 
         let see = game.getVisibleProjectiles(ship);
         expect(see.length).toEqual(2);
 
-        shipData.position = new Position(4,5);
+        ship._position = new Position(4,5);
         see = game.getVisibleProjectiles(ship);
         expect(see.length).toEqual(1);
 
-        shipData.shooterSpeed = 1;
-        shipData.shooterExpirationTime = 2;
+        ship._shooterSpeed = 1;
+        ship._shooterExpirationTime = 2;
         ship.shootProjectile("1",new Position(3,5));
         
-        shipData.scoutSpeed = 1;
-        shipData.scoutExpirationTime = 2;
+        ship._scoutSpeed = 1;
+        ship._scoutExpirationTime = 2;
         ship.sendScout("1",new Position(3,5));
 
         ship.move();
