@@ -15,12 +15,17 @@ export default class SocketWrap {
     public emit : Function;
     public savedMessages : string[][] = [];
 
+    public socket : Socket;
+
     constructor(socket? : Socket) {
         if (socket) {
-            this.id = socket.id;
-            this.emit = socket.emit;
+            this.socket = socket;
+            this.id = this.socket.id;
+            this.emit = (event : string, ...args : string[]) => {
+                this.socket.emit(event,args);
+            }
         } else {
-            this.emit = (...args) => {
+            this.emit = (...args : any[]) => {
                 let message : string[] = [];
                 for (let word of args) {
                     message.push(word);

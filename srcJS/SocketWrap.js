@@ -5,8 +5,16 @@ var SocketWrap = (function () {
         var _this = this;
         this.savedMessages = [];
         if (socket) {
-            this.id = socket.id;
-            this.emit = socket.emit;
+            this.socket = socket;
+            this.id = this.socket.id;
+            this.emit = function (event) {
+                var args = [];
+                for (var _i = 1; _i < arguments.length; _i++) {
+                    args[_i - 1] = arguments[_i];
+                }
+                console.log(args);
+                _this.socket.emit(event, args);
+            };
         }
         else {
             this.emit = function () {
