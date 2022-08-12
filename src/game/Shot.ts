@@ -23,7 +23,11 @@ export default class Shot implements Projectile {
         );
     }
 
-    public move() : void {
+    /**
+     * Updates position according to projectile's target and speed. Updates expiration
+     * time.
+     */
+    public move() {
         this._position = MyMath.move(this._position, this._target, this._speed);
         this._expirationTime -= 1;
     }

@@ -10,7 +10,7 @@ import Ship from "./Ship";
  */
 export default class Game {
     /** _players = {PlayerId : ShipId} */
-    public _players : { [playerId : string]: string } = {};
+    public _players : { [playerId : string]: string} = {};
     public _ships : { [shipId: string]: Ship } = {};
 
     public addPlayer(playerId : string, shipId : string) {
@@ -22,10 +22,18 @@ export default class Game {
     }
 
     public addShip(shipId : string, position? : Position) {
-        this._ships[shipId] = new Ship(position);
-        this._ships[shipId]._id = shipId;
+        let ship = new Ship(position);
+        ship.setId(shipId);
+        this._ships[shipId] = ship;
     }
 
+    /**
+     * Sends player input to their corresponding ship for processing.
+     * Input specified in Ship class under function with the same name.
+     * 
+     * @param playerId 
+     * @param args 
+     */
     public processPlayerInput(playerId : string, args : any[])  {
         try {
             let shipId = this._players[playerId];
@@ -36,6 +44,9 @@ export default class Game {
         }
     }
 
+    /**
+     * Moves all ships and resolves collisions. 
+     */
     public update()  {
         for (let ship of Object.values(this._ships)) {
             ship.move();

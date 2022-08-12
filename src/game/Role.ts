@@ -1,3 +1,7 @@
+/**
+ * A role is a "room" that can add and remove players from
+ * it according to capacity.
+ */
 export default class Role {
     public title : string;
     public playerIds : string[] = []

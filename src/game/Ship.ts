@@ -11,6 +11,8 @@ import * as SocketMessages from "../client/socketMessages.json";
  * certain actions, which it can process. The ship does not
  * keep track if a player belongs to a ship, but does recognize
  * if a player has taken a specific action. 
+ * 
+ * If position not specified, ship has default position.
  */
 
 export default class Ship implements Projectile {
@@ -46,6 +48,10 @@ export default class Ship implements Projectile {
         this._position = position.copy();
     }
 
+    public setId(id : string) {
+        this._id = id;
+    }
+
     public setTarget(newTarget : Position)  {
         newTarget.x = Math.max(this._radius, newTarget.x);
         newTarget.x = Math.min(this._mapWidth - this._radius, newTarget.x);
@@ -55,6 +61,10 @@ export default class Ship implements Projectile {
         this._target = newTarget.copy();
     }
 
+    /**
+     * Moves ship and all of its projectiles. Projectiles are removed when 
+     * their expiration time = 0
+     */
     public move()  {
         if (this._target) {
             this._position = MyMath.move(
@@ -67,22 +77,25 @@ export default class Ship implements Projectile {
             let shot = entry[1];
 
             shot.move();
-            if (!shot._expirationTime) this.deleteShot(playerId); 
-
+            if (!shot._expirationTime) {
+                delete this._shotsSent[playerId];
+            }
         }
         for (let entry of Object.entries(this._scoutsSent)) {
             let playerId = entry[0];
             let scout = entry[1];
 
             scout.move();
-            if (!scout._expirationTime) this.deleteScout(playerId); 
+            if (!scout._expirationTime) {
+                delete this._scoutsSent[playerId];
+            }
         }
     }
 
     /**
      * Takes in player input and performs action if possible.
      * 
-     * ex: args = [Ship.selectKeyword, Ship.roleTitle] or [x,y]
+     * ex: args = [roleSelectKeyword, roleTitle] or [x,y]
      * 
      * @param playerId 
      * @param args 
@@ -100,7 +113,9 @@ export default class Ship implements Projectile {
     }
 
     /**
-     * Removes player's curent role and gives player requested role if possible.
+     * Adds player to list of members with a particular role if the role is
+     * not full. A player cannot be added if they have shot a projectile that
+     * has not expired.
      * 
      * @param playerId 
      * @param role 
@@ -128,6 +143,13 @@ export default class Ship implements Projectile {
         if (!requestedRole.isFull()) requestedRole.addPlayer(playerId);
     }
 
+    /**
+     * Takes player input and takes the action associatd with their role.
+     * Does not do anything if the player does not have a role.
+     * 
+     * @param playerId 
+     * @param args 
+     */
     private processPlayerRoleInput(playerId : string, args : any[])  {
         let playerRole : Role;
         for (let role of this._roles) {
@@ -162,6 +184,10 @@ export default class Ship implements Projectile {
         }
     }
 
+    /**
+     * Heals ship with diminishing results based on number of players 
+     * with medic role. Health capped at 100.
+     */
     public heal()  {
         let medics = this._medic.getPlayerCount();
         if (medics) {
@@ -204,15 +230,11 @@ export default class Ship implements Projectile {
         );
     }
 
-    public deleteShot(playerId : string)  {
-        delete this._shotsSent[playerId];
-    }
-
-    public deleteScout(playerId: string)  {
-        delete this._scoutsSent[playerId];
-    }
-
     public takeDamage()  {
         this._health -= this._shooterDamage;
+    }
+
+    public deleteShot(playerId : string) {
+        delete this._shotsSent[playerId];
     }
 }
