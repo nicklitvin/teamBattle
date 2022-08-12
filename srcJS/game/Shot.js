@@ -3,15 +3,15 @@ exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Shot = (function () {
     function Shot(position, target, time, speed) {
-        this.radius = 0.1;
-        this.expirationTime = time;
-        this.speed = speed;
-        this.position = position;
-        this.target = MyMath_1["default"].extendToMaxRange(this.position, target, this.speed, this.expirationTime);
+        this._radius = 0.1;
+        this._expirationTime = time;
+        this._speed = speed;
+        this._position = position;
+        this._target = MyMath_1["default"].extendToMaxRange(this._position, target, this._speed, this._expirationTime);
     }
     Shot.prototype.move = function () {
-        this.position = MyMath_1["default"].move(this.position, this.target, this.speed);
-        this.expirationTime -= 1;
+        this._position = MyMath_1["default"].move(this._position, this._target, this._speed);
+        this._expirationTime -= 1;
     };
     return Shot;
 }());

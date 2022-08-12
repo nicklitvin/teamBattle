@@ -1,53 +1,64 @@
-import LobbyData from "./LobbyData"
-
+/**
+ * A lobby contains a list of the players inside, its status,
+ * and other information specific to it.
+ */
 export default class Lobby {
-    private _data = new LobbyData();
+    public _id : string;
+    public _redirectToLobby : string;
+    public _redirectToGame : string;
+    public _players : Set<String> = new Set();
+    public _leader : string;
+    public _countText : string;
+    public _inGame = false;
+    public _transition = false;
 
-    constructor(id) {
-        this._data.id = id;
-        this._data.redirectToLobby = `lobby?r=${id}`;
-        this._data.redirectToGame = `game?r=${id}`;
-    }
-
-    public getData() : LobbyData { 
-        return this._data;
+    constructor(id : string) {
+        this._id = id;
+        this._redirectToLobby = `lobby?r=${id}`;
+        this._redirectToGame = `game?r=${id}`;
     }
 
     public addPlayer(id : string) {
         if (this.getPlayerCount() == 0) {
-            this._data.leader = id;
+            this._leader = id;
         }
-        this._data.players.add(id);
+        this._players.add(id);
         this.updateCountText();
     }
 
     public removePlayer(id : string) {
-        this._data.players.delete(id);
-        if (this._data.leader == id && this.getPlayerCount() > 0) {
-            let players = this._data.players.values();
-            this._data.leader = players.next().value;
+        this._players.delete(id);
+        if (this._leader == id && this.getPlayerCount() > 0) {
+            let players = this._players.values();
+            this._leader = players.next().value;
         }
         this.updateCountText();
     }
 
     public getPlayerCount() {
-        return this._data.players.size;
+        return this._players.size;
     }
 
     public updateCountText() {
-        this._data.countText = `Players in lobby: ${this.getPlayerCount()}`;
+        this._countText = `Players in lobby: ${this.getPlayerCount()}`;
     }
 
     public switchToInGameStatus() {
-        this._data.inGame = true;
-        this._data.transition = true;
+        this._inGame = true;
+        this._transition = true;
     }
 
     public endTransitionPhase() {
-        this._data.transition = false;
+        this._transition = false;
     }
 
     public switchBackFromInGameStatus() {
-        this._data.inGame = false;
+        this._inGame = false;
+    }
+
+    public getPlayerList() : string[] {
+        let list : string[] = [];
+        this._players.forEach((id) => list.push(String(id)));
+        return list;
     }
 }

@@ -1,11 +1,12 @@
 "use strict";
 exports.__esModule = true;
 var Player = (function () {
-    function Player(lobbyId, socket) {
+    function Player(id, lobbyId, socketWrap) {
         this.online = true;
         this.returning = false;
+        this.id = id;
         this.lobbyId = lobbyId;
-        this.socket = socket;
+        this.socketWrap = socketWrap;
     }
     return Player;
 }());

@@ -1,5 +1,8 @@
 import MyMath from "./MyMath";
 
+/**
+ * A position stores (x,y)
+ */
 export default class Position {
     public x : number;
     public y : number;

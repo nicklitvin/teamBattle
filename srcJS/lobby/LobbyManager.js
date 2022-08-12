@@ -1,23 +1,29 @@
 "use strict";
 exports.__esModule = true;
-var LobbyManagerData_1 = require("./LobbyManagerData");
 var hash = require("object-hash");
 var Lobby_1 = require("./Lobby");
 var SocketMessages = require("../client/socketMessages.json");
 var Player_1 = require("./Player");
+var socketWrap_1 = require("../socketWrap");
+var GameManager_1 = require("../game/GameManager");
 var LobbyManager = (function () {
     function LobbyManager(io) {
-        this._data = new LobbyManagerData_1["default"](io);
+        this._sockets = {};
+        this._players = {};
+        this._lobbies = {};
+        this._lobbyIdLength = 6;
         this.setupIoCommunication(io);
+        this._gameManager = new GameManager_1["default"](io, this);
     }
     LobbyManager.prototype.setupIoCommunication = function (io) {
         var _this = this;
         io.on("connection", function (socket) {
+            var socketWrap = new socketWrap_1["default"](socket);
             socket.on(SocketMessages.disconnect, function () {
-                _this.socketRemovePlayer(socket);
+                _this.socketRemovePlayer(socketWrap);
             });
             socket.on(SocketMessages.createLobby, function () {
-                _this.socketCreateLobby(socket);
+                _this.socketCreateLobby(socketWrap);
             });
             socket.on(SocketMessages.joinLobby, function () {
                 var args = [];
@@ -27,7 +33,7 @@ var LobbyManager = (function () {
                 try {
                     var lobbyId = args[0];
                     var playerId = args[1];
-                    _this.socketJoinLobby(socket, lobbyId, playerId);
+                    _this.socketJoinLobby(socketWrap, lobbyId, playerId);
                 }
                 catch (_a) {
                     console.log("Lobbymanager.joinLobby error");
@@ -35,7 +41,7 @@ var LobbyManager = (function () {
             });
             socket.on(SocketMessages.startGame, function () {
                 try {
-                    _this.socketStartGame(socket);
+                    _this.socketStartGame(socketWrap);
                 }
                 catch (_a) {
                     console.log("Lobbymanager.startGame error");
@@ -43,7 +49,7 @@ var LobbyManager = (function () {
             });
             socket.on(SocketMessages.playerWantsToReturn, function () {
                 try {
-                    _this.socketReturnToLobby(socket);
+                    _this.socketReturnToLobby(socketWrap);
                 }
                 catch (_a) {
                     console.log("LobbyManager.playerWantsToReturn error");
@@ -51,24 +57,17 @@ var LobbyManager = (function () {
             });
         });
     };
-    LobbyManager.prototype.socketCreateLobby = function (socket) {
-        var lobby = this.createLobby(socket.id);
-        this.sendPlayerToLobby(socket, lobby);
-        console.log("creating lobby", lobby.getData().id);
-    };
-    LobbyManager.prototype.createLobby = function (socketId) {
-        var id = this.createId(socketId);
+    LobbyManager.prototype.socketCreateLobby = function (socketWrap) {
+        var id = this.createId(socketWrap.id);
         var lobby = new Lobby_1["default"](id);
-        this._data.lobbies[id] = lobby;
-        return lobby;
-    };
-    LobbyManager.prototype.sendPlayerToLobby = function (socket, lobby) {
-        socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
+        this._lobbies[id] = lobby;
+        socketWrap.emit(SocketMessages.redirect, lobby._redirectToLobby);
+        console.log("creating lobby", lobby._id);
     };
     LobbyManager.prototype.createId = function (id) {
         while (true) {
-            id = id.substring(0, this._data.lobbyIdLength);
-            if (Object.keys(this._data.lobbies).includes(id)) {
+            id = id.substring(0, this._lobbyIdLength);
+            if (Object.keys(this._lobbies).includes(id)) {
                 id = hash.sha1(id);
             }
             else {
@@ -77,101 +76,85 @@ var LobbyManager = (function () {
         }
         return id;
     };
-    LobbyManager.prototype.getData = function () {
-        return this._data;
-    };
-    LobbyManager.prototype.socketJoinLobby = function (socket, lobbyId, playerId) {
-        var lobby = this._data.lobbies[lobbyId];
+    LobbyManager.prototype.socketJoinLobby = function (socketWrap, lobbyId, playerId) {
+        var lobby = this._lobbies[lobbyId];
         if (playerId) {
-            var player = this._data.players[playerId];
+            var player = this._players[playerId];
             if (player && player.lobbyId == lobbyId) {
-                var lobby_1 = this._data.lobbies[lobbyId];
-                if (lobby_1.getData().players.has(playerId)) {
+                var lobby_1 = this._lobbies[lobbyId];
+                if (lobby_1._players.has(playerId)) {
                     player.returning = false;
-                    player.socket = socket;
-                    this._data.sockets[socket.id] = playerId;
+                    player.socketWrap = socketWrap;
+                    this._sockets[socketWrap.id] = playerId;
                     this.sendLobbyUpdate(lobby_1);
                     console.log("player returned");
                     return;
                 }
             }
         }
-        if (lobby && !lobby.getData().inGame) {
-            this._data.sockets[socket.id] = socket.id;
-            this._data.players[socket.id] = new Player_1["default"](lobbyId, socket);
-            socket.emit(SocketMessages.setId, socket.id);
-            var lobby_2 = this._data.lobbies[lobbyId];
-            lobby_2.addPlayer(socket.id);
+        if (lobby && !lobby._inGame) {
+            var newPlayer = new Player_1["default"](socketWrap.id, lobbyId, socketWrap);
+            this._sockets[socketWrap.id] = newPlayer.id;
+            this._players[newPlayer.id] = newPlayer;
+            socketWrap.emit(SocketMessages.setId, newPlayer.id);
+            var lobby_2 = this._lobbies[lobbyId];
+            lobby_2.addPlayer(newPlayer.id);
             this.sendLobbyUpdate(lobby_2);
-            console.log("player joined", socket.id);
+            console.log("player joined", socketWrap.id);
         }
         else {
-            socket.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
+            socketWrap.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
             console.log("cant join room", lobbyId);
         }
     };
-    LobbyManager.prototype.socketRemovePlayer = function (socket) {
-        if (this._data.sockets[socket.id]) {
-            var playerId = this._data.sockets[socket.id];
-            var player = this._data.players[playerId];
-            var lobby = this._data.lobbies[player.lobbyId];
-            if (lobby.getData().inGame) {
+    LobbyManager.prototype.socketRemovePlayer = function (socketWrap) {
+        if (this._sockets[socketWrap.id]) {
+            var playerId = this._sockets[socketWrap.id];
+            var player = this._players[playerId];
+            var lobby = this._lobbies[player.lobbyId];
+            delete this._sockets[socketWrap.id];
+            if (lobby._inGame) {
                 player.online = false;
                 return;
             }
-            if (player.returning) {
+            else if (player.returning) {
                 return;
             }
+            delete this._players[playerId];
+            console.log("removing player, global players left: ", Object.keys(this._players).length);
             lobby.removePlayer(playerId);
             if (lobby.getPlayerCount() == 0) {
-                console.log("deleting room", lobby.getData().id);
-                delete this._data.lobbies[lobby.getData().id];
+                console.log("deleting room", lobby._id);
+                delete this._lobbies[lobby._id];
             }
             else {
                 this.sendLobbyUpdate(lobby);
             }
-            delete this._data.sockets[socket.id];
-            delete this._data.players[playerId];
-            console.log("removing player, global players left: ", Object.keys(this._data.players).length);
         }
     };
     LobbyManager.prototype.sendLobbyUpdate = function (lobby) {
-        var data = lobby.getData();
-        var players = data.players.values();
-        var captain = data.leader;
-        var text = data.countText;
-        while (true) {
-            var next = players.next();
-            var playerId = next.value;
-            var done = next.done;
-            if (done)
-                break;
-            var socket = this._data.players[playerId].socket;
-            socket.emit(SocketMessages.countUpdate, text);
+        var captain = lobby._leader;
+        var text = lobby._countText;
+        for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
+            var playerId = _a[_i];
+            var socketWrap = this._players[playerId].socketWrap;
+            socketWrap.emit(SocketMessages.countUpdate, text);
             if (playerId == captain) {
-                socket.emit(SocketMessages.lobbyLeaderRole);
+                socketWrap.emit(SocketMessages.lobbyLeaderRole);
             }
         }
     };
-    LobbyManager.prototype.socketStartGame = function (socket) {
-        var captainId = this._data.sockets[socket.id];
-        var lobbyId = this._data.players[captainId].lobbyId;
-        var lobby = this._data.lobbies[lobbyId];
-        if (captainId == lobby.getData().leader) {
+    LobbyManager.prototype.socketStartGame = function (socketWrap) {
+        var requesterId = this._sockets[socketWrap.id];
+        var lobbyId = this._players[requesterId].lobbyId;
+        var lobby = this._lobbies[lobbyId];
+        if (requesterId == lobby._leader) {
             lobby.switchToInGameStatus();
-            this._data.gameManager.startGame(lobbyId);
-            var data = lobby.getData();
-            var playerIds = data.players.values();
-            var redirectUrl = data.redirectToGame;
-            while (true) {
-                var next = playerIds.next();
-                var playerId = next.value;
-                var done = next.done;
-                if (done)
-                    break;
-                var player = this._data.players[playerId];
-                var socket_1 = player.socket;
-                socket_1.emit(SocketMessages.redirect, redirectUrl);
+            this._gameManager.startGame(lobbyId);
+            for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
+                var playerId = _a[_i];
+                var socketWrap_2 = this._players[playerId].socketWrap;
+                socketWrap_2.emit(SocketMessages.redirect, lobby._redirectToGame);
             }
             console.log("start game in lobby: ", lobbyId);
         }
@@ -179,18 +162,25 @@ var LobbyManager = (function () {
             console.log("false game start");
         }
     };
-    LobbyManager.prototype.socketReturnToLobby = function (socket) {
-        var playerId = this._data.sockets[socket.id];
-        var player = this._data.players[playerId];
-        var lobby = this._data.lobbies[player.lobbyId];
-        if (!lobby.getData().inGame) {
+    LobbyManager.prototype.socketReturnToLobby = function (socketWrap) {
+        var playerId = this._sockets[socketWrap.id];
+        var player = this._players[playerId];
+        var lobby = this._lobbies[player.lobbyId];
+        if (!lobby._inGame) {
             player.returning = true;
-            socket.emit(SocketMessages.redirect, lobby.getData().redirectToLobby);
+            delete this._sockets[socketWrap.id];
+            socketWrap.emit(SocketMessages.redirect, lobby._redirectToLobby);
             console.log("player is returning");
         }
         else {
             console.log("false player return");
         }
+    };
+    LobbyManager.prototype.clearAllData = function () {
+        this._lobbies = {};
+        this._players = {};
+        this._sockets = {};
+        this._gameManager.clearAllData();
     };
     return LobbyManager;
 }());

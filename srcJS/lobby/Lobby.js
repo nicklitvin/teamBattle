@@ -1,46 +1,49 @@
 "use strict";
 exports.__esModule = true;
-var LobbyData_1 = require("./LobbyData");
 var Lobby = (function () {
     function Lobby(id) {
-        this._data = new LobbyData_1["default"]();
-        this._data.id = id;
-        this._data.redirectToLobby = "lobby?r=".concat(id);
-        this._data.redirectToGame = "game?r=".concat(id);
+        this._players = new Set();
+        this._inGame = false;
+        this._transition = false;
+        this._id = id;
+        this._redirectToLobby = "lobby?r=".concat(id);
+        this._redirectToGame = "game?r=".concat(id);
     }
-    Lobby.prototype.getData = function () {
-        return this._data;
-    };
     Lobby.prototype.addPlayer = function (id) {
         if (this.getPlayerCount() == 0) {
-            this._data.leader = id;
+            this._leader = id;
         }
-        this._data.players.add(id);
+        this._players.add(id);
         this.updateCountText();
     };
     Lobby.prototype.removePlayer = function (id) {
-        this._data.players["delete"](id);
-        if (this._data.leader == id && this.getPlayerCount() > 0) {
-            var players = this._data.players.values();
-            this._data.leader = players.next().value;
+        this._players["delete"](id);
+        if (this._leader == id && this.getPlayerCount() > 0) {
+            var players = this._players.values();
+            this._leader = players.next().value;
         }
         this.updateCountText();
     };
     Lobby.prototype.getPlayerCount = function () {
-        return this._data.players.size;
+        return this._players.size;
     };
     Lobby.prototype.updateCountText = function () {
-        this._data.countText = "Players in lobby: ".concat(this.getPlayerCount());
+        this._countText = "Players in lobby: ".concat(this.getPlayerCount());
     };
     Lobby.prototype.switchToInGameStatus = function () {
-        this._data.inGame = true;
-        this._data.transition = true;
+        this._inGame = true;
+        this._transition = true;
     };
     Lobby.prototype.endTransitionPhase = function () {
-        this._data.transition = false;
+        this._transition = false;
     };
     Lobby.prototype.switchBackFromInGameStatus = function () {
-        this._data.inGame = false;
+        this._inGame = false;
+    };
+    Lobby.prototype.getPlayerList = function () {
+        var list = [];
+        this._players.forEach(function (id) { return list.push(String(id)); });
+        return list;
     };
     return Lobby;
 }());

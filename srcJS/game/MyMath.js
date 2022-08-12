@@ -4,8 +4,10 @@ var Position_1 = require("./Position");
 var MyMath = (function () {
     function MyMath() {
     }
-    MyMath.round = function (val) {
-        var roundingVal = Math.pow(10, MyMath.roundDigit);
+    MyMath.round = function (val, roundDigit) {
+        if (!roundDigit)
+            roundDigit = MyMath.roundDigit;
+        var roundingVal = Math.pow(10, roundDigit);
         val = Math.round(val * roundingVal) / roundingVal;
         if (val == -0)
             val = 0;
@@ -44,15 +46,14 @@ var MyMath = (function () {
         return newPosition;
     };
     MyMath.doCirclesIntersect = function (c1, c2) {
-        var dist = Math.pow((Math.pow((c2.position.x - c1.position.x), 2) +
-            Math.pow((c2.position.y - c1.position.y), 2)), (1 / 2));
-        if (dist <= c1.radius + c2.radius)
+        var dist = this.getDistanceBetween(c1, c2);
+        if (dist < c1._radius + c2._radius)
             return true;
         return false;
     };
     MyMath.getDistanceBetween = function (c1, c2) {
-        var val = Math.pow((Math.pow((c2.position.x - c1.position.x), 2) +
-            Math.pow((c2.position.y - c1.position.y), 2)), (1 / 2));
+        var val = Math.pow((Math.pow((c2._position.x - c1._position.x), 2) +
+            Math.pow((c2._position.y - c1._position.y), 2)), (1 / 2));
         return this.round(val);
     };
     MyMath.roundDigit = 4;

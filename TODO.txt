@@ -1,12 +1,6 @@
 Game
 
 Server
-    Move data back into classes
-    comment classes
-    improve iteration methods
-    give players their own ids
-    write map position tests
-
     Assign random teams
     Take player input for game
     Player should know own id

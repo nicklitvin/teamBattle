@@ -10,7 +10,7 @@ const io = new Server(server);
 
 describe("testing lobbyManager", () => {
     let lobbyManager = new LobbyManager(io);
-    let data = lobbyManager.getData();
+    lobbyManager._gameManager._setTimerBeforeGameStart = false;
 
     afterEach(() => {
         lobbyManager.clearAllData();
@@ -19,47 +19,47 @@ describe("testing lobbyManager", () => {
     it("should handle join/leave", () => {
         let socketWrapRed = new SocketWrap();
         socketWrapRed.id = "id0";
-        let playerIdRed = socketWrapRed.id;
     
         let socketWrapBlu = new SocketWrap();
         socketWrapBlu.id = "id1";
-        let playerIdBlu = socketWrapBlu.id;
 
-        let lobbyId = lobbyManager.createId(socketWrapRed.id);
-
+        // red creates lobby
         lobbyManager.socketCreateLobby(socketWrapRed);
-        let lobby = data.lobbies[lobbyId];
-        let lobbyData = lobby.getData();
+        let lobby = lobbyManager._lobbies[socketWrapRed.id];
         expect(lobby).toBeTruthy();
 
-        lobbyManager.socketJoinLobby(socketWrapRed,lobbyId,undefined);
-        expect(lobbyData.players.size).toEqual(1);
-        expect(data.players[playerIdRed]).toBeTruthy();
-        expect(data.sockets[socketWrapRed.id]).toEqual(playerIdRed);
-        expect(lobbyData.leader).toEqual(playerIdRed);
+        // red joins as leader
+        lobbyManager.socketJoinLobby(socketWrapRed,lobby._id,undefined);
+        expect(lobby._players.size).toEqual(1);
+        expect(lobbyManager._players[socketWrapRed.id]).toBeTruthy();
+        expect(lobbyManager._sockets[socketWrapRed.id]).toEqual(socketWrapRed.id);
+        expect(lobby._leader).toEqual(socketWrapRed.id);
 
-        lobbyManager.socketJoinLobby(socketWrapBlu,lobbyId,undefined);
-        expect(lobbyData.players.size).toEqual(2);
-        expect(data.players[playerIdBlu]).toBeTruthy();
-        expect(data.sockets[socketWrapBlu.id]).toEqual(playerIdBlu);
-        expect(lobbyData.leader).toEqual(playerIdRed);
+        // blu joins
+        lobbyManager.socketJoinLobby(socketWrapBlu,lobby._id,undefined);
+        expect(lobby._players.size).toEqual(2);
+        expect(lobbyManager._players[socketWrapBlu.id]).toBeTruthy();
+        expect(lobbyManager._sockets[socketWrapBlu.id]).toEqual(socketWrapBlu.id);
+        expect(lobby._leader).toEqual(socketWrapRed.id);
 
+        // red leaves, blu is leader
         lobbyManager.socketRemovePlayer(socketWrapRed);
-        expect(lobbyData.players.size).toEqual(1);
-        expect(data.players[playerIdRed]).toBeFalsy();
-        expect(data.sockets[socketWrapRed.id]).toBeFalsy();
-        expect(lobbyData.leader).toEqual(playerIdBlu);
+        expect(lobby._players.size).toEqual(1);
+        expect(lobbyManager._players[socketWrapRed.id]).toBeFalsy();
+        expect(lobbyManager._sockets[socketWrapRed.id]).toBeFalsy();
+        expect(lobby._leader).toEqual(socketWrapBlu.id);
 
+        // blu leaves, lobby deleted
         lobbyManager.socketRemovePlayer(socketWrapBlu);
-        expect(data.lobbies[lobbyId]).toBeFalsy();
-        expect(data.players[playerIdBlu]).toBeFalsy();
-        expect(data.sockets[socketWrapBlu.id]).toBeFalsy();
+        expect(lobbyManager._lobbies[lobby._id]).toBeFalsy();
+        expect(lobbyManager._players[socketWrapBlu.id]).toBeFalsy();
+        expect(lobbyManager._sockets[socketWrapBlu.id]).toBeFalsy();
     })
 
     it("should send messages", () => {
-        expect(data.lobbies).toEqual({});
-        expect(data.players).toEqual({});
-        expect(data.sockets).toEqual({});
+        expect(lobbyManager._lobbies).toEqual({});
+        expect(lobbyManager._players).toEqual({});
+        expect(lobbyManager._sockets).toEqual({});
 
         let socketWrapRed = new SocketWrap();
         socketWrapRed.id = "id0";
@@ -67,42 +67,36 @@ describe("testing lobbyManager", () => {
         let socketWrapBlu = new SocketWrap();
         socketWrapBlu.id = "id1";
 
-        let lobbyId = lobbyManager.createId(socketWrapRed.id);
-
         // red creates lobby
         lobbyManager.socketCreateLobby(socketWrapRed);
-        let lobby = data.lobbies[lobbyId];
-        let lobbyData = lobby.getData();
-        let expected0 = [SocketMessages.redirect,lobbyData.redirectToLobby];
+        let lobby = lobbyManager._lobbies[socketWrapRed.id];
+        let expected0 = [SocketMessages.redirect,lobby._redirectToLobby];
         expect(socketWrapRed.savedMessages[0]).toEqual(expected0);
         socketWrapRed.clearSavedMessages();
 
         // red joins lobby
-        lobbyManager.socketJoinLobby(socketWrapRed,lobbyId,undefined);
-        let playerIds = lobbyData.players.values();
-        let firstPlayerId : string = playerIds.next().value;
+        lobbyManager.socketJoinLobby(socketWrapRed,lobby._id,undefined);
+        let firstPlayerId = lobby.getPlayerList()[0];
 
         let expectRed1 = [SocketMessages.setId,firstPlayerId];
         expect(socketWrapRed.savedMessages[0]).toEqual(expectRed1);
-        let expectRed2 = [SocketMessages.countUpdate,lobbyData.countText];
+        let expectRed2 = [SocketMessages.countUpdate,lobby._countText];
         expect(socketWrapRed.savedMessages[1]).toEqual(expectRed2);
         let expectRed3 = [SocketMessages.lobbyLeaderRole];
         expect(socketWrapRed.savedMessages[2]).toEqual(expectRed3);
         socketWrapRed.clearSavedMessages();
 
         // blu joins lobby
-        lobbyManager.socketJoinLobby(socketWrapBlu,lobbyId,undefined);
-        playerIds = lobbyData.players.values();
-        playerIds.next();
-        let secondPlayerId : string = playerIds.next().value;
+        lobbyManager.socketJoinLobby(socketWrapBlu,lobby._id,undefined);
+        let secondPlayerId = lobby.getPlayerList()[1];
 
-        let expectRed4 = [SocketMessages.countUpdate,lobbyData.countText];
+        let expectRed4 = [SocketMessages.countUpdate,lobby._countText];
         expect(socketWrapRed.savedMessages[0]).toEqual(expectRed4);
         expect(socketWrapRed.savedMessages[1]).toEqual(expectRed3)
 
         let expectBlu0 = [SocketMessages.setId,secondPlayerId];
         expect(socketWrapBlu.savedMessages[0]).toEqual(expectBlu0);
-        let expectBlu1 = [SocketMessages.countUpdate,lobbyData.countText];
+        let expectBlu1 = [SocketMessages.countUpdate,lobby._countText];
         expect(socketWrapBlu.savedMessages[1]).toEqual(expectBlu1);
 
         // blu leaves lobby, red starts game
@@ -110,7 +104,7 @@ describe("testing lobbyManager", () => {
         socketWrapRed.clearSavedMessages();
         lobbyManager.socketStartGame(socketWrapRed);
 
-        let expectRed5 = [SocketMessages.redirect, lobbyData.redirectToGame];
+        let expectRed5 = [SocketMessages.redirect, lobby._redirectToGame];
         expect(socketWrapRed.savedMessages[0]).toEqual(expectRed5);
     })
 
@@ -122,51 +116,50 @@ describe("testing lobbyManager", () => {
         let socketWrapBlu = new SocketWrap();
         socketWrapBlu.id = "id1";
 
-        let lobbyId = lobbyManager.createId(socketWrapRed.id);
         lobbyManager.socketCreateLobby(socketWrapRed);
-        lobbyManager.socketJoinLobby(socketWrapRed,lobbyId,undefined);
+        lobbyManager.socketJoinLobby(socketWrapRed,socketWrapRed.id,undefined);
 
-        let lobby = lobbyManager.getData().lobbies[lobbyId];
-        let lobbyData = lobby.getData();
+        let lobby = lobbyManager._lobbies[socketWrapRed.id];
 
         lobbyManager.socketJoinLobby(socketWrapBlu,"badId",undefined);
         let errorRedirect = [SocketMessages.redirect,SocketMessages.errorUrlBit];
         expect(socketWrapBlu.savedMessages[0]).toEqual(errorRedirect);
 
         // cant start game when not leader
-        lobbyManager.socketJoinLobby(socketWrapBlu,lobbyId,undefined);
+        lobbyManager.socketJoinLobby(socketWrapBlu,lobby._id,undefined);
         socketWrapBlu.clearSavedMessages();
 
         lobbyManager.socketStartGame(socketWrapBlu);
-        expect(lobbyData.leader).toEqual(socketWrapRed.id);
-        expect(lobbyData.inGame).toBeFalsy();
+        expect(lobby._leader).toEqual(socketWrapRed.id);
+        expect(lobby._inGame).toBeFalsy();
 
         // cant join lobby when ingame
         lobbyManager.socketRemovePlayer(socketWrapBlu);
         lobby.switchToInGameStatus();
         socketWrapBlu.clearSavedMessages();
 
-        lobbyManager.socketJoinLobby(socketWrapBlu,lobbyId,undefined);
+        lobbyManager.socketJoinLobby(socketWrapBlu,lobby._id,undefined);
         expect(socketWrapBlu.savedMessages[0]).toEqual(errorRedirect);
 
-        // cant join not for you
+        // cant join game when not in lobby
         socketWrapBlu.clearSavedMessages();
-        let gameManager = data.gameManager;
-        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
+        let gameManager = lobbyManager._gameManager;
+        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobby._id);
         expect(socketWrapBlu.savedMessages[0]).toEqual(errorRedirect);
     })
 
     it("lobby/game transition", () => {
         let socketWrapRed = new SocketWrap();
         socketWrapRed.id = "id0";
+        let oldSocketIdRed = socketWrapRed.id;
         let playerIdRed = socketWrapRed.id;
 
         let socketWrapBlu = new SocketWrap();
         socketWrapBlu.id = "id1";
+        let playerIdBlu = socketWrapBlu.id;
 
         let lobbyId = socketWrapRed.id;
-        let gameManager = data.gameManager;
-        let gameManagerData = gameManager.getData();
+        let gameManager = lobbyManager._gameManager;
 
         // start game with red and blu
         lobbyManager.socketCreateLobby(socketWrapRed);
@@ -174,49 +167,54 @@ describe("testing lobbyManager", () => {
         lobbyManager.socketJoinLobby(socketWrapBlu,lobbyId,undefined);
         lobbyManager.socketStartGame(socketWrapRed);
 
-        let lobby = data.lobbies[lobbyId];
-        let lobbyData = lobby.getData();
-        expect(lobbyData.inGame).toBeTruthy();
-        expect(lobbyData.transition).toBeTruthy();
-        expect(gameManagerData.games[lobbyId]).toBeTruthy();
+        let lobby = lobbyManager._lobbies[lobbyId];
+        expect(lobby._inGame).toBeTruthy();
+        expect(lobby._transition).toBeTruthy();
+        expect(gameManager._games[lobbyId]).toBeTruthy();
 
-        // redirecting only red
+        // remove both, only red joins game
         lobbyManager.socketRemovePlayer(socketWrapRed);
         lobbyManager.socketRemovePlayer(socketWrapBlu);
         let newSocketIdRed = "newIdRed";
         socketWrapRed.id = newSocketIdRed;
         gameManager.socketJoinGame(socketWrapRed,playerIdRed,lobbyId);
 
-        expect(data.sockets[playerIdRed]).toBeFalsy();
-        expect(data.sockets[newSocketIdRed]).toEqual(playerIdRed);
-        expect(data.players[playerIdRed].online).toBeTruthy();
-        expect(data.players[socketWrapBlu.id].online).toBeFalsy();
-        expect(data.sockets[socketWrapBlu.id]).toBeFalsy();
+        expect(lobbyManager._sockets[oldSocketIdRed]).toBeFalsy();
+        expect(lobbyManager._sockets[newSocketIdRed]).toEqual(playerIdRed);
+        expect(lobbyManager._players[playerIdRed].online).toBeTruthy();
+        expect(lobbyManager._players[socketWrapBlu.id].online).toBeFalsy();
+        expect(lobbyManager._sockets[socketWrapBlu.id]).toBeFalsy();
         expect(gameManager.areAllOffline(lobby)).toBeFalsy();
 
-        // returning (blu should be deleted)
+        // game ends and blu should be deleted
         gameManager.endGame(lobby);
-        expect(lobbyData.players.size).toEqual(1);
-        expect(Object.keys(data.sockets).length).toEqual(1);
-        expect(lobbyData.inGame).toEqual(false);
+        expect(lobby._players.size).toEqual(1);
+        expect(Object.keys(lobbyManager._sockets).length).toEqual(1);
+        expect(lobby._inGame).toEqual(false);
 
         // red clicks return and disconnects
         lobbyManager.socketReturnToLobby(socketWrapRed);
         lobbyManager.socketRemovePlayer(socketWrapRed);
 
-        let playerRed = data.players[playerIdRed];
+        let playerRed = lobbyManager._players[playerIdRed];
         expect(playerRed).toBeTruthy();
         expect(playerRed.returning).toBeTruthy();
-        expect(Object.keys(data.sockets).length).toEqual(0);
+        expect(Object.keys(lobbyManager._sockets).length).toEqual(0);
         expect(lobby).toBeTruthy();
 
         // red reconnects with new socketId
-        let newestSocketIdRed = "newerIdRed";
+        let newestSocketIdRed = "newestIdRed";
         socketWrapRed.id = newestSocketIdRed;
         lobbyManager.socketJoinLobby(socketWrapRed,lobbyId,playerIdRed);
         
         expect(playerRed.returning).toBeFalsy();
         expect(playerRed.socketWrap.id).toEqual(newestSocketIdRed);
+
+        // blu joins lobby, new player should be added
+        lobbyManager.socketJoinLobby(socketWrapBlu,lobbyId,playerIdBlu);
+        expect(lobbyManager._sockets[socketWrapBlu.id]).toEqual(playerIdBlu);
+        expect(lobbyManager._players[playerIdBlu]).toBeTruthy();
+        expect(lobby._players.has(playerIdBlu));
     })
 })
 server.close();

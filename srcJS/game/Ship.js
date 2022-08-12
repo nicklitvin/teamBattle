@@ -2,47 +2,74 @@
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Position_1 = require("./Position");
-var ShipData_1 = require("./ShipData");
+var Role_1 = require("./Role");
 var Shot_1 = require("./Shot");
+var SocketMessages = require("../client/socketMessages.json");
 var Ship = (function () {
     function Ship(position) {
         if (position === void 0) { position = new Position_1["default"](1, 1); }
-        this._data = new ShipData_1["default"]();
+        this._radius = 0.2;
+        this._speed = 0.5;
+        this._health = 100;
+        this._vision = 3;
+        this._captainCount = 1;
+        this._medicCount = 10;
+        this._medicHeal = 1;
+        this._medicDiminishPercent = 0.5;
+        this._shooterCount = 5;
+        this._shooterSpeed = 5;
+        this._shooterExpirationTime = 1;
+        this._shooterDamage = 10;
+        this._scoutCount = 3;
+        this._scoutSpeed = 3;
+        this._scoutExpirationTime = 1;
+        this._shotsSent = {};
+        this._scoutsSent = {};
+        this._captain = new Role_1["default"](this._captainCount, SocketMessages.captainTitle);
+        this._medic = new Role_1["default"](this._medicCount, SocketMessages.medicTitle);
+        this._shooter = new Role_1["default"](this._shooterCount, SocketMessages.shooterTitle);
+        this._scout = new Role_1["default"](this._scoutCount, SocketMessages.scoutTitle);
+        this._roles = [this._captain, this._medic, this._shooter, this._scout];
         this._mapWidth = 16;
         this._mapHeight = 9;
-        this._data.position = position.copy();
+        this._position = position.copy();
     }
+    Ship.prototype.setId = function (id) {
+        this._id = id;
+    };
     Ship.prototype.setTarget = function (newTarget) {
-        newTarget.x = Math.max(this._data.radius, newTarget.x);
-        newTarget.x = Math.min(this._mapWidth - this._data.radius, newTarget.x);
-        newTarget.y = Math.max(this._data.radius, newTarget.y);
-        newTarget.y = Math.min(this._mapHeight - this._data.radius, newTarget.y);
-        this._data.target = newTarget.copy();
+        newTarget.x = Math.max(this._radius, newTarget.x);
+        newTarget.x = Math.min(this._mapWidth - this._radius, newTarget.x);
+        newTarget.y = Math.max(this._radius, newTarget.y);
+        newTarget.y = Math.min(this._mapHeight - this._radius, newTarget.y);
+        this._target = newTarget.copy();
     };
     Ship.prototype.move = function () {
-        if (this._data.target) {
-            this._data.position = MyMath_1["default"].move(this._data.position, this._data.target, this._data.speed);
+        if (this._target) {
+            this._position = MyMath_1["default"].move(this._position, this._target, this._speed);
         }
-        for (var _i = 0, _a = Object.entries(this._data.shotsSent); _i < _a.length; _i++) {
+        for (var _i = 0, _a = Object.entries(this._shotsSent); _i < _a.length; _i++) {
             var entry = _a[_i];
             var playerId = entry[0];
             var shot = entry[1];
             shot.move();
-            if (!shot.expirationTime)
-                this.deleteShot(playerId);
+            if (!shot._expirationTime) {
+                delete this._shotsSent[playerId];
+            }
         }
-        for (var _b = 0, _c = Object.entries(this._data.scoutsSent); _b < _c.length; _b++) {
+        for (var _b = 0, _c = Object.entries(this._scoutsSent); _b < _c.length; _b++) {
             var entry = _c[_b];
             var playerId = entry[0];
             var scout = entry[1];
             scout.move();
-            if (!scout.expirationTime)
-                this.deleteScout(playerId);
+            if (!scout._expirationTime) {
+                delete this._scoutsSent[playerId];
+            }
         }
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {
-            if (args[0] == Ship.roleSelectKeyword) {
+            if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId, args[1]);
             }
             else {
@@ -53,11 +80,11 @@ var Ship = (function () {
         }
     };
     Ship.prototype.processPlayerSelect = function (playerId, requestedRoleTitle) {
-        if (Object.keys(this._data.shotsSent).includes(playerId) ||
-            Object.keys(this._data.scoutsSent).includes(playerId)) {
+        if (Object.keys(this._shotsSent).includes(playerId) ||
+            Object.keys(this._scoutsSent).includes(playerId)) {
             return;
         }
-        for (var _i = 0, _a = this._data.roles; _i < _a.length; _i++) {
+        for (var _i = 0, _a = this._roles; _i < _a.length; _i++) {
             var role = _a[_i];
             if (role.isPlayerHere(playerId)) {
                 role.removePlayer(playerId);
@@ -65,7 +92,7 @@ var Ship = (function () {
             }
         }
         var requestedRole;
-        for (var _b = 0, _c = this._data.roles; _b < _c.length; _b++) {
+        for (var _b = 0, _c = this._roles; _b < _c.length; _b++) {
             var role = _c[_b];
             if (role.title == requestedRoleTitle) {
                 requestedRole = role;
@@ -77,7 +104,7 @@ var Ship = (function () {
     };
     Ship.prototype.processPlayerRoleInput = function (playerId, args) {
         var playerRole;
-        for (var _i = 0, _a = this._data.roles; _i < _a.length; _i++) {
+        for (var _i = 0, _a = this._roles; _i < _a.length; _i++) {
             var role = _a[_i];
             if (role.isPlayerHere(playerId)) {
                 playerRole = role;
@@ -85,16 +112,16 @@ var Ship = (function () {
             }
         }
         switch (playerRole.title) {
-            case Ship.captainTitle:
+            case SocketMessages.captainTitle:
                 this.setTarget(new Position_1["default"](Number(args[0]), Number(args[1])));
                 break;
-            case Ship.shooterTitle: {
+            case SocketMessages.shooterTitle: {
                 if (this.isShotAvailable(playerId)) {
                     this.shootProjectile(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
                 }
                 break;
             }
-            case Ship.scoutTitle: {
+            case SocketMessages.scoutTitle: {
                 if (this.isScoutAvailable(playerId)) {
                     this.sendScout(playerId, new Position_1["default"](Number(args[0]), Number(args[1])));
                 }
@@ -103,52 +130,38 @@ var Ship = (function () {
         }
     };
     Ship.prototype.heal = function () {
-        var medics = this._data.medic.getPlayerCount();
+        var medics = this._medic.getPlayerCount();
         if (medics) {
-            var heal = this._data.medicHeal *
-                (1 - Math.pow(this._data.medicDiminishPercent, medics)) /
-                (1 - this._data.medicDiminishPercent);
-            this._data.health = Math.min(100, this._data.health + heal);
+            var heal = this._medicHeal *
+                (1 - Math.pow(this._medicDiminishPercent, medics)) /
+                (1 - this._medicDiminishPercent);
+            this._health = Math.min(100, this._health + heal);
         }
     };
     Ship.prototype.isShotAvailable = function (playerId) {
-        if (this._data.shotsSent[playerId]) {
+        if (this._shotsSent[playerId]) {
             return false;
         }
         return true;
     };
     Ship.prototype.isScoutAvailable = function (playerId) {
-        if (this._data.scoutsSent[playerId]) {
+        if (this._scoutsSent[playerId]) {
             return false;
         }
         return true;
     };
     Ship.prototype.shootProjectile = function (playerId, target) {
-        this._data.shotsSent[playerId] = new Shot_1["default"](this._data.position, target, this._data.shooterExpirationTime, this._data.shooterSpeed);
+        this._shotsSent[playerId] = new Shot_1["default"](this._position, target, this._shooterExpirationTime, this._shooterSpeed);
     };
     Ship.prototype.sendScout = function (playerId, target) {
-        this._data.scoutsSent[playerId] = new Shot_1["default"](this._data.position, target, this._data.scoutExpirationTime, this._data.scoutSpeed);
-    };
-    Ship.prototype.deleteShot = function (playerId) {
-        delete this._data.shotsSent[playerId];
-    };
-    Ship.prototype.deleteScout = function (playerId) {
-        delete this._data.scoutsSent[playerId];
+        this._scoutsSent[playerId] = new Shot_1["default"](this._position, target, this._scoutExpirationTime, this._scoutSpeed);
     };
     Ship.prototype.takeDamage = function () {
-        this._data.health -= this._data.shooterDamage;
+        this._health -= this._shooterDamage;
     };
-    Ship.prototype.getData = function () {
-        return this._data;
+    Ship.prototype.deleteShot = function (playerId) {
+        delete this._shotsSent[playerId];
     };
-    Ship.prototype.getProjectileData = function () {
-        return this._data;
-    };
-    Ship.captainTitle = "captain";
-    Ship.medicTitle = "medic";
-    Ship.shooterTitle = "shooter";
-    Ship.scoutTitle = "scout";
-    Ship.roleSelectKeyword = "select";
     return Ship;
 }());
 exports["default"] = Ship;
