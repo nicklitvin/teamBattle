@@ -8,15 +8,25 @@ import Projectile from "./Projectile";
 export default class MyMath {
     private static roundDigit = 4;
 
-    public static round(val : number) : number {
-        let roundingVal = 10 ** MyMath.roundDigit;
+    /**
+     * Rounds the value to the digit specified or the default 
+     * specified in the MyMath class.
+     * 
+     * @param val 
+     * @returns 
+     */
+    public static round(val : number, roundDigit? : number) : number {
+        if (!roundDigit) roundDigit = MyMath.roundDigit;
+
+        let roundingVal = 10 ** roundDigit;
         val = Math.round(val * roundingVal) / roundingVal;
         if (val == -0) val = 0;
         return val
     }
 
     /**
-     * Returns new _position after move towards target given speed.
+     * Returns new position after move towards target given speed.
+     * Non-destructive.
      * @param from 
      * @param to 
      * @param speed 
@@ -39,6 +49,16 @@ export default class MyMath {
         return newPosition;
     }
 
+    /**
+     * Returns expected position of object given its speed, time passed, and 
+     * its direction.
+     * 
+     * @param from start position
+     * @param to target position
+     * @param speed speed of the object
+     * @param time spent in travel
+     * @returns 
+     */
     public static extendToMaxRange(from : Position, to : Position,
          speed : number, time : number) : Position 
     {
@@ -58,14 +78,22 @@ export default class MyMath {
         return newPosition;
     }
 
+    /**
+     * @param c1 projectile
+     * @param c2 projectile
+     * @returns if projectiles intersect
+     */
     public static doCirclesIntersect(c1 : Projectile, c2 : Projectile) : boolean {
-        let dist = ((c2._position.x - c1._position.x)**2 +
-            (c2._position.y - c1._position.y)**2) ** (1/2);
-            
-        if (dist <= c1._radius + c2._radius) return true;
+        let dist = this.getDistanceBetween(c1,c2);
+        if (dist < c1._radius + c2._radius) return true;
         return false;
     }
 
+    /**
+     * @param c1 projectile
+     * @param c2 projectile
+     * @returns distance between centers of projectiles
+     */
     public static getDistanceBetween(c1 : Projectile, c2 : Projectile) : number {
         let val = ((c2._position.x - c1._position.x)**2 + 
             (c2._position.y - c1._position.y)**2) ** (1/2);
