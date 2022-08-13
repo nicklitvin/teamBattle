@@ -115,9 +115,16 @@ var LobbyManager = (function () {
             delete this._sockets[socketWrap.id];
             if (lobby._inGame) {
                 player.online = false;
+                if (lobby._transition) {
+                    console.log("transition disconnect", playerId);
+                }
+                else {
+                    console.log("disconnect during game", playerId);
+                }
                 return;
             }
             else if (player.returning) {
+                console.log("player returning to lobby ", playerId);
                 return;
             }
             delete this._players[playerId];

@@ -7,9 +7,10 @@ var GameManager = (function () {
     function GameManager(io, data) {
         var _this = this;
         this._games = {};
-        this._transitionTime = 1000 * 5;
+        this._transitionTime = 1000 * 3;
         this._setTimerBeforeGameStart = true;
         this._instantGameUpdates = false;
+        this._immediatelyEndGame = true;
         this._lobbyManager = data;
         io.on("connection", function (socket) {
             var socketWrap = new socketWrap_1["default"](socket);
@@ -55,7 +56,7 @@ var GameManager = (function () {
         this._games[lobbyId] = game;
         if (this._setTimerBeforeGameStart) {
             setTimeout(function () {
-                console.log("checking if all gone");
+                console.log("starting game");
                 lobby.endTransitionPhase();
                 if (_this.areAllOffline(lobby)) {
                     _this.deleteLobby(lobby);
@@ -168,7 +169,12 @@ var GameManager = (function () {
         game.deleteEmptyShips();
     };
     GameManager.prototype.runGame = function (game) {
-        if (game.isGameOver()) {
+        if (game.isGameOver() || this._immediatelyEndGame) {
+            var somePlayerId = Object.keys(game._players)[0];
+            var lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
+            var lobby = this._lobbyManager._lobbies[lobbyId];
+            lobby.switchBackFromInGameStatus();
+            console.log("ending game");
             for (var _i = 0, _a = Object.keys(game._players); _i < _a.length; _i++) {
                 var playerId = _a[_i];
                 var player = this._lobbyManager._players[playerId];

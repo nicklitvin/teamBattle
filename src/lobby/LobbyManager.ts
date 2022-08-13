@@ -170,8 +170,14 @@ export default class LobbyManager {
 
             if (lobby._inGame) {
                 player.online = false;
+                if (lobby._transition) {
+                    console.log("transition disconnect", playerId);
+                } else {
+                    console.log("disconnect during game", playerId);
+                }
                 return;
             } else if (player.returning) {
+                console.log("player returning to lobby ", playerId);
                 return;
             } 
 
@@ -246,7 +252,6 @@ export default class LobbyManager {
         let playerId = this._sockets[socketWrap.id];
         let player = this._players[playerId];
         let lobby = this._lobbies[player.lobbyId];
-
         if (!lobby._inGame) {
             player.returning = true;
             delete this._sockets[socketWrap.id];

@@ -18,7 +18,7 @@ export default class GameManager {
     public _lobbyManager : LobbyManager;
     
     /** unts of time: ms*/
-    public _transitionTime = 1000*5;
+    public _transitionTime = 1000*3;
 
     /** 
      * if true: game will start updating until game end,
@@ -31,7 +31,9 @@ export default class GameManager {
      * frame immediately after.
      */
     public _instantGameUpdates = false;
-    
+
+    public _immediatelyEndGame = true;
+
     constructor(io : Server, data : LobbyManager) {
         this._lobbyManager = data;
 
@@ -77,7 +79,7 @@ export default class GameManager {
 
         if (this._setTimerBeforeGameStart) {
             setTimeout( () => {
-                console.log("checking if all gone");
+                console.log("starting game");
                 lobby.endTransitionPhase();
                 if (this.areAllOffline(lobby)) {
                     this.deleteLobby(lobby);
@@ -246,7 +248,13 @@ export default class GameManager {
      * @param game 
      */
     public runGame(game : Game) {
-        if (game.isGameOver()) {
+        if (game.isGameOver() || this._immediatelyEndGame) {
+            let somePlayerId = Object.keys(game._players)[0];
+            let lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
+            let lobby = this._lobbyManager._lobbies[lobbyId];
+            lobby.switchBackFromInGameStatus();
+            console.log("ending game");
+            
             for (let playerId of Object.keys(game._players)) {
                 let player = this._lobbyManager._players[playerId];
                 player.socketWrap.emit(SocketMessages.showReturnButton);

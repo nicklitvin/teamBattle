@@ -1,7 +1,6 @@
 Game
 
 Server
-    client socket receives array instead of many parameters (check)
     remove player maybe not necessary during transition phase
 
 Visuals

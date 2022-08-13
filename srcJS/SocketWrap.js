@@ -21,12 +21,7 @@ var SocketWrap = (function () {
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                var message = [];
-                for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
-                    var word = args_1[_a];
-                    message.push(word);
-                }
-                _this.savedMessages.push(message);
+                _this.savedMessages.push(args);
             };
         }
     }

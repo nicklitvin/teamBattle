@@ -38,20 +38,19 @@ class Lobby {
     setup() {
         this.updateTitle();
 
-        this.socket.on(SocketMessages.setId, (id) => {
-            localStorage.setItem(SocketMessages.localStorageId,id);
-            console.log("new ID",id);
+        this.socket.on(SocketMessages.setId, (msg) => {
+            localStorage.setItem(SocketMessages.localStorageId,msg[0]);
         })
-        this.socket.on(SocketMessages.countUpdate, (txt) => {
+        this.socket.on(SocketMessages.countUpdate, (msg) => {
             let element = document.getElementById("lobbyStatus");
-            element.innerHTML = txt;
+            element.innerHTML = msg[0];
         })
         this.socket.on(SocketMessages.lobbyLeaderRole, () => {
             let element = document.getElementById("gameStarter");
             element.style.display = "block";
         })
-        this.socket.on(SocketMessages.redirect, (url)=>{
-            window.location.href = SocketMessages.baseUrl + url;
+        this.socket.on(SocketMessages.redirect, (msg) => {
+            window.location.href = SocketMessages.baseUrl + msg[0];
         })
     }
 }

@@ -13,8 +13,8 @@ import { Socket } from "socket.io";
 export default class SocketWrap {
     public id : string;
     public emit : Function;
+    /** [ [event, ...args], [event, ...args], ...]*/
     public savedMessages : string[][] = [];
-
     public socket : Socket;
 
     constructor(socket? : Socket) {
@@ -26,11 +26,7 @@ export default class SocketWrap {
             }
         } else {
             this.emit = (...args : any) => {
-                let message : string[] = [];
-                for (let word of args) {
-                    message.push(word);
-                }
-                this.savedMessages.push(message);
+                this.savedMessages.push(args);
             }
         }
     }
