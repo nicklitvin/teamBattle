@@ -13,8 +13,8 @@ export default class Game {
     public _players : { [playerId : string]: string} = {};
     public _ships : { [shipId: string]: Ship } = {};
     public _defaultShipNumber = 4;
-    public _mapWidth = 16;
-    public _mapHeight = 9;
+    public static _mapWidth = 12;
+    public static _mapHeight = 9;
 
     public addPlayer(playerId : string, shipId : string) {
         if (Object.keys(this._ships).includes(shipId)) {
@@ -116,15 +116,15 @@ export default class Game {
         );
         let position1 = new Position(
             testShip._radius,
-            testShip._mapHeight - testShip._radius 
+            Game._mapHeight - testShip._radius 
         );
         let position2 = new Position(
-            testShip._mapWidth - testShip._radius,
+            Game._mapWidth - testShip._radius,
             testShip._radius
         );
         let position3 = new Position(
-            testShip._mapWidth - testShip._radius,
-            testShip._mapHeight - testShip._radius
+            Game._mapWidth - testShip._radius,
+            Game._mapHeight - testShip._radius
         );
 
         this.addShip("0",position0);

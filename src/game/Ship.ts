@@ -4,6 +4,7 @@ import Projectile from "./Projectile";
 import Role from "./Role";
 import Shot from "./Shot";
 import * as SocketMessages from "../client/socketMessages.json";
+import Game from "./Game";
 
 
 /**
@@ -41,8 +42,6 @@ export default class Ship implements Projectile {
     public _shooter = new Role(this._shooterCount, SocketMessages.shooterTitle);
     public _scout = new Role(this._scoutCount, SocketMessages.scoutTitle);
     public _roles = [this._captain,this._medic,this._shooter,this._scout];
-    public _mapWidth = 16;
-    public _mapHeight = 9;
 
     constructor(position : Position = new Position(1,1)) {
         this._position = position.copy();
@@ -54,9 +53,9 @@ export default class Ship implements Projectile {
 
     public setTarget(newTarget : Position)  {
         newTarget.x = Math.max(this._radius, newTarget.x);
-        newTarget.x = Math.min(this._mapWidth - this._radius, newTarget.x);
+        newTarget.x = Math.min(Game._mapWidth - this._radius, newTarget.x);
         newTarget.y = Math.max(this._radius, newTarget.y);
-        newTarget.y = Math.min(this._mapHeight - this._radius, newTarget.y);
+        newTarget.y = Math.min(Game._mapHeight - this._radius, newTarget.y);
 
         this._target = newTarget.copy();
     }

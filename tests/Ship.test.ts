@@ -1,6 +1,7 @@
 import Ship from "../src/game/Ship"
 import Position from "../src/game/Position"
 import * as SocketMessages from "../src/client/socketMessages.json";
+import Game from "../src/game/Game";
 
 describe("testing Ship move", () => {
     let ship = new Ship(new Position(1,1));
@@ -46,7 +47,7 @@ describe("testing Ship move", () => {
         let radius = ship._radius;
 
         expect(ship._target).toEqual(
-            new Position(16-radius,radius)
+            new Position(Game._mapWidth - radius,radius)
         );
     })
     it("should stay within boundary 1", () => {

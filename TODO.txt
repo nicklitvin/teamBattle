@@ -1,7 +1,6 @@
 Game
 
 Server
-    make mapwidth/height belong to game only
     Take player input for game
     Player should know own id
     add commentary to each class
