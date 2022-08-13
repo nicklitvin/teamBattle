@@ -6,7 +6,6 @@ import Shot from "./Shot";
 import * as SocketMessages from "../client/socketMessages.json";
 import Game from "./Game";
 
-
 /**
  * A ship is a projectile that can be used by players to take
  * certain actions, which it can process. The ship does not
@@ -101,6 +100,7 @@ export default class Ship implements Projectile {
      */
     public processPlayerInput(playerId : string, args : any[])  {
         try {
+            console.log("processing player request",playerId,args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
             } else {
@@ -120,12 +120,13 @@ export default class Ship implements Projectile {
      * @param role 
      */
     private processPlayerSelect(playerId : string, requestedRoleTitle : string) {
+        console.log("processing player request");
         if (
             Object.keys(this._shotsSent).includes(playerId) ||
             Object.keys(this._scoutsSent).includes(playerId)) 
         {
             return
-        } 
+        }
         for (let role of this._roles) {
             if (role.isPlayerHere(playerId)) {
                 role.removePlayer(playerId);

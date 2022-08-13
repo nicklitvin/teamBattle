@@ -1,10 +1,7 @@
 Game
+    add end condition
 
 Server
-    Take player input for game
-    Player should know own id
-    add commentary to each class
-    delete players that dont return after x time
 
 Visuals
     Map is dark, light when within radius

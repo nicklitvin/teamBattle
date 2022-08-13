@@ -1,10 +1,9 @@
 import LobbyManager from "../src/lobby/LobbyManager";
-import GameManager from "../src/game/GameManager";
 import * as express from "express";
 import { Server } from "socket.io";
 import SocketWrap from "../src/SocketWrap";
 import Lobby from "../src/lobby/Lobby";
-import Game from "../src/game/Game";
+import * as SocketMessages from "../src/client/socketMessages.json";
 
 const app : any = express();
 const server = app.listen(5000);
@@ -25,7 +24,7 @@ describe("testing gameManager", () => {
     let lobby : Lobby;
 
     // create lobby with 2 players
-    beforeAll( () => {
+    beforeEach( () => {
         lobbyManager.clearAllData();
         gameManager.clearAllData();
 
@@ -85,5 +84,44 @@ describe("testing gameManager", () => {
         expect(lobbyManager._lobbies).toEqual({});
         expect(lobbyManager._players).toEqual({});
         expect(gameManager._games).toEqual({});
+    })
+    it("should take player input", () => {
+        lobbyManager.socketStartGame(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapBlu);
+        gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
+        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
+        let game = gameManager._games[socketWrapRed.id];
+        lobby._transition = false;
+        gameManager.makeTeams(lobby,game);
+
+        // red selects captain role
+        let selectMessage = [SocketMessages.roleSelectKeyword, SocketMessages.captainTitle];     
+        let ship = game._ships[game._players[socketWrapRed.id]];
+        gameManager.socketProcessGameInput(
+            socketWrapRed,
+            SocketMessages.roleSelectKeyword, 
+            SocketMessages.captainTitle
+        );
+        
+        expect(ship._captain.getPlayerCount()).toEqual(1);
+
+        // red chooses target
+        let positionMessage = [4,8];
+        gameManager.socketProcessGameInput(socketWrapRed,positionMessage[0],positionMessage[1]);
+        
+        expect(ship._target.x).toEqual(positionMessage[0]);
+        expect(ship._target.y).toEqual(positionMessage[1]);
+
+        // red chooses different role
+        selectMessage = [SocketMessages.roleSelectKeyword, SocketMessages.shooterTitle];
+        gameManager.socketProcessGameInput(
+            socketWrapRed,
+            SocketMessages.roleSelectKeyword,
+            SocketMessages.shooterTitle
+        );
+
+        expect(ship._captain.getPlayerCount()).toEqual(0);
+        expect(ship._shooter.getPlayerCount()).toEqual(1);
     })
 })

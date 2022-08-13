@@ -80,7 +80,7 @@ export default class GameManager {
                     // update game
                 }
             }, this._transitionTime);
-        }
+        } 
     }
 
     /**
@@ -202,7 +202,6 @@ export default class GameManager {
             let player = this._lobbyManager._players[playerId];
             let lobby = this._lobbyManager._lobbies[player.lobbyId];
             let game = this._games[player.lobbyId];
-            
             if (lobby._inGame && !lobby._transition) {
                 game.processPlayerInput(playerId,args);
             }

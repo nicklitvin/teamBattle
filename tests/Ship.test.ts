@@ -210,7 +210,7 @@ describe("testing shooting", () => {
         let ship = new Ship();
         let scoutTarget = new Position(3,4);
 
-        ship._position =new Position(0,0);
+        ship._position = new Position(0,0);
         ship._scoutSpeed = 2.5;
         ship._scoutExpirationTime = 2;
 

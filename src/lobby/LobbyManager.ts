@@ -66,7 +66,6 @@ export default class LobbyManager {
                 } catch {
                     console.log("LobbyManager.playerWantsToReturn error");
                 }
-                
             })
         })
     }
