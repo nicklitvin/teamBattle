@@ -12,7 +12,6 @@ var SocketWrap = (function () {
                 for (var _i = 1; _i < arguments.length; _i++) {
                     args[_i - 1] = arguments[_i];
                 }
-                console.log(args);
                 _this.socket.emit(event, args);
             };
         }

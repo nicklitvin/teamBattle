@@ -5,6 +5,7 @@ var Position_1 = require("./Position");
 var Role_1 = require("./Role");
 var Shot_1 = require("./Shot");
 var SocketMessages = require("../client/socketMessages.json");
+var Game_1 = require("./Game");
 var Ship = (function () {
     function Ship(position) {
         if (position === void 0) { position = new Position_1["default"](1, 1); }
@@ -30,8 +31,6 @@ var Ship = (function () {
         this._shooter = new Role_1["default"](this._shooterCount, SocketMessages.shooterTitle);
         this._scout = new Role_1["default"](this._scoutCount, SocketMessages.scoutTitle);
         this._roles = [this._captain, this._medic, this._shooter, this._scout];
-        this._mapWidth = 16;
-        this._mapHeight = 9;
         this._position = position.copy();
     }
     Ship.prototype.setId = function (id) {
@@ -39,9 +38,9 @@ var Ship = (function () {
     };
     Ship.prototype.setTarget = function (newTarget) {
         newTarget.x = Math.max(this._radius, newTarget.x);
-        newTarget.x = Math.min(this._mapWidth - this._radius, newTarget.x);
+        newTarget.x = Math.min(Game_1["default"]._mapWidth - this._radius, newTarget.x);
         newTarget.y = Math.max(this._radius, newTarget.y);
-        newTarget.y = Math.min(this._mapHeight - this._radius, newTarget.y);
+        newTarget.y = Math.min(Game_1["default"]._mapHeight - this._radius, newTarget.y);
         this._target = newTarget.copy();
     };
     Ship.prototype.move = function () {
@@ -69,6 +68,7 @@ var Ship = (function () {
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {
+            console.log("processing player request", playerId, args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId, args[1]);
             }
@@ -80,6 +80,7 @@ var Ship = (function () {
         }
     };
     Ship.prototype.processPlayerSelect = function (playerId, requestedRoleTitle) {
+        console.log("processing player request");
         if (Object.keys(this._shotsSent).includes(playerId) ||
             Object.keys(this._scoutsSent).includes(playerId)) {
             return;

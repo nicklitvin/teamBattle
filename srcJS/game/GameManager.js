@@ -9,7 +9,8 @@ var GameManager = (function () {
         this._games = {};
         this._transitionTime = 1000 * 5;
         this._setTimerBeforeGameStart = true;
-        this._lobbyData = data;
+        this._instantGameUpdates = false;
+        this._lobbyManager = data;
         io.on("connection", function (socket) {
             var socketWrap = new socketWrap_1["default"](socket);
             socket.on(SocketMessages.disconnect, function () {
@@ -50,7 +51,7 @@ var GameManager = (function () {
     GameManager.prototype.startGame = function (lobbyId) {
         var _this = this;
         var game = new Game_1["default"]();
-        var lobby = this._lobbyData._lobbies[lobbyId];
+        var lobby = this._lobbyManager._lobbies[lobbyId];
         this._games[lobbyId] = game;
         if (this._setTimerBeforeGameStart) {
             setTimeout(function () {
@@ -59,14 +60,18 @@ var GameManager = (function () {
                 if (_this.areAllOffline(lobby)) {
                     _this.deleteLobby(lobby);
                 }
+                else {
+                    _this.makeTeams(lobby, game);
+                    _this.runGame(game);
+                }
             }, this._transitionTime);
         }
     };
     GameManager.prototype.socketJoinGame = function (socketWrap, playerId, lobbyId) {
-        var lobby = this._lobbyData._lobbies[lobbyId];
+        var lobby = this._lobbyManager._lobbies[lobbyId];
         if (lobby && lobby._players.has(playerId)) {
-            this._lobbyData._sockets[socketWrap.id] = playerId;
-            var player = this._lobbyData._players[playerId];
+            this._lobbyManager._sockets[socketWrap.id] = playerId;
+            var player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
             console.log("player joined game", playerId);
@@ -77,9 +82,9 @@ var GameManager = (function () {
         }
     };
     GameManager.prototype.socketLeaveGame = function (socketWrap) {
-        var leaverId = this._lobbyData._sockets[socketWrap.id];
-        var player = this._lobbyData._players[leaverId];
-        var lobby = this._lobbyData._lobbies[player.lobbyId];
+        var leaverId = this._lobbyManager._sockets[socketWrap.id];
+        var player = this._lobbyManager._players[leaverId];
+        var lobby = this._lobbyManager._lobbies[player.lobbyId];
         if (lobby._inGame) {
             player.online = false;
             console.log("player goes offline");
@@ -95,7 +100,7 @@ var GameManager = (function () {
         var allOffline = true;
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
-            var player = this._lobbyData._players[playerId];
+            var player = this._lobbyManager._players[playerId];
             if (player.online) {
                 allOffline = false;
                 break;
@@ -107,11 +112,11 @@ var GameManager = (function () {
         var lobbyId = lobby._id;
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
-            var player = this._lobbyData._players[playerId];
-            delete this._lobbyData._sockets[player.socketWrap.id];
-            delete this._lobbyData._players[playerId];
+            var player = this._lobbyManager._players[playerId];
+            delete this._lobbyManager._sockets[player.socketWrap.id];
+            delete this._lobbyManager._players[playerId];
         }
-        delete this._lobbyData._lobbies[lobbyId];
+        delete this._lobbyManager._lobbies[lobbyId];
         delete this._games[lobbyId];
         console.log("deleting lobby", lobbyId);
     };
@@ -119,11 +124,11 @@ var GameManager = (function () {
         lobby.switchBackFromInGameStatus();
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
-            var player = this._lobbyData._players[playerId];
+            var player = this._lobbyManager._players[playerId];
             if (!player.online) {
                 lobby.removePlayer(playerId);
-                delete this._lobbyData._sockets[player.socketWrap.id];
-                delete this._lobbyData._players[playerId];
+                delete this._lobbyManager._sockets[player.socketWrap.id];
+                delete this._lobbyManager._players[playerId];
             }
             else {
                 player.socketWrap.emit(SocketMessages.showReturnButton);
@@ -135,13 +140,48 @@ var GameManager = (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             args[_i - 1] = arguments[_i];
         }
-        var playerId = this._lobbyData._sockets[socketWrap.id];
+        var playerId = this._lobbyManager._sockets[socketWrap.id];
         if (playerId) {
-            var player = this._lobbyData._players[playerId];
-            var lobby = this._lobbyData._lobbies[player.lobbyId];
+            var player = this._lobbyManager._players[playerId];
+            var lobby = this._lobbyManager._lobbies[player.lobbyId];
             var game = this._games[player.lobbyId];
             if (lobby._inGame && !lobby._transition) {
                 game.processPlayerInput(playerId, args);
+            }
+        }
+    };
+    GameManager.prototype.makeTeams = function (lobby, game) {
+        game.makeDefaultShips();
+        var currentShipNum = 0;
+        for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
+            var playerId = _a[_i];
+            var player = this._lobbyManager._players[playerId];
+            if (player.online) {
+                game.addPlayer(playerId, String(currentShipNum));
+                currentShipNum = (currentShipNum + 1) % game._defaultShipNumber;
+            }
+            else {
+                lobby.removePlayer(playerId);
+                delete this._lobbyManager._players[playerId];
+            }
+        }
+        game.deleteEmptyShips();
+    };
+    GameManager.prototype.runGame = function (game) {
+        if (game.isGameOver()) {
+            for (var _i = 0, _a = Object.keys(game._players); _i < _a.length; _i++) {
+                var playerId = _a[_i];
+                var player = this._lobbyManager._players[playerId];
+                player.socketWrap.emit(SocketMessages.showReturnButton);
+            }
+        }
+        else {
+            game.update();
+            if (this._instantGameUpdates) {
+                this.runGame(game);
+            }
+            else {
+                requestAnimationFrame(this.runGame.bind(this, game));
             }
         }
     };

@@ -21,11 +21,11 @@ export default class SocketWrap {
         if (socket) {
             this.socket = socket;
             this.id = this.socket.id;
-            this.emit = (event : string, ...args : string[]) => {
+            this.emit = (event : string, ...args : any) => {
                 this.socket.emit(event,args);
             }
         } else {
-            this.emit = (...args : any[]) => {
+            this.emit = (...args : any) => {
                 let message : string[] = [];
                 for (let word of args) {
                     message.push(word);

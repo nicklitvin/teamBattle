@@ -247,7 +247,10 @@ export default class GameManager {
      */
     public runGame(game : Game) {
         if (game.isGameOver()) {
-            // send return button
+            for (let playerId of Object.keys(game._players)) {
+                let player = this._lobbyManager._players[playerId];
+                player.socketWrap.emit(SocketMessages.showReturnButton);
+            }
         } else {
             game.update();
             if (this._instantGameUpdates) {

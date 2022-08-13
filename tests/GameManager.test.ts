@@ -179,6 +179,8 @@ describe("testing gameManager", () => {
         gameManager.runGame(game);
 
         expect(game.isGameOver()).toBeTruthy();
+        let actual0 = socketWrapRed.savedMessages[socketWrapRed.savedMessages.length - 1];
+        expect(actual0).toEqual([SocketMessages.showReturnButton]);
     })
 })
 server.close();

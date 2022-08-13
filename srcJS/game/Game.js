@@ -1,11 +1,13 @@
 "use strict";
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
+var Position_1 = require("./Position");
 var Ship_1 = require("./Ship");
 var Game = (function () {
     function Game() {
         this._players = {};
         this._ships = {};
+        this._defaultShipNumber = 4;
     }
     Game.prototype.addPlayer = function (playerId, shipId) {
         if (Object.keys(this._ships).includes(shipId)) {
@@ -77,6 +79,32 @@ var Game = (function () {
         }
         return list;
     };
+    Game.prototype.makeDefaultShips = function () {
+        var testShip = new Ship_1["default"]();
+        var position0 = new Position_1["default"](testShip._radius, testShip._radius);
+        var position1 = new Position_1["default"](testShip._radius, Game._mapHeight - testShip._radius);
+        var position2 = new Position_1["default"](Game._mapWidth - testShip._radius, testShip._radius);
+        var position3 = new Position_1["default"](Game._mapWidth - testShip._radius, Game._mapHeight - testShip._radius);
+        this.addShip("0", position0);
+        this.addShip("1", position1);
+        this.addShip("2", position2);
+        this.addShip("3", position3);
+    };
+    Game.prototype.deleteEmptyShips = function () {
+        var occupiedShips = Object.values(this._players);
+        var shipIds = Object.keys(this._ships);
+        for (var _i = 0, shipIds_1 = shipIds; _i < shipIds_1.length; _i++) {
+            var shipId = shipIds_1[_i];
+            if (!occupiedShips.includes(shipId)) {
+                delete this._ships[shipId];
+            }
+        }
+    };
+    Game.prototype.isGameOver = function () {
+        return Object.keys(this._ships).length <= 1;
+    };
+    Game._mapWidth = 12;
+    Game._mapHeight = 9;
     return Game;
 }());
 exports["default"] = Game;
