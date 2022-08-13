@@ -12,6 +12,9 @@ export default class Game {
     /** _players = {PlayerId : ShipId} */
     public _players : { [playerId : string]: string} = {};
     public _ships : { [shipId: string]: Ship } = {};
+    public _defaultShipNumber = 4;
+    public _mapWidth = 16;
+    public _mapHeight = 9;
 
     public addPlayer(playerId : string, shipId : string) {
         if (Object.keys(this._ships).includes(shipId)) {
@@ -99,5 +102,48 @@ export default class Game {
             }
         }
         return list;
+    }
+
+    /**
+     * Creates and adds 4 ships to the game.
+     */
+    public makeDefaultShips() {
+        let testShip = new Ship();
+
+        let position0 = new Position(
+            testShip._radius,
+            testShip._radius
+        );
+        let position1 = new Position(
+            testShip._radius,
+            testShip._mapHeight - testShip._radius 
+        );
+        let position2 = new Position(
+            testShip._mapWidth - testShip._radius,
+            testShip._radius
+        );
+        let position3 = new Position(
+            testShip._mapWidth - testShip._radius,
+            testShip._mapHeight - testShip._radius
+        );
+
+        this.addShip("0",position0);
+        this.addShip("1",position1);
+        this.addShip("2",position2);
+        this.addShip("3",position3);
+    }
+
+    /**
+     * Deletes all ships that have no occupants.
+     */
+    public deleteEmptyShips() {
+        let occupiedShips = Object.values(this._players);
+        let shipIds = Object.keys(this._ships);
+
+        for (let shipId of shipIds) {
+            if (!occupiedShips.includes(shipId)) {
+                delete this._ships[shipId];
+            }
+        }
     }
 }

@@ -7,14 +7,15 @@ import LobbyManager from "../lobby/LobbyManager";
 
 /**
  * GameManager processes any player input and keeps track of
- * certain game events for all ongoing games.
+ * certain game events for all ongoing games. Needs access
+ * to LobbyManager for access to sockets,players,and lobbies.
  */
 export default class GameManager {
     /** List of all ongoing games */
     public _games : {[lobbyId : string] : Game} = {};
 
     /** Pointer to lobby and all of its variables */
-    public _lobbyData : LobbyManager;
+    public _lobbyManager : LobbyManager;
     
     /** unts of time: ms*/
     public _transitionTime = 1000*5;
@@ -26,7 +27,7 @@ export default class GameManager {
     public _setTimerBeforeGameStart = true;
     
     constructor(io : Server, data : LobbyManager) {
-        this._lobbyData = data;
+        this._lobbyManager = data;
 
         io.on("connection", (socket : Socket) => {
             let socketWrap = new SocketWrap(socket);
@@ -65,7 +66,7 @@ export default class GameManager {
      */
     public startGame(lobbyId : string) {
         let game = new Game();
-        let lobby = this._lobbyData._lobbies[lobbyId];
+        let lobby = this._lobbyManager._lobbies[lobbyId];
         this._games[lobbyId] = game;
 
         if (this._setTimerBeforeGameStart) {
@@ -74,25 +75,29 @@ export default class GameManager {
                 lobby.endTransitionPhase();
                 if (this.areAllOffline(lobby)) {
                     this.deleteLobby(lobby);
-                } 
+                } else {
+                    this.makeTeams(lobby,game);
+                    // update game
+                }
             }, this._transitionTime);
         }
     }
 
     /**
-     * Updates player's status if joining a legit game they are a part of. Else sends
-     * client to error page.
+     * Updates player's status if joining a legit game they are a part of and
+     * adds entry to match socket id to player id. Else sends client to error
+     * page.
      * 
      * @param socketWrap 
      * @param playerId 
      * @param lobbyId 
      */
     public socketJoinGame(socketWrap : SocketWrap, playerId : string, lobbyId : string) {
-        let lobby = this._lobbyData._lobbies[lobbyId];
+        let lobby = this._lobbyManager._lobbies[lobbyId];
 
         if (lobby && lobby._players.has(playerId)) {
-            this._lobbyData._sockets[socketWrap.id] = playerId;
-            let player = this._lobbyData._players[playerId];
+            this._lobbyManager._sockets[socketWrap.id] = playerId;
+            let player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
             console.log("player joined game",playerId);
@@ -110,9 +115,9 @@ export default class GameManager {
      * @returns 
      */
     public socketLeaveGame(socketWrap : SocketWrap) {
-        let leaverId = this._lobbyData._sockets[socketWrap.id];
-        let player = this._lobbyData._players[leaverId];
-        let lobby = this._lobbyData._lobbies[player.lobbyId];
+        let leaverId = this._lobbyManager._sockets[socketWrap.id];
+        let player = this._lobbyManager._players[leaverId];
+        let lobby = this._lobbyManager._lobbies[player.lobbyId];
 
         if (lobby._inGame) {
             player.online = false;
@@ -136,7 +141,7 @@ export default class GameManager {
         let allOffline = true;
 
         for (let playerId of lobby.getPlayerList()) {
-            let player = this._lobbyData._players[playerId];
+            let player = this._lobbyManager._players[playerId];
             if (player.online) {
                 allOffline = false;
                 break;
@@ -154,12 +159,12 @@ export default class GameManager {
         let lobbyId = lobby._id;
 
         for (let playerId of lobby.getPlayerList()) {
-            let player = this._lobbyData._players[playerId];
-            delete this._lobbyData._sockets[player.socketWrap.id];
-            delete this._lobbyData._players[playerId];
+            let player = this._lobbyManager._players[playerId];
+            delete this._lobbyManager._sockets[player.socketWrap.id];
+            delete this._lobbyManager._players[playerId];
         }
 
-        delete this._lobbyData._lobbies[lobbyId];
+        delete this._lobbyManager._lobbies[lobbyId];
         delete this._games[lobbyId];
         console.log("deleting lobby",lobbyId);
     }
@@ -174,11 +179,11 @@ export default class GameManager {
         lobby.switchBackFromInGameStatus();
 
         for (let playerId of lobby.getPlayerList()) {
-            let player = this._lobbyData._players[playerId];
+            let player = this._lobbyManager._players[playerId];
             if (!player.online) {
                 lobby.removePlayer(playerId);
-                delete this._lobbyData._sockets[player.socketWrap.id];
-                delete this._lobbyData._players[playerId];
+                delete this._lobbyManager._sockets[player.socketWrap.id];
+                delete this._lobbyManager._players[playerId];
             } else {
                 player.socketWrap.emit(SocketMessages.showReturnButton);
             }
@@ -192,14 +197,31 @@ export default class GameManager {
      * @param args 
      */
     public socketProcessGameInput(socketWrap : SocketWrap, ...args : any) {
-        let playerId = this._lobbyData._sockets[socketWrap.id];
+        let playerId = this._lobbyManager._sockets[socketWrap.id];
         if (playerId) {
-            let player = this._lobbyData._players[playerId];
-            let lobby = this._lobbyData._lobbies[player.lobbyId];
+            let player = this._lobbyManager._players[playerId];
+            let lobby = this._lobbyManager._lobbies[player.lobbyId];
             let game = this._games[player.lobbyId];
             
             if (lobby._inGame && !lobby._transition) {
                 game.processPlayerInput(playerId,args);
+            }
+        }
+    }
+
+    public makeTeams(lobby : Lobby, game : Game) {
+        game.makeDefaultShips();
+
+        let currentShipNum = 0;
+        for (let playerId of lobby.getPlayerList()) {
+            let player = this._lobbyManager._players[playerId];
+
+            if (player.online) {
+                game.addPlayer(playerId, String(currentShipNum));
+                currentShipNum = (currentShipNum + 1) % game._defaultShipNumber;
+            } else {
+                lobby.removePlayer(playerId);
+                delete this._lobbyManager._players[playerId];
             }
         }
     }
