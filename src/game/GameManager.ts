@@ -25,6 +25,12 @@ export default class GameManager {
      * set to false when testing.
      */
     public _setTimerBeforeGameStart = true;
+
+    /**
+     * Instead of requesting animation frame, will update next
+     * frame immediately after.
+     */
+    public _instantGameUpdates = false;
     
     constructor(io : Server, data : LobbyManager) {
         this._lobbyManager = data;
@@ -77,7 +83,7 @@ export default class GameManager {
                     this.deleteLobby(lobby);
                 } else {
                     this.makeTeams(lobby,game);
-                    // update game
+                    this.runGame(game);
                 }
             }, this._transitionTime);
         } 
@@ -208,6 +214,13 @@ export default class GameManager {
         }
     }
 
+    /**
+     * Makes random teams with players that are currently online. Players
+     * that are not online are removed.
+     * 
+     * @param lobby 
+     * @param game 
+     */
     public makeTeams(lobby : Lobby, game : Game) {
         game.makeDefaultShips();
 
@@ -221,6 +234,26 @@ export default class GameManager {
             } else {
                 lobby.removePlayer(playerId);
                 delete this._lobbyManager._players[playerId];
+            }
+        }
+
+        game.deleteEmptyShips();
+    }
+
+    /**
+     * Updates game until end condition is achieved.
+     * 
+     * @param game 
+     */
+    public runGame(game : Game) {
+        if (game.isGameOver()) {
+            // send return button
+        } else {
+            game.update();
+            if (this._instantGameUpdates) {
+                this.runGame(game);
+            } else {
+                requestAnimationFrame(this.runGame.bind(this,game))
             }
         }
     }

@@ -146,4 +146,13 @@ export default class Game {
             }
         }
     }
+
+    /**
+     * Returns true if only one ship remains
+     * 
+     * @returns 
+     */
+    public isGameOver() : boolean {
+        return Object.keys(this._ships).length <= 1;
+    }
 }

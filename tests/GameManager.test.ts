@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import SocketWrap from "../src/SocketWrap";
 import Lobby from "../src/lobby/Lobby";
 import * as SocketMessages from "../src/client/socketMessages.json";
+import Position from "../src/game/Position";
 
 const app : any = express();
 const server = app.listen(5000);
@@ -50,7 +51,6 @@ describe("testing gameManager", () => {
         expect(gameManager.areAllOffline(lobby)).toEqual(false);
 
         gameManager.makeTeams(lobby,game);
-        game.deleteEmptyShips();
         let shipIds = Object.keys(game._ships);
         expect(shipIds.length).toEqual(2);
         expect(game._players[socketWrapRed.id]).toEqual(shipIds[0]);
@@ -65,7 +65,6 @@ describe("testing gameManager", () => {
 
         gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
         gameManager.makeTeams(lobby,game);
-        game.deleteEmptyShips();
         let shipIds = Object.keys(game._ships);
 
         expect(gameManager.areAllOffline(lobby)).toBeFalsy();
@@ -123,5 +122,63 @@ describe("testing gameManager", () => {
 
         expect(ship._captain.getPlayerCount()).toEqual(0);
         expect(ship._shooter.getPlayerCount()).toEqual(1);
+
+        // blu disconnects
+        lobbyManager.socketRemovePlayer(socketWrapBlu);
+        expect(Object.keys(lobbyManager._sockets).length).toEqual(1);
+        expect(Object.keys(lobbyManager._players).length).toEqual(2);
+
+        // blu rejoins
+        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
+        expect(Object.keys(lobbyManager._sockets).length).toEqual(2);
+
+        // blu picks scout and sends scout
+        let bluShip = game._ships[game._players[socketWrapBlu.id]];
+        gameManager.socketProcessGameInput(
+            socketWrapBlu,
+            SocketMessages.roleSelectKeyword,
+            SocketMessages.scoutTitle
+        )
+        expect(bluShip._scout.getPlayerCount()).toEqual(1);
+    })
+    it("should run game", () => {
+        lobbyManager.socketStartGame(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapBlu);
+        gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
+        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
+        let game = gameManager._games[socketWrapRed.id];
+        lobby._transition = false;
+        gameManager.makeTeams(lobby,game);
+        gameManager._instantGameUpdates = true;
+        expect(Object.keys(game._ships).length).toEqual(2);
+
+        // make ships close to each other
+        let redShip = game._ships[game._players[socketWrapRed.id]];
+        let bluShip = game._ships[game._players[socketWrapBlu.id]];
+
+        redShip._position = new Position(5,5);
+        bluShip._position = new Position(9,5);
+        bluShip._health = redShip._shooterDamage;
+        redShip._shooterExpirationTime = 10;
+        redShip._shooterSpeed = 1;
+
+        // red shoots blu
+        gameManager.socketProcessGameInput(
+            socketWrapRed,
+            SocketMessages.roleSelectKeyword,
+            SocketMessages.shooterTitle
+        )
+        gameManager.socketProcessGameInput(
+            socketWrapRed,
+            bluShip._position.x,
+            bluShip._position.y
+        );
+        expect(Object.keys(redShip._shotsSent).length).toEqual(1);
+        expect(redShip._shotsSent[socketWrapRed.id]._target).toEqual(new Position(15,5));
+        gameManager.runGame(game);
+
+        expect(game.isGameOver()).toBeTruthy();
     })
 })
+server.close();

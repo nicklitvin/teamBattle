@@ -1,9 +1,10 @@
 Game
-    add end condition
 
 Server
+    remove player maybe not necessary during transition phase
 
 Visuals
+    Choose correct colors so players can differentate between each other
     Map is dark, light when within radius
     Iterate throw game objects to identify which to display (cuttoff problem)
 
@@ -14,3 +15,4 @@ Later
     unit testing for sockets
     Reverse y when sending coordinates
     lobbyManager.getPlayers should return array
+    ship 2v2 games

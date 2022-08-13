@@ -152,3 +152,28 @@ describe("testing vision", () => {
         expect(see.length).toEqual(1);
     })
 })
+describe("testing game end", () => {
+    let game = new Game();
+
+    let shipId = "ship1";
+    let enemyId = "ship2";
+    game.addShip(shipId,new Position(5,5));
+    game.addShip(enemyId,new Position(6,5));
+
+    let ship = game._ships[shipId];
+    let enemy = game._ships[enemyId];
+    ship._radius = 0.5;
+    ship._shooterSpeed = 1;
+    ship._shooterExpirationTime = 2;
+    enemy._radius = 0.5;
+    enemy._health = ship._shooterDamage;
+
+    expect(game.isGameOver()).toBeFalsy();
+
+    ship.shootProjectile("1",enemy._position);
+
+    game.update();
+
+    expect(enemy._health).toEqual(0);
+    expect(game.isGameOver()).toBeTruthy();
+})
