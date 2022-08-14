@@ -1,7 +1,6 @@
 Game
 
 Server
-    requestAnimationFrame not defined
     delete room if user creating lobby doesnt actually join
 
 Visuals

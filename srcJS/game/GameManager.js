@@ -8,6 +8,7 @@ var GameManager = (function () {
         var _this = this;
         this._games = {};
         this._transitionTime = 1000 * 3;
+        this._refreshTime = 10;
         this._setTimerBeforeGameStart = true;
         this._instantGameUpdates = false;
         this._immediatelyEndGame = false;
@@ -153,6 +154,7 @@ var GameManager = (function () {
         game.deleteEmptyShips();
     };
     GameManager.prototype.runGame = function (game) {
+        var _this = this;
         if (game.isGameOver() || this._immediatelyEndGame) {
             var somePlayerId = Object.keys(game._players)[0];
             var lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
@@ -171,7 +173,10 @@ var GameManager = (function () {
                 this.runGame(game);
             }
             else {
-                requestAnimationFrame(this.runGame.bind(this, game));
+                setTimeout(function () {
+                    console.log("running");
+                    _this.runGame(game);
+                }, this._refreshTime);
             }
         }
     };

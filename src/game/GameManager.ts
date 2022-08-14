@@ -19,6 +19,7 @@ export default class GameManager {
     
     /** unts of time: ms*/
     public _transitionTime = 1000*3;
+    public _refreshTime = 10;
 
     /** 
      * When true, a timer will be set when game is created
@@ -261,7 +262,9 @@ export default class GameManager {
             if (this._instantGameUpdates) {
                 this.runGame(game);
             } else {
-                requestAnimationFrame(this.runGame.bind(this,game))
+                setTimeout( () => {
+                    this.runGame(game);
+                }, this._refreshTime);
             }
         }
     }
