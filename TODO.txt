@@ -1,7 +1,8 @@
 Game
 
 Server
-    remove player maybe not necessary during transition phase
+    merge lobby,game in function parameters
+    delete room if user creating lobby doesnt actually join
 
 Visuals
     Choose correct colors so players can differentate between each other

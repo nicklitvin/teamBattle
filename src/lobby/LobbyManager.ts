@@ -6,7 +6,6 @@ import Player from "./Player";
 import SocketWrap from "../socketWrap";
 import GameManager from "../game/GameManager";
 
-
 /**
  * LobbyManager keeps track of all clients that connect to the server
  * and the lobbies they are a part of. Players only receive information
@@ -22,7 +21,7 @@ import GameManager from "../game/GameManager";
  * 
  */
 export default class LobbyManager {
-    /** socketId : playerId */
+    /** _sockets = {socketId : playerId} */
     public _sockets : {[socketId : string] : string} = {};
     public _players : {[playerId : string] : Player} = {};
     public _lobbies : {[lobbyId : string] : Lobby} = {};
@@ -71,9 +70,9 @@ export default class LobbyManager {
     }
 
     /**
-     * Creates a lobby and redirects the client that created it to its page.
+     * Creates a lobby and redirects the user that created it to its page.
      * Lobby id matches id of socket that created it unless there is a 
-     * duplicate.
+     * an existing duplicate.
      * 
      * @param socketWrap 
      */
@@ -87,8 +86,8 @@ export default class LobbyManager {
     }
 
     /**
-     * Creates a lobby id with a default length by hashing it until it no
-     * longer matches any other lobby id.
+     * Creates a unique lobby id with a default length by hashing it until it no
+     * longer matches any other existing lobby id.
      * 
      * @param id 
      * @returns 
@@ -107,8 +106,8 @@ export default class LobbyManager {
 
     /**
      * Processes lobby join request. If request includes a playerId that belongs to the lobby, their 
-     * status is updated. Else, a new player is added to the lobby whose id is equivalent to their
-     * socket id.
+     * status is updated. Else, a new player is added to the lobby and their id is 
+     * equivalent to their socket id.
      * 
      * @param socketWrap 
      * @param lobbyId 
@@ -124,6 +123,7 @@ export default class LobbyManager {
                 let lobby = this._lobbies[lobbyId];
                 if (lobby._players.has(playerId)) {
                     player.returning = false;
+                    player.online = true;
                     player.socketWrap = socketWrap;
                     this._sockets[socketWrap.id] = playerId;
                     this.sendLobbyUpdate(lobby);
@@ -153,9 +153,9 @@ export default class LobbyManager {
     }
 
     /**
-     * Deletes socket if exists and deletes player if not currently in game
-     * or returning from game. If no players remaining in lobby, lobby is 
-     * deleted.
+     * Socket is deleted from saved list of sockets. Player information
+     * is not deleted if they are transitioning or returning from game.
+     * If no online players remain in the lobby, the lobby is deleted.
      * 
      * @param socketWrap 
      * @returns 
@@ -168,18 +168,20 @@ export default class LobbyManager {
 
             delete this._sockets[socketWrap.id];
 
-            if (lobby._inGame) {
+            if (lobby._transition) {
                 player.online = false;
-                if (lobby._transition) {
-                    console.log("transition disconnect", playerId);
-                } else {
-                    console.log("disconnect during game", playerId);
-                }
+                console.log("transitioning to game", playerId);
+                return;
+            } else if (lobby._inGame) {
+                player.online = false;
+                console.log("disconnect during game", playerId);
+                this._gameManager.deleteGameIfEmpty(lobby);
                 return;
             } else if (player.returning) {
+                player.online = false;
                 console.log("player returning to lobby ", playerId);
                 return;
-            } 
+            }
 
             delete this._players[playerId];
 
@@ -218,8 +220,10 @@ export default class LobbyManager {
     }
 
     /**
-     * If client is leader of lobby, starts game and redirects all players
-     * to its page.
+     * If the player is the leader of the lobby, the lobby 
+     * enters transition phase and all players are redirected
+     * to the game page. The game will start after transition
+     * phase is over.
      * 
      * @param socketWrap 
      */
@@ -229,7 +233,7 @@ export default class LobbyManager {
         let lobby = this._lobbies[lobbyId];
 
         if (requesterId == lobby._leader) {
-            lobby.switchToInGameStatus();
+            lobby.startTransitionPhase();
             this._gameManager.startGame(lobbyId);
 
             for (let playerId of lobby.getPlayerList()) {
@@ -254,6 +258,7 @@ export default class LobbyManager {
         let lobby = this._lobbies[player.lobbyId];
         if (!lobby._inGame) {
             player.returning = true;
+            player.online = false;
             delete this._sockets[socketWrap.id];
             socketWrap.emit(SocketMessages.redirect,lobby._redirectToLobby);
             console.log("player is returning");            

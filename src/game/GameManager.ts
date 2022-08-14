@@ -8,7 +8,7 @@ import LobbyManager from "../lobby/LobbyManager";
 /**
  * GameManager processes any player input and keeps track of
  * certain game events for all ongoing games. Needs access
- * to LobbyManager for access to sockets,players,and lobbies.
+ * to LobbyManager for access to sockets, players,and lobbies.
  */
 export default class GameManager {
     /** List of all ongoing games */
@@ -21,18 +21,24 @@ export default class GameManager {
     public _transitionTime = 1000*3;
 
     /** 
-     * if true: game will start updating until game end,
-     * set to false when testing.
+     * When true, a timer will be set when game is created
+     * after which the game will start if all players
+     * are not offline. 
      */
     public _setTimerBeforeGameStart = true;
 
     /**
-     * Instead of requesting animation frame, will update next
-     * frame immediately after.
+     * When true, game will speedrun until reaching end condition
+     * instead of playing out in real time.
      */
     public _instantGameUpdates = false;
 
-    public _immediatelyEndGame = true;
+    /**
+     * Immediately ends the game after starting.
+     */
+    public _immediatelyEndGame = false;
+
+    public _runGameAfterTransition = true;
 
     constructor(io : Server, data : LobbyManager) {
         this._lobbyManager = data;
@@ -40,13 +46,6 @@ export default class GameManager {
         io.on("connection", (socket : Socket) => {
             let socketWrap = new SocketWrap(socket);
 
-            socket.on(SocketMessages.disconnect, () => {
-                try {
-                    this.socketLeaveGame(socketWrap);
-                } catch {
-                    // console.log("error leaving game");
-                }
-            })
             socket.on(SocketMessages.joinGame, (...args) => {
                 try {
                     let id = args[0];
@@ -75,20 +74,33 @@ export default class GameManager {
     public startGame(lobbyId : string) {
         let game = new Game();
         let lobby = this._lobbyManager._lobbies[lobbyId];
+        this.makeTeams(lobby,game);
         this._games[lobbyId] = game;
 
         if (this._setTimerBeforeGameStart) {
             setTimeout( () => {
-                console.log("starting game");
-                lobby.endTransitionPhase();
-                if (this.areAllOffline(lobby)) {
-                    this.deleteLobby(lobby);
-                } else {
-                    this.makeTeams(lobby,game);
-                    this.runGame(game);
-                }
+                this.endTransitionPhase(lobby,game);
             }, this._transitionTime);
         } 
+    }
+
+    /**
+     * Deletes lobby if all players are offline. Otherwise
+     * runs game.
+     * 
+     * @param lobby 
+     * @param game 
+     */
+    public endTransitionPhase(lobby : Lobby, game : Game) {
+        console.log("starting game");
+        lobby.endTransitionPhase();
+        lobby.switchToInGameStatus();
+
+        if (this.areAllOffline(lobby)) {
+            this.deleteLobby(lobby);
+        } else if (this._runGameAfterTransition) {
+            this.runGame(game);
+        }
     }
 
     /**
@@ -116,31 +128,19 @@ export default class GameManager {
     }
 
     /**
-     * Change player's status to offline. Deletes lobby and game if nobody is
-     * online with the exception of the transition period to the game.
+     * Deletes game associated with lobby if all players are offline.
      * 
      * @param socketWrap 
      * @returns 
      */
-    public socketLeaveGame(socketWrap : SocketWrap) {
-        let leaverId = this._lobbyManager._sockets[socketWrap.id];
-        let player = this._lobbyManager._players[leaverId];
-        let lobby = this._lobbyManager._lobbies[player.lobbyId];
-
-        if (lobby._inGame) {
-            player.online = false;
-            console.log("player goes offline");
-
-            if (lobby._transition) {
-                return;
-            } else if (this.areAllOffline(lobby)) {
-                this.deleteLobby(lobby);
-            }
+    public deleteGameIfEmpty(lobby : Lobby) {
+        if (this.areAllOffline(lobby)) {
+            this.deleteLobby(lobby);
         }
     }
 
     /**
-     * Checks wheter all players in lobby are offline.
+     * Checks whether all players in lobby are offline.
      * 
      * @param lobby 
      * @returns 
@@ -196,6 +196,8 @@ export default class GameManager {
                 player.socketWrap.emit(SocketMessages.showReturnButton);
             }
         }
+
+        delete this._games[lobby._id];
     }
 
     /**
@@ -210,15 +212,14 @@ export default class GameManager {
             let player = this._lobbyManager._players[playerId];
             let lobby = this._lobbyManager._lobbies[player.lobbyId];
             let game = this._games[player.lobbyId];
-            if (lobby._inGame && !lobby._transition) {
+            if (lobby._inGame) {
                 game.processPlayerInput(playerId,args);
             }
         }
     }
 
     /**
-     * Makes random teams with players that are currently online. Players
-     * that are not online are removed.
+     * Makes even teams with players in the lobby. 
      * 
      * @param lobby 
      * @param game 
@@ -228,15 +229,8 @@ export default class GameManager {
 
         let currentShipNum = 0;
         for (let playerId of lobby.getPlayerList()) {
-            let player = this._lobbyManager._players[playerId];
-
-            if (player.online) {
-                game.addPlayer(playerId, String(currentShipNum));
-                currentShipNum = (currentShipNum + 1) % game._defaultShipNumber;
-            } else {
-                lobby.removePlayer(playerId);
-                delete this._lobbyManager._players[playerId];
-            }
+            game.addPlayer(playerId, String(currentShipNum));
+            currentShipNum = (currentShipNum + 1) % game._defaultShipNumber;
         }
 
         game.deleteEmptyShips();
@@ -274,5 +268,15 @@ export default class GameManager {
      */
     public clearAllData() {
         this._games = {};
+    }
+
+    /**
+     * Sets default settings regarding transitions and game.
+     */
+    public setDefaultSettings() {
+        this._setTimerBeforeGameStart = true;
+        this._instantGameUpdates = false;
+        this._immediatelyEndGame = false;
+        this._runGameAfterTransition = true;
     }
 }

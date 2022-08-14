@@ -9,8 +9,10 @@ export default class Player {
     public id : string;
     public lobbyId : string;
     public socketWrap : SocketWrap;
+
     /** online = is player still on website */
     public online = true;
+    
     /** Returning = whether player is returning to lobby from game */
     public returning = false;
 

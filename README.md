@@ -1,7 +1,7 @@
 # TeamBattle
 
-A team game where each team controls a ship trying to sink other ships while
-keeping themselves afloat.
+A team game where each team controls a ship that can sink others. Last
+ship to stay afloat wins.
 
 # Project State
 
