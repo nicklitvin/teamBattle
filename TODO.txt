@@ -1,7 +1,6 @@
 Game
 
 Server
-    delete room if user creating lobby doesnt actually join
 
 Visuals
     Choose correct colors so players can differentate between each other

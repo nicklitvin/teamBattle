@@ -11,8 +11,9 @@ const io = new Server(server);
 describe("testing lobbyManager", () => {
     let lobbyManager = new LobbyManager(io);
     lobbyManager._gameManager._setTimerBeforeGameStart = false;
+    lobbyManager._setLeaderJoinTimer = false;
 
-    afterEach(() => {
+    beforeEach(() => {
         lobbyManager.clearAllData();
     })
 
@@ -54,6 +55,18 @@ describe("testing lobbyManager", () => {
         expect(lobbyManager._lobbies[lobby._id]).toBeFalsy();
         expect(lobbyManager._players[socketWrapBlu.id]).toBeFalsy();
         expect(lobbyManager._sockets[socketWrapBlu.id]).toBeFalsy();
+    })
+
+    it ("should delete empty lobby", () => {
+        let socketWrapRed = new SocketWrap();
+        socketWrapRed.id = "red";
+
+        lobbyManager.socketCreateLobby(socketWrapRed);
+        let lobby = lobbyManager._lobbies[socketWrapRed.id];
+
+        expect(Object.keys(lobbyManager._lobbies).length).toEqual(1);
+        lobbyManager.deleteLobbyIfEmpty(lobby);
+        expect(Object.keys(lobbyManager._lobbies).length).toEqual(0);
     })
 
     it("should send messages", () => {

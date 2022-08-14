@@ -27,6 +27,10 @@ export default class LobbyManager {
     public _lobbies : {[lobbyId : string] : Lobby} = {};
     public _gameManager : GameManager;
     public _lobbyIdLength = 6;
+    /** how much time is given for leader to join created lobby in ms */
+    public _transitionTime = 1000*1;
+    /** sets timer after which lobby is deleted if leader does not join */
+    public _setLeaderJoinTimer = true;
 
     constructor(io : Server) {
         this.setupIoCommunication(io);
@@ -82,7 +86,23 @@ export default class LobbyManager {
         this._lobbies[id] = lobby;
 
         socketWrap.emit(SocketMessages.redirect, lobby._redirectToLobby);
+        if (this._setLeaderJoinTimer) {
+            setTimeout( () => {
+                this.deleteLobbyIfEmpty(lobby);
+            }, this._transitionTime)
+        }
         console.log("creating lobby",lobby._id);
+    }
+
+    /**
+     * Lobby is deleted if empty.
+     * @param lobby 
+     */
+    public deleteLobbyIfEmpty(lobby : Lobby) {
+        if (lobby.getPlayerCount() == 0) {
+            console.log("deleting lobby that leader did not join");
+            delete this._lobbies[lobby._id];
+        }
     }
 
     /**

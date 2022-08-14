@@ -12,6 +12,7 @@ const io = new Server(server);
 
 describe("testing gameManager", () => {
     let lobbyManager = new LobbyManager(io);
+    lobbyManager._setLeaderJoinTimer = false;
     let gameManager = lobbyManager._gameManager;
 
     let socketWrapRed = new SocketWrap();
