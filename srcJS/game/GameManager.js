@@ -10,17 +10,11 @@ var GameManager = (function () {
         this._transitionTime = 1000 * 3;
         this._setTimerBeforeGameStart = true;
         this._instantGameUpdates = false;
-        this._immediatelyEndGame = true;
+        this._immediatelyEndGame = false;
+        this._runGameAfterTransition = true;
         this._lobbyManager = data;
         io.on("connection", function (socket) {
             var socketWrap = new socketWrap_1["default"](socket);
-            socket.on(SocketMessages.disconnect, function () {
-                try {
-                    _this.socketLeaveGame(socketWrap);
-                }
-                catch (_a) {
-                }
-            });
             socket.on(SocketMessages.joinGame, function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -51,21 +45,26 @@ var GameManager = (function () {
     }
     GameManager.prototype.startGame = function (lobbyId) {
         var _this = this;
-        var game = new Game_1["default"]();
         var lobby = this._lobbyManager._lobbies[lobbyId];
+        var game = new Game_1["default"]();
         this._games[lobbyId] = game;
+        this.makeTeams(lobby);
         if (this._setTimerBeforeGameStart) {
             setTimeout(function () {
-                console.log("starting game");
-                lobby.endTransitionPhase();
-                if (_this.areAllOffline(lobby)) {
-                    _this.deleteLobby(lobby);
-                }
-                else {
-                    _this.makeTeams(lobby, game);
-                    _this.runGame(game);
-                }
+                _this.endTransitionPhase(lobby);
             }, this._transitionTime);
+        }
+    };
+    GameManager.prototype.endTransitionPhase = function (lobby) {
+        console.log("starting game");
+        lobby.endTransitionPhase();
+        lobby.switchToInGameStatus();
+        if (this.areAllOffline(lobby)) {
+            this.deleteLobby(lobby);
+        }
+        else if (this._runGameAfterTransition) {
+            var game = this._games[lobby._id];
+            this.runGame(game);
         }
     };
     GameManager.prototype.socketJoinGame = function (socketWrap, playerId, lobbyId) {
@@ -82,19 +81,9 @@ var GameManager = (function () {
             console.log("player cant join game");
         }
     };
-    GameManager.prototype.socketLeaveGame = function (socketWrap) {
-        var leaverId = this._lobbyManager._sockets[socketWrap.id];
-        var player = this._lobbyManager._players[leaverId];
-        var lobby = this._lobbyManager._lobbies[player.lobbyId];
-        if (lobby._inGame) {
-            player.online = false;
-            console.log("player goes offline");
-            if (lobby._transition) {
-                return;
-            }
-            else if (this.areAllOffline(lobby)) {
-                this.deleteLobby(lobby);
-            }
+    GameManager.prototype.deleteGameIfEmpty = function (lobby) {
+        if (this.areAllOffline(lobby)) {
+            this.deleteLobby(lobby);
         }
     };
     GameManager.prototype.areAllOffline = function (lobby) {
@@ -135,6 +124,7 @@ var GameManager = (function () {
                 player.socketWrap.emit(SocketMessages.showReturnButton);
             }
         }
+        delete this._games[lobby._id];
     };
     GameManager.prototype.socketProcessGameInput = function (socketWrap) {
         var args = [];
@@ -146,25 +136,19 @@ var GameManager = (function () {
             var player = this._lobbyManager._players[playerId];
             var lobby = this._lobbyManager._lobbies[player.lobbyId];
             var game = this._games[player.lobbyId];
-            if (lobby._inGame && !lobby._transition) {
+            if (lobby._inGame) {
                 game.processPlayerInput(playerId, args);
             }
         }
     };
-    GameManager.prototype.makeTeams = function (lobby, game) {
+    GameManager.prototype.makeTeams = function (lobby) {
+        var game = this._games[lobby._id];
         game.makeDefaultShips();
         var currentShipNum = 0;
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
-            var player = this._lobbyManager._players[playerId];
-            if (player.online) {
-                game.addPlayer(playerId, String(currentShipNum));
-                currentShipNum = (currentShipNum + 1) % game._defaultShipNumber;
-            }
-            else {
-                lobby.removePlayer(playerId);
-                delete this._lobbyManager._players[playerId];
-            }
+            game.addPlayer(playerId, String(currentShipNum));
+            currentShipNum = (currentShipNum + 1) % game._defaultShipNumber;
         }
         game.deleteEmptyShips();
     };
@@ -193,6 +177,12 @@ var GameManager = (function () {
     };
     GameManager.prototype.clearAllData = function () {
         this._games = {};
+    };
+    GameManager.prototype.setDefaultSettings = function () {
+        this._setTimerBeforeGameStart = true;
+        this._instantGameUpdates = false;
+        this._immediatelyEndGame = false;
+        this._runGameAfterTransition = true;
     };
     return GameManager;
 }());

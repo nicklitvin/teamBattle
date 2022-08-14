@@ -19,7 +19,6 @@ class Lobby {
     }
 
     joinLobby() {
-        console.log("joining");
         let roomId = this.getRoomId();
         let playerId = localStorage.getItem(SocketMessages.localStorageId);
         this.socket.emit(SocketMessages.joinLobby, roomId, playerId);

@@ -68,8 +68,7 @@ describe("testing gameManager", () => {
         lobbyManager.socketRemovePlayer(socketWrapRed);
         lobbyManager.socketRemovePlayer(socketWrapBlu);
         
-        let game = gameManager._games[lobbyId];
-        gameManager.endTransitionPhase(lobby,game);
+        gameManager.endTransitionPhase(lobby);
 
         expect(lobbyManager._lobbies).toEqual({});
         expect(lobbyManager._players).toEqual({});
@@ -86,10 +85,9 @@ describe("testing gameManager", () => {
         gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
         gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
 
-        let game = gameManager._games[lobbyId];
         socketWrapRed.clearSavedMessages();
         socketWrapBlu.clearSavedMessages();
-        gameManager.endTransitionPhase(lobby,game);
+        gameManager.endTransitionPhase(lobby);
 
         let expect0 = [SocketMessages.showReturnButton];
         expect(socketWrapRed.savedMessages[0]).toEqual(expect0);
@@ -107,7 +105,7 @@ describe("testing gameManager", () => {
         gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
 
         let game = gameManager._games[socketWrapRed.id];
-        gameManager.endTransitionPhase(lobby,game);
+        gameManager.endTransitionPhase(lobby);
 
         // red selects captain role
         let ship = game._ships[game._players[socketWrapRed.id]];
@@ -170,7 +168,7 @@ describe("testing gameManager", () => {
         gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
 
         let game = gameManager._games[socketWrapRed.id];
-        gameManager.endTransitionPhase(lobby,game);
+        gameManager.endTransitionPhase(lobby);
 
         // make ships close to each other
         let redShip = game._ships[game._players[socketWrapRed.id]];
@@ -193,7 +191,7 @@ describe("testing gameManager", () => {
             bluShip._position.x,
             bluShip._position.y
         );
-        
+
         expect(Object.keys(redShip._shotsSent).length).toEqual(1);
 
         // run game

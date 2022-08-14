@@ -84,6 +84,7 @@ var LobbyManager = (function () {
                 var lobby_1 = this._lobbies[lobbyId];
                 if (lobby_1._players.has(playerId)) {
                     player.returning = false;
+                    player.online = true;
                     player.socketWrap = socketWrap;
                     this._sockets[socketWrap.id] = playerId;
                     this.sendLobbyUpdate(lobby_1);
@@ -113,17 +114,19 @@ var LobbyManager = (function () {
             var player = this._players[playerId];
             var lobby = this._lobbies[player.lobbyId];
             delete this._sockets[socketWrap.id];
-            if (lobby._inGame) {
+            if (lobby._transition) {
                 player.online = false;
-                if (lobby._transition) {
-                    console.log("transition disconnect", playerId);
-                }
-                else {
-                    console.log("disconnect during game", playerId);
-                }
+                console.log("transitioning to game", playerId);
+                return;
+            }
+            else if (lobby._inGame) {
+                player.online = false;
+                console.log("disconnect during game", playerId);
+                this._gameManager.deleteGameIfEmpty(lobby);
                 return;
             }
             else if (player.returning) {
+                player.online = false;
                 console.log("player returning to lobby ", playerId);
                 return;
             }
@@ -156,7 +159,7 @@ var LobbyManager = (function () {
         var lobbyId = this._players[requesterId].lobbyId;
         var lobby = this._lobbies[lobbyId];
         if (requesterId == lobby._leader) {
-            lobby.switchToInGameStatus();
+            lobby.startTransitionPhase();
             this._gameManager.startGame(lobbyId);
             for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
                 var playerId = _a[_i];
@@ -175,6 +178,7 @@ var LobbyManager = (function () {
         var lobby = this._lobbies[player.lobbyId];
         if (!lobby._inGame) {
             player.returning = true;
+            player.online = false;
             delete this._sockets[socketWrap.id];
             socketWrap.emit(SocketMessages.redirect, lobby._redirectToLobby);
             console.log("player is returning");

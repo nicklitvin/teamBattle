@@ -1,7 +1,7 @@
 Game
 
 Server
-    merge lobby,game in function parameters
+    requestAnimationFrame not defined
     delete room if user creating lobby doesnt actually join
 
 Visuals

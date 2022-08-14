@@ -72,14 +72,14 @@ export default class GameManager {
      * @param lobbyId 
      */
     public startGame(lobbyId : string) {
-        let game = new Game();
         let lobby = this._lobbyManager._lobbies[lobbyId];
-        this.makeTeams(lobby,game);
+        let game = new Game();
         this._games[lobbyId] = game;
+        this.makeTeams(lobby);
 
         if (this._setTimerBeforeGameStart) {
             setTimeout( () => {
-                this.endTransitionPhase(lobby,game);
+                this.endTransitionPhase(lobby);
             }, this._transitionTime);
         } 
     }
@@ -91,7 +91,7 @@ export default class GameManager {
      * @param lobby 
      * @param game 
      */
-    public endTransitionPhase(lobby : Lobby, game : Game) {
+    public endTransitionPhase(lobby : Lobby) {
         console.log("starting game");
         lobby.endTransitionPhase();
         lobby.switchToInGameStatus();
@@ -99,6 +99,7 @@ export default class GameManager {
         if (this.areAllOffline(lobby)) {
             this.deleteLobby(lobby);
         } else if (this._runGameAfterTransition) {
+            let game = this._games[lobby._id];
             this.runGame(game);
         }
     }
@@ -219,12 +220,14 @@ export default class GameManager {
     }
 
     /**
-     * Makes even teams with players in the lobby. 
+     * Makes even teams with players in the lobby. Game must already
+     * be created.
      * 
      * @param lobby 
      * @param game 
      */
-    public makeTeams(lobby : Lobby, game : Game) {
+    public makeTeams(lobby : Lobby) {
+        let game = this._games[lobby._id];
         game.makeDefaultShips();
 
         let currentShipNum = 0;

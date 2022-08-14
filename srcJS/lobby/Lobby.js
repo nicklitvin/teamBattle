@@ -30,12 +30,14 @@ var Lobby = (function () {
     Lobby.prototype.updateCountText = function () {
         this._countText = "Players in lobby: ".concat(this.getPlayerCount());
     };
-    Lobby.prototype.switchToInGameStatus = function () {
-        this._inGame = true;
+    Lobby.prototype.startTransitionPhase = function () {
         this._transition = true;
     };
     Lobby.prototype.endTransitionPhase = function () {
         this._transition = false;
+    };
+    Lobby.prototype.switchToInGameStatus = function () {
+        this._inGame = true;
     };
     Lobby.prototype.switchBackFromInGameStatus = function () {
         this._inGame = false;

@@ -4,11 +4,9 @@ class ClientLobby {
     constructor() {
         this.socket = io();
         this.setup();
-        console.log("setup");
     }
 
     createLobby(){
-        console.log("creating lobby",SocketMessages.createLobby);
         this.socket.emit(SocketMessages.createLobby);
     }
 
