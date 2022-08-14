@@ -6,6 +6,7 @@
     "disconnect": "disconnect",
     "countUpdate": "countUpdate",
     "lobbyLeaderRole": "lobbyLeaderRole",
+    "winnerText" : "winnerText",
     
     "startGame": "startGame",
     "joinGame": "joinGame",

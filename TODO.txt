@@ -11,7 +11,5 @@ Later
     Show # of players returning
     game instructions on lobby
     match-making
-    unit testing for sockets
     Reverse y when sending coordinates
-    lobbyManager.getPlayers should return array
     ship 2v2 games

@@ -256,6 +256,7 @@ export default class GameManager {
             for (let playerId of Object.keys(game._players)) {
                 let player = this._lobbyManager._players[playerId];
                 player.socketWrap.emit(SocketMessages.showReturnButton);
+                player.socketWrap.emit(SocketMessages.winnerText,game._winnerText);
             }
         } else {
             game.update();

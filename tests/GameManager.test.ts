@@ -88,11 +88,21 @@ describe("testing gameManager", () => {
 
         socketWrapRed.clearSavedMessages();
         socketWrapBlu.clearSavedMessages();
+
+        // remove one ship to display winner text
+        let game = gameManager._games[socketWrapRed.id];
+        delete game._ships[Object.keys(game._ships)[1]];
+        let lastShip = Object.keys(game._ships)[0];
+
+        game.updateWinnerText();
         gameManager.endTransitionPhase(lobby);
 
         let expect0 = [SocketMessages.showReturnButton];
+        let expect1 = [SocketMessages.winnerText,`Ship ${lastShip} is the winner`];
         expect(socketWrapRed.savedMessages[0]).toEqual(expect0);
         expect(socketWrapBlu.savedMessages[0]).toEqual(expect0);
+        expect(socketWrapRed.savedMessages[1]).toEqual(expect1);
+        expect(socketWrapBlu.savedMessages[1]).toEqual(expect1);
     })
 
     it("should take player input", () => {

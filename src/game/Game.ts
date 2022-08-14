@@ -15,6 +15,7 @@ export default class Game {
     public _defaultShipNumber = 4;
     public static _mapWidth = 12;
     public static _mapHeight = 9;
+    public _winnerText : string;
 
     public addPlayer(playerId : string, shipId : string) {
         if (Object.keys(this._ships).includes(shipId)) {
@@ -70,12 +71,26 @@ export default class Game {
 
                         if (ship._health == 0) {
                             delete this._ships[ship._id];
-                            break;
+                    
+                            if (Object.keys(this._ships).length == 1) {
+                                this.updateWinnerText();
+                                return;
+                            } else {
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Creates text stating the last ship stating.
+     */
+    public updateWinnerText() {
+        let shipId = Object.keys(this._ships)[0];
+        this._winnerText = `Ship ${shipId} is the winner`;
     }
 
     /**
