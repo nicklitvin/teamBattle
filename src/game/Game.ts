@@ -1,3 +1,4 @@
+import DrawingInstruction from "../client/DrawingInstruction";
 import MyMath from "../client/MyMath";
 import Position from "../client/Position";
 import Projectile from "../client/Projectile";
@@ -16,18 +17,22 @@ export default class Game {
     public static _mapWidth = 12;
     public static _mapHeight = 9;
     public _winnerText : string;
+    public _drawingInstructions : { [shipId: string] : DrawingInstruction[]} = {};
+    public _visionColor = "grey";
+    public _enemyColor = "black";
 
     public addPlayer(playerId : string, shipId : string) {
         if (Object.keys(this._ships).includes(shipId)) {
             this._players[playerId] = shipId;
         } else {
-            // console.log("no such ship");
+            // //console.log("no such ship");
         }
     }
 
-    public addShip(shipId : string, position? : Position) {
+    public addShip(shipId : string, position? : Position, color? : string) {
         let ship = new Ship(position);
         ship.setId(shipId);
+        if (color) ship.setColor(color);
         this._ships[shipId] = ship;
     }
 
@@ -44,7 +49,7 @@ export default class Game {
             let ship = this._ships[shipId];
             ship.processPlayerInput(playerId,args);
         } catch {
-            // console.log("game inputError");
+            // //console.log("game inputError");
         }
     }
 
@@ -93,34 +98,98 @@ export default class Game {
         this._winnerText = `Ship ${shipId} is the winner`;
     }
 
+
     /**
-     * @param ship 
-     * @returns All projectiles within its vision (including itself)
+     * Updates drawing instructions for every ship still in the game.
      */
-    public getVisibleProjectiles(ship : Ship) : Projectile[] {
+    public updateDrawingInstructions() {
+        for (let shipId of Object.keys(this._ships)) {
+            let ship = this._ships[shipId];
+            let instructions : DrawingInstruction[] = [];
+
+            // shipVision
+            let shipVision : Projectile = {
+                _position : ship._position,
+                _target : ship._target,
+                _radius : ship._vision,
+                _speed : ship._speed
+            }
+            let shipVisionInstruction = new DrawingInstruction(shipVision,this._visionColor);
+            instructions.push(shipVisionInstruction);
+
+            // scoutVision
+            for (let scout of Object.values(ship._scoutsSent)) {
+                let scoutVision : Projectile = {
+                    _position : scout._position,
+                    _target : scout._target,
+                    _radius : ship._vision,
+                    _speed : scout._speed
+                }
+                let instruction = new DrawingInstruction(scoutVision,this._visionColor);
+                instructions.push(instruction);
+            }
+
+            // ship
+            let shipInstruction = new DrawingInstruction(ship,ship._color);
+            instructions.push(shipInstruction);
+
+            // ship scouts
+            for (let scout of Object.values(ship._scoutsSent)) {
+                let scoutInstruction = new DrawingInstruction(scout,ship._color);
+                instructions.push(scoutInstruction);
+            }
+            // ship shots
+            for (let shot of Object.values(ship._shotsSent)) {
+                let shotInstruction = new DrawingInstruction(shot,ship._color);
+
+                if (MyMath.getDistanceBetween(shot,ship) < ship._vision + shot._radius) {
+                    instructions.push(shotInstruction);
+                } else {
+                    for (let scout of Object.values(ship._scoutsSent)) {
+                        if (MyMath.getDistanceBetween(shot,scout) < ship._vision + shot._radius) {
+                            instructions.push(shotInstruction);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // enemy projectiles
+            let enemies = this.getVisibleEnemyProjectiles(ship);
+            for (let enemy of enemies) {
+                let enemyInstruction = new DrawingInstruction(enemy,this._enemyColor);
+                instructions.push(enemyInstruction);
+            }
+
+            this._drawingInstructions[shipId] = instructions;
+        }
+    }
+
+    /**
+     * Returns all enemy projectiles that are visible to the ship whether it's
+     * fully or partly.
+     * 
+     * @param ship 
+     * @returns 
+     */
+    public getVisibleEnemyProjectiles(ship : Ship) {
         let list : Projectile[] = [];
 
         for (let enemy of Object.values(this._ships)) {
+            if (ship._id == enemy._id) continue;
 
-            if (MyMath.getDistanceBetween(ship,enemy) <= ship._vision) {
+            if (MyMath.getDistanceBetween(ship,enemy) < ship._vision + enemy._radius) {
                 list.push(ship);
             }
-            for (let shot of Object.values(enemy._shotsSent)) {
-                if (MyMath.getDistanceBetween(ship,shot) <= ship._vision) {
-                    list.push(shot)
-                }
-            }
-            for (let shot of Object.values(enemy._scoutsSent)) {
-                if (MyMath.getDistanceBetween(ship,shot) <= ship._vision) {
-                    list.push(shot)
+            for (let thing of 
+                Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent))
+            ){
+                if (MyMath.getDistanceBetween(ship,thing) < ship._vision + thing._radius) {
+                    list.push(thing)
                 }
             }
         }
         return list;
-    }
-
-    public getVisibleState(ship : Ship) {
-
     }
 
     /**

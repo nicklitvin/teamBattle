@@ -53,21 +53,21 @@ export default class LobbyManager {
                     let playerId : string | undefined = args[1];
                     this.socketJoinLobby(socketWrap,lobbyId,playerId)
                 } catch {
-                    console.log("Lobbymanager.joinLobby error");
+                    //console.log("Lobbymanager.joinLobby error");
                 }
             })
             socket.on(SocketMessages.startGame, () => {
                 try {
                     this.socketStartGame(socketWrap);
                 } catch {
-                    console.log("Lobbymanager.startGame error");
+                    //console.log("Lobbymanager.startGame error");
                 }
             })
             socket.on(SocketMessages.playerWantsToReturn, () => {
                 try {
                     this.socketReturnToLobby(socketWrap);
                 } catch {
-                    console.log("LobbyManager.playerWantsToReturn error");
+                    //console.log("LobbyManager.playerWantsToReturn error");
                 }
             })
         })
@@ -91,7 +91,7 @@ export default class LobbyManager {
                 this.deleteLobbyIfEmpty(lobby);
             }, this._transitionTime)
         }
-        console.log("creating lobby",lobby._id);
+        //console.log("creating lobby",lobby._id);
     }
 
     /**
@@ -100,7 +100,7 @@ export default class LobbyManager {
      */
     public deleteLobbyIfEmpty(lobby : Lobby) {
         if (lobby.getPlayerCount() == 0) {
-            console.log("deleting lobby that leader did not join");
+            //console.log("deleting lobby that leader did not join");
             delete this._lobbies[lobby._id];
         }
     }
@@ -147,7 +147,7 @@ export default class LobbyManager {
                     player.socketWrap = socketWrap;
                     this._sockets[socketWrap.id] = playerId;
                     this.sendLobbyUpdate(lobby);
-                    console.log("player returned");
+                    //console.log("player returned");
                     return;
                 }
             } 
@@ -165,10 +165,10 @@ export default class LobbyManager {
             lobby.addPlayer(newPlayer.id);
             this.sendLobbyUpdate(lobby);
 
-            console.log("player joined",socketWrap.id);
+            //console.log("player joined",socketWrap.id);
         } else {
             socketWrap.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
-            console.log("cant join room",lobbyId);
+            //console.log("cant join room",lobbyId);
         }
     }
 
@@ -190,28 +190,28 @@ export default class LobbyManager {
 
             if (lobby._transition) {
                 player.online = false;
-                console.log("transitioning to game", playerId);
+                //console.log("transitioning to game", playerId);
                 return;
             } else if (lobby._inGame) {
                 player.online = false;
-                console.log("disconnect during game", playerId);
+                //console.log("disconnect during game", playerId);
                 this._gameManager.deleteGameIfEmpty(lobby);
                 return;
             } else if (player.returning) {
                 player.online = false;
-                console.log("player returning to lobby ", playerId);
+                //console.log("player returning to lobby ", playerId);
                 return;
             }
 
             delete this._players[playerId];
 
-            console.log("removing player, global players left: ",
-                Object.keys(this._players).length
-            );
+            //console.log("removing player, global players left: ",
+            //     Object.keys(this._players).length
+            // );
 
             lobby.removePlayer(playerId);
             if (lobby.getPlayerCount() == 0) {
-                console.log("deleting room",lobby._id);
+                //console.log("deleting room",lobby._id);
                 delete this._lobbies[lobby._id];
             } else {
                 this.sendLobbyUpdate(lobby);
@@ -260,9 +260,9 @@ export default class LobbyManager {
                 let socketWrap = this._players[playerId].socketWrap;
                 socketWrap.emit(SocketMessages.redirect,lobby._redirectToGame);
             }
-            console.log("start game in lobby: ",lobbyId);
+            //console.log("start game in lobby: ",lobbyId);
         } else {
-            console.log("false game start");
+            //console.log("false game start");
         }
     }
 
@@ -281,9 +281,9 @@ export default class LobbyManager {
             player.online = false;
             delete this._sockets[socketWrap.id];
             socketWrap.emit(SocketMessages.redirect,lobby._redirectToLobby);
-            console.log("player is returning");            
+            //console.log("player is returning");            
         } else {
-            console.log("false player return");
+            //console.log("false player return");
         }
     }
     

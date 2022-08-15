@@ -53,14 +53,14 @@ export default class GameManager {
                     let lobbyId = args[1];
                     this.socketJoinGame(socketWrap,id,lobbyId);
                 } catch {
-                    console.log("GameManager.joinGame error");
+                    //console.log("GameManager.joinGame error");
                 }
             })
             socket.on(SocketMessages.gameInput, (...args) => {
                 try {
                     this.socketProcessGameInput(socketWrap,args);
                 } catch {
-                    console.log("GameManager.processinput error");
+                    //console.log("GameManager.processinput error");
                 }
             })
         })
@@ -93,7 +93,7 @@ export default class GameManager {
      * @param game 
      */
     public endTransitionPhase(lobby : Lobby) {
-        console.log("starting game");
+        //console.log("starting game");
         lobby.endTransitionPhase();
         lobby.switchToInGameStatus();
 
@@ -122,10 +122,10 @@ export default class GameManager {
             let player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
-            console.log("player joined game",playerId);
+            //console.log("player joined game",playerId);
         } else {
             socketWrap.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
-            console.log("player cant join game");
+            //console.log("player cant join game");
         }
     }
 
@@ -176,7 +176,7 @@ export default class GameManager {
 
         delete this._lobbyManager._lobbies[lobbyId];
         delete this._games[lobbyId];
-        console.log("deleting lobby",lobbyId);
+        //console.log("deleting lobby",lobbyId);
     }
 
     /**
@@ -246,12 +246,13 @@ export default class GameManager {
      * @param game 
      */
     public runGame(game : Game) {
+        let somePlayerId = Object.keys(game._players)[0];
+        let lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
+        let lobby = this._lobbyManager._lobbies[lobbyId];
+
         if (game.isGameOver() || this._immediatelyEndGame) {
-            let somePlayerId = Object.keys(game._players)[0];
-            let lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
-            let lobby = this._lobbyManager._lobbies[lobbyId];
             lobby.switchBackFromInGameStatus();
-            console.log("ending game");
+            //console.log("ending game");
             
             for (let playerId of Object.keys(game._players)) {
                 let player = this._lobbyManager._players[playerId];
@@ -264,6 +265,8 @@ export default class GameManager {
                 this.runGame(game);
             } else {
                 setTimeout( () => {
+                    game.updateDrawingInstructions();
+                    this.sendGameState(lobby);
                     this.runGame(game);
                 }, this._refreshTime);
             }
@@ -276,17 +279,17 @@ export default class GameManager {
      * 
      * @param lobby 
      */
-    public sendVisibleGame(lobby : Lobby, playerId : string) {
-        let player = this._lobbyManager._players[playerId];
+    public sendGameState(lobby : Lobby) {
+        let game = this._games[lobby._id];
 
         if (lobby._transition) {
             // send countdown
         }
 
-        let game = this._games[lobby._id];
-        let state = game.getVisibleState(game._ships[game._players[playerId]]);
+        // let game = this._games[lobby._id];
+        // let state = game.getVisibleState(game._ships[game._players[playerId]]);
 
-        player.socketWrap.emit(SocketMessages.gameState, state);
+        // player.socketWrap.emit(SocketMessages.gameState, state);
     }
 
     /**

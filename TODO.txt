@@ -3,9 +3,8 @@ Game
 Server
 
 Visuals
-    Choose correct colors so players can differentate between each other
-    Map is dark, light when within radius
-    Iterate throw game objects to identify which to display (cuttoff problem)
+    send visuals to client to draw
+    send countdown to client
     highlight button that is currently active, socketMessage.activeRole
 
 Later
@@ -25,5 +24,4 @@ Visuals
     update countdown
     game state from perspective
 
-visible if see edge, predict the rest of shape (to avoid magic appearance)
 

@@ -68,7 +68,7 @@ var Ship = (function () {
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {
-            console.log("processing player request", playerId, args);
+            //console.log("processing player request", playerId, args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId, args[1]);
             }
@@ -80,7 +80,7 @@ var Ship = (function () {
         }
     };
     Ship.prototype.processPlayerSelect = function (playerId, requestedRoleTitle) {
-        console.log("processing player request");
+        //console.log("processing player request");
         if (Object.keys(this._shotsSent).includes(playerId) ||
             Object.keys(this._scoutsSent).includes(playerId)) {
             return;

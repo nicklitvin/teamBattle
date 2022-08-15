@@ -21,6 +21,7 @@ export default class Ship implements Projectile {
     public _speed = 0.5;
     public _position : Position;
     public _target : Position;
+    public _color : string;
     public _health = 100;
     public _vision = 3;
     public _captainCount = 1;
@@ -100,14 +101,14 @@ export default class Ship implements Projectile {
      */
     public processPlayerInput(playerId : string, args : any[])  {
         try {
-            console.log("processing player request",playerId,args);
+            //console.log("processing player request",playerId,args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
             } else {
                 this.processPlayerRoleInput(playerId,args);
             }
         } catch {
-            // console.log("player input error");
+            // //console.log("player input error");
         }
     }
 
@@ -120,7 +121,7 @@ export default class Ship implements Projectile {
      * @param role 
      */
     private processPlayerSelect(playerId : string, requestedRoleTitle : string) {
-        console.log("processing player request");
+        //console.log("processing player request");
         if (
             Object.keys(this._shotsSent).includes(playerId) ||
             Object.keys(this._scoutsSent).includes(playerId)) 
@@ -236,5 +237,9 @@ export default class Ship implements Projectile {
 
     public deleteShot(playerId : string) {
         delete this._shotsSent[playerId];
+    }
+
+    public setColor(color : string) {
+        this._color = color;
     }
 }

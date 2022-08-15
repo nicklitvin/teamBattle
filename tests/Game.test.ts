@@ -114,44 +114,6 @@ describe("testing game combat", () => {
         expect(ship._shotsSent[playerId]).toBeFalsy();
     })
 })
-describe("testing vision", () => {
-    it("should see properly", () => {
-        let game = new Game();
-
-        let shipId = "ship1";
-        let enemyId = "ship2";
-        game.addShip(shipId,new Position(5,5));
-        game.addShip(enemyId,new Position(6,5));
-
-        let ship = game._ships[shipId];
-        ship._vision = 1;
-
-        let see = game.getVisibleProjectiles(ship);
-        expect(see.length).toEqual(2);
-
-        ship._position = new Position(4,5);
-        see = game.getVisibleProjectiles(ship);
-        expect(see.length).toEqual(1);
-
-        ship._shooterSpeed = 1;
-        ship._shooterExpirationTime = 2;
-        ship.shootProjectile("1",new Position(3,5));
-        
-        ship._scoutSpeed = 1;
-        ship._scoutExpirationTime = 2;
-        ship.sendScout("1",new Position(3,5));
-
-        ship.move();
-
-        see = game.getVisibleProjectiles(ship);
-        expect(see.length).toEqual(3);
-
-        ship.move();
-        
-        see = game.getVisibleProjectiles(ship);
-        expect(see.length).toEqual(1);
-    })
-})
 describe("testing game end", () => {
     let game = new Game();
 
@@ -176,4 +138,114 @@ describe("testing game end", () => {
 
     expect(enemy._health).toEqual(0);
     expect(game.isGameOver()).toBeTruthy();
+})
+describe("testing ship vision", () => {
+    let game = new Game();
+
+    let shipId = "ship1";
+    let enemyId = "ship2";
+    game.addShip(shipId,new Position(3,5));
+    game.addShip(enemyId,new Position(9,5));
+
+    let ship = game._ships[shipId];
+    let enemy = game._ships[enemyId];
+    ship._vision = 3;
+    enemy._vision = 3;
+
+    game.updateDrawingInstructions();
+
+    // instructions = vision + itself
+    expect(game._drawingInstructions[shipId].length).toEqual(2);
+    expect(game._drawingInstructions[enemyId].length).toEqual(2);
+
+    ship._position = new Position(7,5);
+    game.updateDrawingInstructions();
+
+    // instructions = vision + itself + enemy
+    expect(game._drawingInstructions[shipId].length).toEqual(3);
+    expect(game._drawingInstructions[enemyId].length).toEqual(3);
+
+    ship.sendScout("id",new Position(0,0));
+    game.updateDrawingInstructions();
+
+    // instructions = vision + itself + scoutVision + enemy + scout
+    expect(game._drawingInstructions[shipId].length).toEqual(5);
+    expect(game._drawingInstructions[enemyId].length).toEqual(4);
+
+    enemy.shootProjectile("id", new Position(0,0));
+    game.updateDrawingInstructions();
+
+    expect(game._drawingInstructions[shipId].length).toEqual(6);
+    expect(game._drawingInstructions[enemyId].length).toEqual(5);
+})
+describe("testing scout vision", () => {
+    let game = new Game();
+
+    let shipId = "ship1";
+    let playerId = "id";
+    game.addShip(shipId,new Position(0,0));
+
+    let ship = game._ships[shipId];
+    ship._radius = 0.5;
+    ship._vision = 3;
+
+    // scout grants vision
+    ship.sendScout("id",new Position(10,10));
+    let scout = ship._scoutsSent[playerId];
+    scout._position = new Position(8,8);
+    
+    game.updateDrawingInstructions();
+    expect(game._drawingInstructions[shipId].length).toEqual(4);
+
+    // shot is not within scout or ship vision range
+    ship.shootProjectile(playerId,new Position(10,0));
+    let shot = ship._shotsSent[playerId];
+    shot._position = new Position(8,0);
+
+    game.updateDrawingInstructions();
+    expect(game._drawingInstructions[shipId].length).toEqual(4);
+
+    // shot is within scout vision range
+    shot._position = new Position(
+        scout._position.x + ship._vision + shot._radius - 0.001,
+        scout._position.y
+    );
+    game.updateDrawingInstructions();
+    expect(game._drawingInstructions[shipId].length).toEqual(5);
+
+    // scouts vision doesn't overlap
+    let playerId1 = "id1";
+    ship.sendScout(playerId1,new Position(7,6));
+    let scout1 = ship._scoutsSent[playerId1];
+    scout1._position = new Position(scout._position.x,scout._position.y);
+    
+    // ship + shipVision + 2scouts + 2scoutVision + shot
+    game.updateDrawingInstructions();
+    expect(game._drawingInstructions[shipId].length).toEqual(7);
+})
+describe("testing drawing instructions", () => {
+    let game = new Game();
+
+    let shipId = "ship1";
+    let startPosition = new Position(0,0);
+
+    game.addShip(shipId,startPosition);
+    let ship = game._ships[shipId];
+    ship._color = "red";
+    ship.setTarget(new Position(5,5));
+
+    game.updateDrawingInstructions();
+    let instructions = game._drawingInstructions[shipId];
+
+    expect(instructions[0]._position).toEqual(ship._position);
+    expect(instructions[0]._radius).toEqual(ship._vision);
+    expect(instructions[0]._color).toEqual(game._visionColor);
+    expect(instructions[0]._target).toEqual(ship._target);
+    expect(instructions[0]._target === ship._target).toBeFalsy();
+
+    expect(instructions[1]._radius).toEqual(ship._radius);
+    expect(instructions[1]._color).toEqual(ship._color);
+    expect(instructions[1]._target).toEqual(instructions[0]._target);
+
+    // could add more for multiple shots/scouts,enemies
 })

@@ -27,7 +27,7 @@ var GameManager = (function () {
                     _this.socketJoinGame(socketWrap, id, lobbyId);
                 }
                 catch (_a) {
-                    console.log("GameManager.joinGame error");
+                    //console.log("GameManager.joinGame error");
                 }
             });
             socket.on(SocketMessages.gameInput, function () {
@@ -39,7 +39,7 @@ var GameManager = (function () {
                     _this.socketProcessGameInput(socketWrap, args);
                 }
                 catch (_a) {
-                    console.log("GameManager.processinput error");
+                    //console.log("GameManager.processinput error");
                 }
             });
         });
@@ -57,7 +57,7 @@ var GameManager = (function () {
         }
     };
     GameManager.prototype.endTransitionPhase = function (lobby) {
-        console.log("starting game");
+        //console.log("starting game");
         lobby.endTransitionPhase();
         lobby.switchToInGameStatus();
         if (this.areAllOffline(lobby)) {
@@ -75,11 +75,11 @@ var GameManager = (function () {
             var player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
-            console.log("player joined game", playerId);
+            //console.log("player joined game", playerId);
         }
         else {
             socketWrap.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
-            console.log("player cant join game");
+            //console.log("player cant join game");
         }
     };
     GameManager.prototype.deleteGameIfEmpty = function (lobby) {
@@ -109,7 +109,7 @@ var GameManager = (function () {
         }
         delete this._lobbyManager._lobbies[lobbyId];
         delete this._games[lobbyId];
-        console.log("deleting lobby", lobbyId);
+        //console.log("deleting lobby", lobbyId);
     };
     GameManager.prototype.endGame = function (lobby) {
         lobby.switchBackFromInGameStatus();
@@ -160,7 +160,7 @@ var GameManager = (function () {
             var lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
             var lobby = this._lobbyManager._lobbies[lobbyId];
             lobby.switchBackFromInGameStatus();
-            console.log("ending game");
+            //console.log("ending game");
             for (var _i = 0, _a = Object.keys(game._players); _i < _a.length; _i++) {
                 var playerId = _a[_i];
                 var player = this._lobbyManager._players[playerId];
@@ -174,7 +174,7 @@ var GameManager = (function () {
             }
             else {
                 setTimeout(function () {
-                    console.log("running");
+                    //console.log("running");
                     _this.runGame(game);
                 }, this._refreshTime);
             }

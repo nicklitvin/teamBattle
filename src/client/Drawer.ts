@@ -1,5 +1,5 @@
 import DrawingInstruction from "./DrawingInstruction";
-import Position from "./Position";
+import MyMath from "./MyMath";
 
 export default class Drawer {
     _instructions : DrawingInstruction[];
@@ -15,7 +15,12 @@ export default class Drawer {
         let timeDiff = Date.now() - this._timeStart;
 
         for (let instruction of this._instructions) {
-            let newPosition : Position;
+            let newPosition = MyMath.move(
+                instruction._position,
+                instruction._target,
+                instruction._speed,
+                timeDiff
+            );
             this._canvas.beginPath();
             this._canvas.arc(
                 newPosition.x,

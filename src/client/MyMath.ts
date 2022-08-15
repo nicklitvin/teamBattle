@@ -25,25 +25,29 @@ export default class MyMath {
     }
 
     /**
-     * Returns new position after move towards target given speed.
-     * Non-destructive. 
+     * Returns new position after move towards target given speed and time
+     * for the move. From and To Positions are not modified. 
      * @param from 
      * @param to 
      * @param speed 
      */
-    public static move(from : Position, to : Position, speed : number) : Position {
+    public static move(from : Position, to : Position, speed : number, time = 1) : Position {
         let xDiff = to.x - from.x;
         let yDiff = to.y - from.y;
         let newPosition = from.copy();
 
-        if ( (xDiff**2 + yDiff**2)**(1/2) <= speed) {
+        if (time == 0) {
+            return newPosition;
+        }
+
+        if ( (xDiff**2 + yDiff**2)**(1/2) <= speed * time) {
             newPosition = to.copy()
         } else if (xDiff == 0) {
-            newPosition.y += speed * Math.sign(yDiff);
+            newPosition.y += speed * Math.sign(yDiff) * time;
         } else {
             let angle = MyMath.round(Math.atan(yDiff/xDiff));
-            newPosition.x += Math.cos(angle) * speed * Math.sign(xDiff);
-            newPosition.y += Math.sin(angle) * speed * Math.sign(xDiff);
+            newPosition.x += Math.cos(angle) * speed * Math.sign(xDiff) * time;
+            newPosition.y += Math.sin(angle) * speed * Math.sign(xDiff) * time;
         }
         newPosition.round();
         return newPosition;

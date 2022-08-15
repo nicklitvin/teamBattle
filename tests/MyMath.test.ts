@@ -51,6 +51,42 @@ describe("testing math functions", () => {
         expecting = new Position(0,0);
         result = MyMath.move(start,end,speed);
         expect(result).toEqual(expecting);
+
+        // going vertically
+        start = new Position(0,0);
+        end = new Position(0,5);
+        speed = 1;
+        let time = 3;
+        expecting = new Position(0,3);
+        result = MyMath.move(start,end,speed,time);
+        expect(result).toEqual(expecting);
+
+        // time = 0, should not move
+        start = new Position(0,0);
+        end = new Position(0,5);
+        speed = 1;
+        time = 0;
+        expecting = new Position(0,0);
+        result = MyMath.move(start,end,speed,time);
+        expect(result).toEqual(expecting);
+
+        // time = 100, should stop at max range
+        start = new Position(0,0);
+        end = new Position(5,5);
+        speed = 1;
+        time = 100;
+        expecting = new Position(5,5);
+        result = MyMath.move(start,end,speed,time);
+        expect(result).toEqual(expecting);
+
+        // should move correct distance
+        start = new Position(0,0);
+        end = new Position(-6,8);
+        speed = 2.5;
+        time = 2;
+        expecting = new Position(-3,4);
+        result = MyMath.move(start,end,speed,time);
+        expect(result).toEqual(expecting);
     })
     it("should extend to max range", () => {
         let from = new Position(0,0);

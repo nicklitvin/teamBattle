@@ -11,8 +11,8 @@ export default class DrawingInstruction implements Projectile {
     constructor(projectile : Projectile, color : string) {
         this._radius = projectile._radius;
         this._speed = projectile._speed;
-        this._position = projectile._position;
-        this._target = projectile._target;
+        this._position = projectile._position.copy();
+        if (projectile._target) this._target = projectile._target.copy();
         this._color = color;
     }
 }
