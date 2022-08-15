@@ -1,6 +1,6 @@
-import MyMath from "./MyMath";
-import Position from "./Position";
-import Projectile from "./Projectile";
+import MyMath from "../client/MyMath";
+import Position from "../client/Position";
+import Projectile from "../client/Projectile";
 import Ship from "./Ship";
 
 /**
@@ -117,6 +117,10 @@ export default class Game {
             }
         }
         return list;
+    }
+
+    public getVisibleState(ship : Ship) {
+
     }
 
     /**

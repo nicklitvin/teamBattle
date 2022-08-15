@@ -1,5 +1,5 @@
 import Ship from "../src/game/Ship"
-import Position from "../src/game/Position"
+import Position from "../src/client/Position"
 import * as SocketMessages from "../src/client/socketMessages.json";
 import Game from "../src/game/Game";
 

@@ -271,6 +271,25 @@ export default class GameManager {
     }
 
     /**
+     * Lobby must be in transition or ingame. Sends every player game state from
+     * their perspective.
+     * 
+     * @param lobby 
+     */
+    public sendVisibleGame(lobby : Lobby, playerId : string) {
+        let player = this._lobbyManager._players[playerId];
+
+        if (lobby._transition) {
+            // send countdown
+        }
+
+        let game = this._games[lobby._id];
+        let state = game.getVisibleState(game._ships[game._players[playerId]]);
+
+        player.socketWrap.emit(SocketMessages.gameState, state);
+    }
+
+    /**
      * Clears all stored data.
      */
     public clearAllData() {

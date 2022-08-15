@@ -6,6 +6,7 @@ Visuals
     Choose correct colors so players can differentate between each other
     Map is dark, light when within radius
     Iterate throw game objects to identify which to display (cuttoff problem)
+    highlight button that is currently active, socketMessage.activeRole
 
 Later
     Show # of players returning
@@ -13,3 +14,16 @@ Later
     match-making
     Reverse y when sending coordinates
     ship 2v2 games
+
+Visuals 
+    Create game, add starting time
+    Redirect
+    Join Game
+    game state from perspective + countdown
+        set Timeout( send time, check time if above 0 and repeat)
+        get visible 
+    update countdown
+    game state from perspective
+
+visible if see edge, predict the rest of shape (to avoid magic appearance)
+

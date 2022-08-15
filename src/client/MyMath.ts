@@ -26,7 +26,7 @@ export default class MyMath {
 
     /**
      * Returns new position after move towards target given speed.
-     * Non-destructive.
+     * Non-destructive. 
      * @param from 
      * @param to 
      * @param speed 

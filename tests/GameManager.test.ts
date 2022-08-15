@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import SocketWrap from "../src/SocketWrap";
 import Lobby from "../src/lobby/Lobby";
 import * as SocketMessages from "../src/client/socketMessages.json";
-import Position from "../src/game/Position";
+import Position from "../src/client/Position";
 
 const app : any = express();
 const server = app.listen(5000);

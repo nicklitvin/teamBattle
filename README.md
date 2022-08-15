@@ -5,11 +5,9 @@ ship to stay afloat wins.
 
 # Project State
 
-Complete: Game fundamentals
+Complete: Game fundamentals, server functionality
 
-Currently designing and testing server functionality.
-
-TODO: Game visuals
+Currently designing and testing game visuals.
 
 # Setup
 

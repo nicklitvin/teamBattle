@@ -6,13 +6,15 @@
     "disconnect": "disconnect",
     "countUpdate": "countUpdate",
     "lobbyLeaderRole": "lobbyLeaderRole",
-    "winnerText" : "winnerText",
     
     "startGame": "startGame",
     "joinGame": "joinGame",
     "showReturnButton": "showReturnButton",
     "playerWantsToReturn": "playerWantsToReturn",
     "gameInput": "gameInput",
+    "winnerText" : "winnerText",
+    "gameCountdown" : "gameCountdown",
+    "gameState" : "gameState",
 
     "roleSelectKeyword": "selectKeyword",
     "captainTitle": "captain",
