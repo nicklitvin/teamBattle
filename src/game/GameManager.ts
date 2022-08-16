@@ -281,15 +281,21 @@ export default class GameManager {
      */
     public sendGameState(lobby : Lobby) {
         let game = this._games[lobby._id];
+        let countdown = Math.ceil((Date.now() - game._creationTime + this._transitionTime) / 1000 );
 
-        if (lobby._transition) {
-            // send countdown
+        for (let playerId of lobby.getPlayerList()) {
+            let player = this._lobbyManager._players[playerId];
+            if (!player.online) continue;
+
+            let shipId = game._players[player.id];
+
+            if (countdown > 0) {
+                player.socketWrap.emit(SocketMessages.gameCountdown,countdown);
+            }
+
+            let shipDrawInstructions = game._drawingInstructions[shipId];
+            player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(shipDrawInstructions));
         }
-
-        // let game = this._games[lobby._id];
-        // let state = game.getVisibleState(game._ships[game._players[playerId]]);
-
-        // player.socketWrap.emit(SocketMessages.gameState, state);
     }
 
     /**

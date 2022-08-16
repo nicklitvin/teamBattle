@@ -1,10 +1,13 @@
 Game
 
 Server
+    make emit only contain one object, array if multiple needed
+    make lines shorter (80 words max)
 
 Visuals
     send visuals to client to draw
     send countdown to client
+    send hp of ship to client
     highlight button that is currently active, socketMessage.activeRole
 
 Later
@@ -23,5 +26,8 @@ Visuals
         get visible 
     update countdown
     game state from perspective
+
+Canvas
+
 
 

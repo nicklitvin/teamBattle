@@ -5,6 +5,7 @@ import SocketWrap from "../src/SocketWrap";
 import Lobby from "../src/lobby/Lobby";
 import * as SocketMessages from "../src/client/socketMessages.json";
 import Position from "../src/client/Position";
+import DrawingInstruction from "../src/client/DrawingInstruction";
 
 const app : any = express();
 const server = app.listen(5000);
@@ -208,6 +209,34 @@ describe("testing gameManager", () => {
         // run game
         gameManager.runGame(game);
         expect(game.isGameOver()).toBeTruthy();
+    })
+
+    it("should send gameUpdates", () => {
+        gameManager._setTimerBeforeGameStart = false;
+        gameManager._runGameAfterTransition = false;
+        gameManager._instantGameUpdates = true;
+
+        lobbyManager.socketStartGame(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapBlu);
+        gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
+        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
+        socketWrapRed.clearSavedMessages();
+
+        let game = gameManager._games[socketWrapRed.id];
+        game.updateDrawingInstructions();
+        gameManager.sendGameState(lobby);
+
+        let countdownExpect = Math.ceil(
+            (Date.now() - game._creationTime + gameManager._transitionTime) / 1000
+        );
+        let expect0 = [SocketMessages.gameCountdown,countdownExpect];
+        expect(socketWrapRed.savedMessages[0]).toEqual(expect0);
+
+        let drawingInformation : DrawingInstruction[] = 
+            JSON.parse(socketWrapRed.savedMessages[1][1]);
+
+        expect(drawingInformation[0]._target).toEqual(drawingInformation[0]._position);
     })
 })
 server.close();

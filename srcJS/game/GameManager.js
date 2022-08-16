@@ -27,7 +27,6 @@ var GameManager = (function () {
                     _this.socketJoinGame(socketWrap, id, lobbyId);
                 }
                 catch (_a) {
-                    //console.log("GameManager.joinGame error");
                 }
             });
             socket.on(SocketMessages.gameInput, function () {
@@ -39,7 +38,6 @@ var GameManager = (function () {
                     _this.socketProcessGameInput(socketWrap, args);
                 }
                 catch (_a) {
-                    //console.log("GameManager.processinput error");
                 }
             });
         });
@@ -57,7 +55,6 @@ var GameManager = (function () {
         }
     };
     GameManager.prototype.endTransitionPhase = function (lobby) {
-        //console.log("starting game");
         lobby.endTransitionPhase();
         lobby.switchToInGameStatus();
         if (this.areAllOffline(lobby)) {
@@ -75,11 +72,9 @@ var GameManager = (function () {
             var player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
-            //console.log("player joined game", playerId);
         }
         else {
             socketWrap.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
-            //console.log("player cant join game");
         }
     };
     GameManager.prototype.deleteGameIfEmpty = function (lobby) {
@@ -109,7 +104,6 @@ var GameManager = (function () {
         }
         delete this._lobbyManager._lobbies[lobbyId];
         delete this._games[lobbyId];
-        //console.log("deleting lobby", lobbyId);
     };
     GameManager.prototype.endGame = function (lobby) {
         lobby.switchBackFromInGameStatus();
@@ -155,16 +149,16 @@ var GameManager = (function () {
     };
     GameManager.prototype.runGame = function (game) {
         var _this = this;
+        var somePlayerId = Object.keys(game._players)[0];
+        var lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
+        var lobby = this._lobbyManager._lobbies[lobbyId];
         if (game.isGameOver() || this._immediatelyEndGame) {
-            var somePlayerId = Object.keys(game._players)[0];
-            var lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
-            var lobby = this._lobbyManager._lobbies[lobbyId];
             lobby.switchBackFromInGameStatus();
-            //console.log("ending game");
             for (var _i = 0, _a = Object.keys(game._players); _i < _a.length; _i++) {
                 var playerId = _a[_i];
                 var player = this._lobbyManager._players[playerId];
                 player.socketWrap.emit(SocketMessages.showReturnButton);
+                player.socketWrap.emit(SocketMessages.winnerText, game._winnerText);
             }
         }
         else {
@@ -174,10 +168,27 @@ var GameManager = (function () {
             }
             else {
                 setTimeout(function () {
-                    //console.log("running");
+                    game.updateDrawingInstructions();
+                    _this.sendGameState(lobby);
                     _this.runGame(game);
                 }, this._refreshTime);
             }
+        }
+    };
+    GameManager.prototype.sendGameState = function (lobby) {
+        var game = this._games[lobby._id];
+        var countdown = Math.ceil((Date.now() - game._creationTime) / 1000);
+        for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
+            var playerId = _a[_i];
+            var player = this._lobbyManager._players[playerId];
+            if (!player.online)
+                continue;
+            var shipId = game._players[player.id];
+            if (countdown > 0) {
+                player.socketWrap.emit(SocketMessages.countUpdate, countdown);
+            }
+            var shipDrawInstructions = game._drawingInstructions[shipId];
+            player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(shipDrawInstructions));
         }
     };
     GameManager.prototype.clearAllData = function () {

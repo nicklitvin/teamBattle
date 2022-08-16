@@ -20,8 +20,10 @@ export default class Game {
     public _drawingInstructions : { [shipId: string] : DrawingInstruction[]} = {};
     public _visionColor = "grey";
     public _enemyColor = "black";
+    public _creationTime : number;
 
     public addPlayer(playerId : string, shipId : string) {
+        this._creationTime = Date.now();
         if (Object.keys(this._ships).includes(shipId)) {
             this._players[playerId] = shipId;
         } else {
@@ -29,6 +31,14 @@ export default class Game {
         }
     }
 
+    /**
+     * Creates and adds a ship to the game. Position has a default value, but
+     * color will be undefined unless specified.
+     * 
+     * @param shipId 
+     * @param position 
+     * @param color 
+     */
     public addShip(shipId : string, position? : Position, color? : string) {
         let ship = new Ship(position);
         ship.setId(shipId);
@@ -107,10 +117,11 @@ export default class Game {
             let ship = this._ships[shipId];
             let instructions : DrawingInstruction[] = [];
 
+            let shipTarget = ship._target || ship._position.copy();
             // shipVision
             let shipVision : Projectile = {
                 _position : ship._position,
-                _target : ship._target,
+                _target : shipTarget,
                 _radius : ship._vision,
                 _speed : ship._speed
             }
@@ -130,7 +141,13 @@ export default class Game {
             }
 
             // ship
-            let shipInstruction = new DrawingInstruction(ship,ship._color);
+            let shipProjectile : Projectile = {
+                _position : ship._position,
+                _target : shipTarget,
+                _radius : ship._radius,
+                _speed : ship._speed
+            }
+            let shipInstruction = new DrawingInstruction(shipProjectile, ship._color);
             instructions.push(shipInstruction);
 
             // ship scouts

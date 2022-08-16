@@ -8,4 +8,3 @@ var server = app.listen(5000);
 var io = new socket_io_1.Server(server);
 new LobbyManager_1["default"](io);
 app.use("/", express.static(__dirname + "/client"));
-//console.log("running");

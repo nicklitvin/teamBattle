@@ -246,6 +246,5 @@ describe("testing drawing instructions", () => {
     expect(instructions[1]._radius).toEqual(ship._radius);
     expect(instructions[1]._color).toEqual(ship._color);
     expect(instructions[1]._target).toEqual(instructions[0]._target);
-
     // could add more for multiple shots/scouts,enemies
 })

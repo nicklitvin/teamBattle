@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
-var MyMath_1 = require("./MyMath");
-var Position_1 = require("./Position");
+var MyMath_1 = require("../client/MyMath");
+var Position_1 = require("../client/Position");
 var Role_1 = require("./Role");
 var Shot_1 = require("./Shot");
 var SocketMessages = require("../client/socketMessages.json");
@@ -68,7 +68,6 @@ var Ship = (function () {
     };
     Ship.prototype.processPlayerInput = function (playerId, args) {
         try {
-            //console.log("processing player request", playerId, args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId, args[1]);
             }
@@ -80,7 +79,6 @@ var Ship = (function () {
         }
     };
     Ship.prototype.processPlayerSelect = function (playerId, requestedRoleTitle) {
-        //console.log("processing player request");
         if (Object.keys(this._shotsSent).includes(playerId) ||
             Object.keys(this._scoutsSent).includes(playerId)) {
             return;
@@ -162,6 +160,9 @@ var Ship = (function () {
     };
     Ship.prototype.deleteShot = function (playerId) {
         delete this._shotsSent[playerId];
+    };
+    Ship.prototype.setColor = function (color) {
+        this._color = color;
     };
     return Ship;
 }());

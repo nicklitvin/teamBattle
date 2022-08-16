@@ -1,4 +1,6 @@
 import SocketMessages from "../socketMessages.json" assert { type: "json" };
+import DrawingInstruction from "../DrawingInstruction";
+import Drawer from "../Drawer";
 
 class Game {        
     constructor() {
@@ -25,6 +27,12 @@ class Game {
         })
         this.socket.on(SocketMessages.redirect, (msg) => {
             window.location.href = SocketMessages.baseUrl + msg[0];
+        })
+        this.socket.on(SocketMessages.gameCountdown, (msg) => {
+            let time = msg[0];
+        })
+        this.socket.on(SocketMessages.gameState, (msg) => {
+            let drawInstructions = JSON.parse(msg[0]);
         })
     }
 

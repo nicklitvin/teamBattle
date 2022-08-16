@@ -1,24 +1,31 @@
 "use strict";
 exports.__esModule = true;
-var MyMath_1 = require("./MyMath");
-var Position_1 = require("./Position");
+var DrawingInstruction_1 = require("../client/DrawingInstruction");
+var MyMath_1 = require("../client/MyMath");
+var Position_1 = require("../client/Position");
 var Ship_1 = require("./Ship");
 var Game = (function () {
     function Game() {
         this._players = {};
         this._ships = {};
         this._defaultShipNumber = 4;
+        this._drawingInstructions = {};
+        this._visionColor = "grey";
+        this._enemyColor = "black";
     }
     Game.prototype.addPlayer = function (playerId, shipId) {
+        this._creationTime = Date.now();
         if (Object.keys(this._ships).includes(shipId)) {
             this._players[playerId] = shipId;
         }
         else {
         }
     };
-    Game.prototype.addShip = function (shipId, position) {
+    Game.prototype.addShip = function (shipId, position, color) {
         var ship = new Ship_1["default"](position);
         ship.setId(shipId);
+        if (color)
+            ship.setColor(color);
         this._ships[shipId] = ship;
     };
     Game.prototype.processPlayerInput = function (playerId, args) {
@@ -50,30 +57,92 @@ var Game = (function () {
                         enemy.deleteShot(shooter);
                         if (ship._health == 0) {
                             delete this._ships[ship._id];
-                            break;
+                            if (Object.keys(this._ships).length == 1) {
+                                this.updateWinnerText();
+                                return;
+                            }
+                            else {
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
     };
-    Game.prototype.getVisibleProjectiles = function (ship) {
+    Game.prototype.updateWinnerText = function () {
+        var shipId = Object.keys(this._ships)[0];
+        this._winnerText = "Ship ".concat(shipId, " is the winner");
+    };
+    Game.prototype.updateDrawingInstructions = function () {
+        for (var _i = 0, _a = Object.keys(this._ships); _i < _a.length; _i++) {
+            var shipId = _a[_i];
+            var ship = this._ships[shipId];
+            var instructions = [];
+            var shipVision = {
+                _position: ship._position,
+                _target: ship._target,
+                _radius: ship._vision,
+                _speed: ship._speed
+            };
+            var shipVisionInstruction = new DrawingInstruction_1["default"](shipVision, this._visionColor);
+            instructions.push(shipVisionInstruction);
+            for (var _b = 0, _c = Object.values(ship._scoutsSent); _b < _c.length; _b++) {
+                var scout = _c[_b];
+                var scoutVision = {
+                    _position: scout._position,
+                    _target: scout._target,
+                    _radius: ship._vision,
+                    _speed: scout._speed
+                };
+                var instruction = new DrawingInstruction_1["default"](scoutVision, this._visionColor);
+                instructions.push(instruction);
+            }
+            var shipInstruction = new DrawingInstruction_1["default"](ship, ship._color);
+            instructions.push(shipInstruction);
+            for (var _d = 0, _e = Object.values(ship._scoutsSent); _d < _e.length; _d++) {
+                var scout = _e[_d];
+                var scoutInstruction = new DrawingInstruction_1["default"](scout, ship._color);
+                instructions.push(scoutInstruction);
+            }
+            for (var _f = 0, _g = Object.values(ship._shotsSent); _f < _g.length; _f++) {
+                var shot = _g[_f];
+                var shotInstruction = new DrawingInstruction_1["default"](shot, ship._color);
+                if (MyMath_1["default"].getDistanceBetween(shot, ship) < ship._vision + shot._radius) {
+                    instructions.push(shotInstruction);
+                }
+                else {
+                    for (var _h = 0, _j = Object.values(ship._scoutsSent); _h < _j.length; _h++) {
+                        var scout = _j[_h];
+                        if (MyMath_1["default"].getDistanceBetween(shot, scout) < ship._vision + shot._radius) {
+                            instructions.push(shotInstruction);
+                            break;
+                        }
+                    }
+                }
+            }
+            var enemies = this.getVisibleEnemyProjectiles(ship);
+            for (var _k = 0, enemies_1 = enemies; _k < enemies_1.length; _k++) {
+                var enemy = enemies_1[_k];
+                var enemyInstruction = new DrawingInstruction_1["default"](enemy, this._enemyColor);
+                instructions.push(enemyInstruction);
+            }
+            this._drawingInstructions[shipId] = instructions;
+        }
+    };
+    Game.prototype.getVisibleEnemyProjectiles = function (ship) {
         var list = [];
         for (var _i = 0, _a = Object.values(this._ships); _i < _a.length; _i++) {
             var enemy = _a[_i];
-            if (MyMath_1["default"].getDistanceBetween(ship, enemy) <= ship._vision) {
+            if (ship._id == enemy._id)
+                continue;
+            if (MyMath_1["default"].getDistanceBetween(ship, enemy) < ship._vision + enemy._radius) {
                 list.push(ship);
             }
-            for (var _b = 0, _c = Object.values(enemy._shotsSent); _b < _c.length; _b++) {
-                var shot = _c[_b];
-                if (MyMath_1["default"].getDistanceBetween(ship, shot) <= ship._vision) {
-                    list.push(shot);
-                }
-            }
-            for (var _d = 0, _e = Object.values(enemy._scoutsSent); _d < _e.length; _d++) {
-                var shot = _e[_d];
-                if (MyMath_1["default"].getDistanceBetween(ship, shot) <= ship._vision) {
-                    list.push(shot);
+            for (var _b = 0, _c = Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent)); _b < _c.length; _b++) {
+                var thing = _c[_b];
+                if (MyMath_1["default"].getDistanceBetween(ship, thing) < ship._vision + thing._radius) {
+                    list.push(thing);
                 }
             }
         }

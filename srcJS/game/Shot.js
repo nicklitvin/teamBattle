@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var MyMath_1 = require("./MyMath");
+var MyMath_1 = require("../client/MyMath");
 var Shot = (function () {
     function Shot(position, target, time, speed) {
         this._radius = 0.1;
