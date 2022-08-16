@@ -9,6 +9,7 @@ Visuals
     send countdown to client
     send hp of ship to client
     highlight button that is currently active, socketMessage.activeRole
+    send player actions to server
 
 Later
     Show # of players returning

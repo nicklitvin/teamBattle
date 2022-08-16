@@ -1,9 +1,23 @@
 <head>
-    <link rel="stylesheet" href="game.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Game</h1>
-    <button id="returnFromGameButton" onclick="game.returnFromGame()">return</button>
+    <div id="main">
+        <div id="top">
+            <canvas id="game"></canvas>
+            <div id="roles">
+                <button id="captainRole">☸</button>
+                <button id="scoutRole">🔭</button>
+                <button id="shooterRole">💣</button>
+                <button id="medicRole">🚑</button>
+            </div>
+        </div>
+        <div id="bottom">
+            <canvas id="status"></canvas>
+            <button id="return" onclick="game.returnFromGame()">return</button>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="./game.js"></script>
 </body>
