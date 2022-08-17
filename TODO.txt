@@ -1,15 +1,16 @@
 Game
 
 Server
+    convert everything to es6?
     make emit only contain one object, array if multiple needed
     make lines shorter (80 words max)
 
 Visuals
+    send player actions to server
     send visuals to client to draw
     send countdown to client
     send hp of ship to client
     highlight button that is currently active, socketMessage.activeRole
-    send player actions to server
 
 Later
     Show # of players returning

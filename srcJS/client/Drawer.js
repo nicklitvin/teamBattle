@@ -2,7 +2,8 @@
 exports.__esModule = true;
 var MyMath_1 = require("./MyMath");
 var Drawer = (function () {
-    function Drawer() {
+    function Drawer(canvas) {
+        this._canvas = canvas;
     }
     Drawer.prototype.updateInstructions = function (instructions) {
         this._instructions = instructions;

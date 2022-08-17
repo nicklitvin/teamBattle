@@ -1,15 +1,16 @@
 <head>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./game.css">
+    <link rel="stylesheet" href="../global.css">
 </head>
 <body>
     <div id="main">
         <div id="top">
             <canvas id="game"></canvas>
             <div id="roles">
-                <button id="captainRole">☸</button>
-                <button id="scoutRole">🔭</button>
-                <button id="shooterRole">💣</button>
-                <button id="medicRole">🚑</button>
+                <button id="captainRole" onclick="game.selectCaptainRole()">☸</button>
+                <button id="scoutRole" onclick="game.selectScoutRole()">🔭</button>
+                <button id="shooterRole" onclick="game.selectShooterRole()">💣</button>
+                <button id="medicRole" onclick="game.selectMedicRole()">🚑</button>
             </div>
         </div>
         <div id="bottom">
@@ -18,6 +19,9 @@
         </div>
     </div>
 
+    <script>var exports = {}</script>
+    <script type="module" src="../DrawingInstruction.js"></script>
+    <script type="module" src="../Drawer.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="./game.js"></script>
 </body>

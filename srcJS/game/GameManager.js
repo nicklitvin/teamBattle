@@ -177,7 +177,7 @@ var GameManager = (function () {
     };
     GameManager.prototype.sendGameState = function (lobby) {
         var game = this._games[lobby._id];
-        var countdown = Math.ceil((Date.now() - game._creationTime) / 1000);
+        var countdown = Math.ceil((Date.now() - game._creationTime + this._transitionTime) / 1000);
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
             var player = this._lobbyManager._players[playerId];
@@ -185,7 +185,7 @@ var GameManager = (function () {
                 continue;
             var shipId = game._players[player.id];
             if (countdown > 0) {
-                player.socketWrap.emit(SocketMessages.countUpdate, countdown);
+                player.socketWrap.emit(SocketMessages.gameCountdown, countdown);
             }
             var shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(shipDrawInstructions));

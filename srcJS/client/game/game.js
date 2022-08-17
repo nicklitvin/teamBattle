@@ -1,10 +1,9 @@
 import SocketMessages from "../socketMessages.json" assert { type: "json" };
-import DrawingInstruction from "../DrawingInstruction";
-import Drawer from "../Drawer";
+import Drawer from "../Drawer.js"
 
 class Game {        
     constructor() {
-        this.socket = io();
+        this._socket = io();
         this.setup();
         this.joinGame();
     }
@@ -21,29 +20,56 @@ class Game {
     }
 
     setup() {
-        this.socket.on(SocketMessages.showReturnButton, () => {
-            let element = document.getElementById("returnFromGameButton");
-            element.style.display = "block";
+        let gameCanvas = document.getElementById("game").getContext("2d");
+        this._drawer = Drawer(gameCanvas);
+        
+        this._socket.on(SocketMessages.showReturnButton, () => {
+            // let element = document.getElementById("return");
         })
-        this.socket.on(SocketMessages.redirect, (msg) => {
+        this._socket.on(SocketMessages.redirect, (msg) => {
             window.location.href = SocketMessages.baseUrl + msg[0];
         })
-        this.socket.on(SocketMessages.gameCountdown, (msg) => {
-            let time = msg[0];
+        this._socket.on(SocketMessages.gameCountdown, (msg) => {
+            // let time = msg[0];
         })
-        this.socket.on(SocketMessages.gameState, (msg) => {
+        this._socket.on(SocketMessages.gameState, (msg) => {
             let drawInstructions = JSON.parse(msg[0]);
+            this._drawer.updateInstructions(drawInstructions);
         })
     }
 
     returnFromGame() {
-        this.socket.emit(SocketMessages.playerWantsToReturn);
+        this._socket.emit(SocketMessages.playerWantsToReturn);
     }
 
     joinGame() {
         let roomId = this.getRoomId();
         let playerId = localStorage.getItem(SocketMessages.localStorageId);
-        this.socket.emit(SocketMessages.joinGame,playerId,roomId);
+        this._socket.emit(SocketMessages.joinGame,playerId,roomId);
+    }
+
+    selectCaptainRole() {
+        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.captainTitle);
+    }
+
+    selectScoutRole() {
+        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.scoutTitle);
+    }
+
+    selectShooterRole() {
+        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle);
+    }
+
+    selectMedicRole() {
+        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.medicTitle);
+    }
+
+    sendClickCoordinates(e) {
+        let bound = game.getBoundingClientRect();
+        let x = (e.clientX - bound.x) * (16 / bound.width);
+        let y = (bound.height - e.clientY -  bound.y) * (9 / bound.height)
+
+        this._socket.emit(SocketMessages.gameInput,x,y);
     }
 }
 
@@ -55,3 +81,13 @@ window.onpageshow = function(e) {
         window.location.reload();
     }
 };
+
+let gameCanvas = document.getElementById("game");
+gameCanvas.addEventListener("click", (e) => {
+    game.sendClickCoordinates(e);
+})
+
+setInterval( () => {
+    game._drawer.draw()
+    console.log("drawing");
+}, 10);

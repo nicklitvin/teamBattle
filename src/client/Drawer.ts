@@ -6,6 +6,10 @@ export default class Drawer {
     _timeStart : number;
     _canvas : CanvasRenderingContext2D;
 
+    constructor(canvas : CanvasRenderingContext2D) {
+        this._canvas = canvas;
+    }
+
     public updateInstructions(instructions : DrawingInstruction[]) {
         this._instructions = instructions;
         this._timeStart = Date.now();

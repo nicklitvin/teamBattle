@@ -101,7 +101,7 @@ export default class Ship implements Projectile {
      */
     public processPlayerInput(playerId : string, args : any[])  {
         try {
-            //console.log("processing player request",playerId,args);
+            // console.log("processing player request",playerId,args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
             } else {

@@ -1,0 +1,28 @@
+#main {
+    position:absolute;
+    top: 0%;
+    bottom: 0%;
+    left: 0%;
+    margin:auto;
+    width: 100%;
+    height: 20%;
+}
+#top {
+    position: relative;
+    width: 100%;
+    height: 50%;
+}
+#bottom {
+    position: relative;
+    width: 100%;
+    height: 50%;
+    text-align: center;
+}
+#title {
+    text-align: center;
+}
+#createLobby {
+    width: 15%;
+    height: 50%;
+    color: black;
+}

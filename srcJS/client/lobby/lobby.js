@@ -46,7 +46,7 @@ class Lobby {
         })
         this.socket.on(SocketMessages.lobbyLeaderRole, () => {
             let element = document.getElementById("gameStarter");
-            element.style.display = "block";
+            element.style.visibility= "visible";
         })
         this.socket.on(SocketMessages.redirect, (msg) => {
             window.location.href = SocketMessages.baseUrl + msg[0];

@@ -79,9 +79,10 @@ var Game = (function () {
             var shipId = _a[_i];
             var ship = this._ships[shipId];
             var instructions = [];
+            var shipTarget = ship._target || ship._position.copy();
             var shipVision = {
                 _position: ship._position,
-                _target: ship._target,
+                _target: shipTarget,
                 _radius: ship._vision,
                 _speed: ship._speed
             };
@@ -98,7 +99,13 @@ var Game = (function () {
                 var instruction = new DrawingInstruction_1["default"](scoutVision, this._visionColor);
                 instructions.push(instruction);
             }
-            var shipInstruction = new DrawingInstruction_1["default"](ship, ship._color);
+            var shipProjectile = {
+                _position: ship._position,
+                _target: shipTarget,
+                _radius: ship._radius,
+                _speed: ship._speed
+            };
+            var shipInstruction = new DrawingInstruction_1["default"](shipProjectile, ship._color);
             instructions.push(shipInstruction);
             for (var _d = 0, _e = Object.values(ship._scoutsSent); _d < _e.length; _d++) {
                 var scout = _e[_d];

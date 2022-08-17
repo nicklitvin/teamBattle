@@ -29,37 +29,42 @@
     height: 100%;
     float: right;
 }
-#un {
+#captainRole {
     position: relative;
     width: 100%;
     height: 25%;
+    color: black;
+    font-size: 300%;
 }
-#deux {
+#scoutRole {
     position: relative;
     width: 100%;
     height: 25%;
+    font-size: 200%;
 }
-#trois {
+#shooterRole {
     position: relative;
     width: 100%;
     height: 25%;
+    font-size: 200%;
 }
-#quatre {
+#medicRole {
     position: relative;
     width: 100%;
     height: 25%;
+    font-size: 200%;
 }
 #status {
     background-color: greenyellow;
     position: relative;
     width: 85%;
     height: 100%;
-    background-color: "green";
-    z-index: -10;
 }
+
 #return {
     position: relative;
     width: 15%;
     height: 100%;
     float: right;
+    color: black;
 }
