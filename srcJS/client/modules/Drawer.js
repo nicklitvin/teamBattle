@@ -6,13 +6,19 @@ export default class Drawer {
         this._font = "128px Comic Sans MS";
         this._textAlign = "center";
         this._textColor = "white";
+        this._instructions = [];
     }
 
     updateInstructions(instructions) {
-        if (!this._canvas) return;
-        this._instructions = [];
+        this._timeStart = Date.now();
+        this._instructions = instructions;
+    }
 
-        for (let instruction of instructions) {
+    getDrawingInstructions() {
+        if (!this._canvas) return;
+        let instructions = [];
+
+        for (let instruction of this._instructions) {
             let instructionObject = DrawingInstruction.make(instruction);
             instructionObject._position.x *= this._canvas.width;
             instructionObject._position.y *= this._canvas.height;  
@@ -20,23 +26,24 @@ export default class Drawer {
             instructionObject._target.y *= this._canvas.height;
             instructionObject._radius *= this._canvas.width;
             instructionObject._speed *= this._canvas.width;  
-            this._instructions.push(instructionObject);
+            instructions.push(instructionObject);
         }
-        this._timeStart = Date.now();
+        return instructions;
     }
 
     draw() {
         let timeDiff = Date.now() - this._timeStart;
+        let instructions = this.getDrawingInstructions();
+        if (!instructions) return;
 
-        if (!this._instructions) return;
-
-        for (let instruction of this._instructions) {
+        for (let instruction of instructions) {
             let newPosition = MyMath.move(
                 instruction._position,
                 instruction._target,
                 instruction._speed,
                 timeDiff
             );
+            this._ctx.fillStyle = instruction._color;
             this._ctx.beginPath();
             this._ctx.arc(
                 newPosition.x,

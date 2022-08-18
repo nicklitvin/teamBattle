@@ -33,6 +33,8 @@ class Game {
         })
         this._socket.on(SocketMessages.gameState, (msg) => {
             let drawInstructions = JSON.parse(msg[0]);
+            console.log("received");
+            // let gameCanvas = document.getElementById("game");
             this._drawer.updateInstructions(drawInstructions);
         })
     }
@@ -104,7 +106,6 @@ let drawerId = setInterval( () => {
     let statusCtx = statusCanvas.getContext("2d");
     let bottom = document.getElementById("bottom");
     let bottomRect = bottom.getBoundingClientRect();
-
     statusCanvas.width = bottomRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
     statusCanvas.height = bottomRect.height;
     statusCtx.clearRect(0,0,statusCanvas.width,statusCanvas.height);
@@ -118,5 +119,5 @@ let drawerId = setInterval( () => {
     if (countdown > 0) {
         game._drawer.drawCountdown(countdown);
     }
-    console.log("drawing");
+    // console.log("drawing");
 }, 10);

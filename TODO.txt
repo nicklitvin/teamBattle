@@ -6,7 +6,6 @@ Server
     commentate, delete unecessary clientModule classes
 
 Visuals
-    send visuals to client to draw
     send hp of ship to client
     send player actions to server
     highlight button that is currently active, socketMessage.activeRole
