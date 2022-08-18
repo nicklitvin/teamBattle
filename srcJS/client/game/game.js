@@ -1,5 +1,5 @@
 import SocketMessages from "../socketMessages.json" assert { type: "json" };
-import Drawer from "../Drawer.js"
+import Drawer from "../modules/Drawer.js";
 
 class Game {        
     constructor() {
@@ -21,7 +21,7 @@ class Game {
 
     setup() {
         let gameCanvas = document.getElementById("game").getContext("2d");
-        this._drawer = Drawer(gameCanvas);
+        this._drawer = new Drawer(gameCanvas);
         
         this._socket.on(SocketMessages.showReturnButton, () => {
             // let element = document.getElementById("return");
@@ -30,9 +30,11 @@ class Game {
             window.location.href = SocketMessages.baseUrl + msg[0];
         })
         this._socket.on(SocketMessages.gameCountdown, (msg) => {
+            console.log(msg[0]);
             // let time = msg[0];
         })
         this._socket.on(SocketMessages.gameState, (msg) => {
+            console.log(msg[0]);
             let drawInstructions = JSON.parse(msg[0]);
             this._drawer.updateInstructions(drawInstructions);
         })

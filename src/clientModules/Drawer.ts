@@ -18,6 +18,8 @@ export default class Drawer {
     public draw() {
         let timeDiff = Date.now() - this._timeStart;
 
+        if (!this._instructions) return;
+
         for (let instruction of this._instructions) {
             let newPosition = MyMath.move(
                 instruction._position,

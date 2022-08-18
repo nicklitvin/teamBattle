@@ -1,4 +1,4 @@
-import Position from "../src/client/Position";
+import Position from "../src/clientModules/Position";
 import Shot from "../src/game/Shot"
 
 describe("testing shot", () => {

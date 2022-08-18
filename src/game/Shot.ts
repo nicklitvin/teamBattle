@@ -1,6 +1,6 @@
-import MyMath from "../client/MyMath";
-import Position from "../client/Position";
-import Projectile from "../client/Projectile";
+import MyMath from "../clientModules/MyMath";
+import Position from "../clientModules/Position";
+import Projectile from "../clientModules/Projectile";
 
 /**
  * A shot is a projectile that moves towards a particular target

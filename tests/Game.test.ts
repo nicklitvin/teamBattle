@@ -1,5 +1,5 @@
 import Game from "../src/game/Game";
-import Position from "../src/client/Position";
+import Position from "../src/clientModules/Position";
 import * as SocketMessages from "../src/client/socketMessages.json";
 
 describe("testing player/role adding", () => {

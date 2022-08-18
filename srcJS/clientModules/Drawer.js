@@ -11,6 +11,8 @@ var Drawer = (function () {
     };
     Drawer.prototype.draw = function () {
         var timeDiff = Date.now() - this._timeStart;
+        if (!this._instructions)
+            return;
         for (var _i = 0, _a = this._instructions; _i < _a.length; _i++) {
             var instruction = _a[_i];
             var newPosition = MyMath_1["default"].move(instruction._position, instruction._target, instruction._speed, timeDiff);

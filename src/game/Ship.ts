@@ -1,6 +1,6 @@
-import MyMath from "../client/MyMath";
-import Position from "../client/Position";
-import Projectile from "../client/Projectile";
+import MyMath from "../clientModules/MyMath";
+import Position from "../clientModules/Position";
+import Projectile from "../clientModules/Projectile";
 import Role from "./Role";
 import Shot from "./Shot";
 import * as SocketMessages from "../client/socketMessages.json";

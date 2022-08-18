@@ -4,8 +4,8 @@ import { Server } from "socket.io";
 import SocketWrap from "../src/SocketWrap";
 import Lobby from "../src/lobby/Lobby";
 import * as SocketMessages from "../src/client/socketMessages.json";
-import Position from "../src/client/Position";
-import DrawingInstruction from "../src/client/DrawingInstruction";
+import Position from "../src/clientModules/Position";
+import DrawingInstruction from "../src/clientModules/DrawingInstruction";
 
 const app : any = express();
 const server = app.listen(5000);

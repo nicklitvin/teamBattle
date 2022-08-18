@@ -25,4 +25,3 @@ window.onpageshow = function(e) {
         window.location.reload();
     }
 };
-

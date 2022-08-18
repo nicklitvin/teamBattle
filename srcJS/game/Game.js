@@ -1,8 +1,8 @@
 "use strict";
 exports.__esModule = true;
-var DrawingInstruction_1 = require("../client/DrawingInstruction");
-var MyMath_1 = require("../client/MyMath");
-var Position_1 = require("../client/Position");
+var DrawingInstruction_1 = require("../clientModules/DrawingInstruction");
+var MyMath_1 = require("../clientModules/MyMath");
+var Position_1 = require("../clientModules/Position");
 var Ship_1 = require("./Ship");
 var Game = (function () {
     function Game() {

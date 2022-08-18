@@ -32,3 +32,17 @@ All tests are run with the following command:
 npm test
 ```
 
+## CommonJS vs ECMAScript conflict
+
+Due to the reliance on CommonJS for server-side imports (express and
+socket.io), typescript is compiled to CommonJS as specified in the
+tsconfig.json file. 
+
+Files that are required by the client in the browser cannot use 
+"require" a commonJS term but rather "import" a ECMASript term.
+
+For now, files that need to be used by the server and client are 
+manually translated to ECMAScript from ./src/clientModules to
+./srcJS/client/modules until an automated solution can be found.
+
+
