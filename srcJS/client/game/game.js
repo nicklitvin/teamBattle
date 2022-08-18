@@ -31,7 +31,6 @@ class Game {
         })
         this._socket.on(SocketMessages.gameCountdown, (msg) => {
             this._gameStartTime = Number(msg[0]);
-            console.log(Math.ceil( (Number(this._gameStartTime) - Date.now()) / 1000));
         })
         this._socket.on(SocketMessages.gameState, (msg) => {
             let drawInstructions = JSON.parse(msg[0]);
@@ -89,6 +88,17 @@ gameCanvas.addEventListener("click", (e) => {
 })
 
 let drawerId = setInterval( () => {
+    // resize gameCanvas
+    let gameCanvas = document.getElementById("game");
+    let top = document.getElementById("top");
+    gameCanvas.width = top.getBoundingClientRect().width * 14/16;
+    gameCanvas.height = top.getBoundingClientRect().height;
+
+    // resize statusCanvas
+    let statusCanvas = document.getElementById("status");
+    statusCanvas.width = bottom.getBoundingClientRect().width * 14/16;
+    statusCanvas.height = bottom.getBoundingClientRect().height;
+
     game._drawer.draw()
     let countdown = Math.ceil( (Number(game._gameStartTime) - Date.now()) / 1000);
     if (countdown > 0) {
