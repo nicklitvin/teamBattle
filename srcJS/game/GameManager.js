@@ -48,6 +48,7 @@ var GameManager = (function () {
         var game = new Game_1["default"]();
         this._games[lobbyId] = game;
         this.makeTeams(lobby);
+        game.updateDrawingInstructions();
         if (this._setTimerBeforeGameStart) {
             setTimeout(function () {
                 _this.endTransitionPhase(lobby);
@@ -72,6 +73,11 @@ var GameManager = (function () {
             var player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
+            var game = this._games[lobbyId];
+            var shipId = game._players[playerId];
+            var startTime = game._creationTime + this._transitionTime;
+            player.socketWrap.emit(SocketMessages.gameCountdown, startTime);
+            player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(game._drawingInstructions[shipId]));
         }
         else {
             socketWrap.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
@@ -152,6 +158,8 @@ var GameManager = (function () {
         var somePlayerId = Object.keys(game._players)[0];
         var lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
         var lobby = this._lobbyManager._lobbies[lobbyId];
+        if (!lobby)
+            return;
         if (game.isGameOver() || this._immediatelyEndGame) {
             lobby.switchBackFromInGameStatus();
             for (var _i = 0, _a = Object.keys(game._players); _i < _a.length; _i++) {
@@ -168,25 +176,24 @@ var GameManager = (function () {
             }
             else {
                 setTimeout(function () {
-                    game.updateDrawingInstructions();
-                    _this.sendGameState(lobby);
-                    _this.runGame(game);
+                    try {
+                        game.updateDrawingInstructions();
+                        _this.sendGameState(lobby);
+                        _this.runGame(game);
+                    }
+                    catch (_a) { }
                 }, this._refreshTime);
             }
         }
     };
     GameManager.prototype.sendGameState = function (lobby) {
         var game = this._games[lobby._id];
-        var countdown = Math.ceil((Date.now() - game._creationTime + this._transitionTime) / 1000);
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
             var player = this._lobbyManager._players[playerId];
             if (!player.online)
                 continue;
             var shipId = game._players[player.id];
-            if (countdown > 0) {
-                player.socketWrap.emit(SocketMessages.gameCountdown, countdown);
-            }
             var shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(shipDrawInstructions));
         }

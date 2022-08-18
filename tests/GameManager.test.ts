@@ -6,6 +6,7 @@ import Lobby from "../src/lobby/Lobby";
 import * as SocketMessages from "../src/client/socketMessages.json";
 import Position from "../src/clientModules/Position";
 import DrawingInstruction from "../src/clientModules/DrawingInstruction";
+import Game from "../src/game/Game";
 
 const app : any = express();
 const server = app.listen(5000);
@@ -219,24 +220,26 @@ describe("testing gameManager", () => {
         lobbyManager.socketStartGame(socketWrapRed);
         lobbyManager.socketRemovePlayer(socketWrapRed);
         lobbyManager.socketRemovePlayer(socketWrapBlu);
-        gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
-        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
         socketWrapRed.clearSavedMessages();
 
-        let game = gameManager._games[socketWrapRed.id];
-        game.updateDrawingInstructions();
-        gameManager.sendGameState(lobby);
+        gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
+        gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
 
-        let countdownExpect = Math.ceil(
-            (Date.now() - game._creationTime + gameManager._transitionTime) / 1000
-        );
-        let expect0 = [SocketMessages.gameCountdown,countdownExpect];
-        expect(socketWrapRed.savedMessages[0]).toEqual(expect0);
+        let game = gameManager._games[socketWrapRed.id];
+        let countdownExpect = [SocketMessages.gameCountdown,gameManager._transitionTime + game._creationTime];
+        let redShip = game._ships[game._players[socketWrapRed.id]];
+        expect(socketWrapRed.savedMessages[0]).toEqual(countdownExpect);
 
         let drawingInformation : DrawingInstruction[] = 
-            JSON.parse(socketWrapRed.savedMessages[1][1]);
+        JSON.parse(socketWrapRed.savedMessages[1][1]);
 
+        let shipVision = drawingInformation[0];
         expect(drawingInformation[0]._target).toEqual(drawingInformation[0]._position);
+        expect(shipVision._position.x * Game._mapWidth).toEqual(redShip._position.x);
+        expect(shipVision._position.y * Game._mapHeight).toEqual(redShip._position.y);
+        expect(shipVision._color).toEqual(game._visionColor);
+        expect(shipVision._radius * Game._mapWidth).toEqual(redShip._vision);
+        expect(shipVision._speed * Game._mapWidth).toEqual(redShip._speed);
     })
 })
 server.close();

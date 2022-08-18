@@ -20,4 +20,12 @@ export default class Position {
     public copy() : Position {
         return new Position(this.x, this.y);
     }
+
+    public convertToPercent(serverWidth : number, serverHeight : number) {
+        return new Position(this.x / serverWidth, this.y / serverHeight);
+    }
+
+    public expandByDimensions(serverWidth: number, serverHeight : number) {
+        return new Position(this.x * serverWidth, this.y * serverHeight);
+    } 
 }

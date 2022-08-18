@@ -86,7 +86,7 @@ var Game = (function () {
                 _radius: ship._vision,
                 _speed: ship._speed
             };
-            var shipVisionInstruction = new DrawingInstruction_1["default"](shipVision, this._visionColor);
+            var shipVisionInstruction = new DrawingInstruction_1["default"](shipVision, this._visionColor, Game._mapWidth, Game._mapHeight);
             instructions.push(shipVisionInstruction);
             for (var _b = 0, _c = Object.values(ship._scoutsSent); _b < _c.length; _b++) {
                 var scout = _c[_b];
@@ -96,7 +96,7 @@ var Game = (function () {
                     _radius: ship._vision,
                     _speed: scout._speed
                 };
-                var instruction = new DrawingInstruction_1["default"](scoutVision, this._visionColor);
+                var instruction = new DrawingInstruction_1["default"](scoutVision, this._visionColor, Game._mapWidth, Game._mapHeight);
                 instructions.push(instruction);
             }
             var shipProjectile = {
@@ -105,16 +105,16 @@ var Game = (function () {
                 _radius: ship._radius,
                 _speed: ship._speed
             };
-            var shipInstruction = new DrawingInstruction_1["default"](shipProjectile, ship._color);
+            var shipInstruction = new DrawingInstruction_1["default"](shipProjectile, ship._color, Game._mapWidth, Game._mapHeight);
             instructions.push(shipInstruction);
             for (var _d = 0, _e = Object.values(ship._scoutsSent); _d < _e.length; _d++) {
                 var scout = _e[_d];
-                var scoutInstruction = new DrawingInstruction_1["default"](scout, ship._color);
+                var scoutInstruction = new DrawingInstruction_1["default"](scout, ship._color, Game._mapWidth, Game._mapHeight);
                 instructions.push(scoutInstruction);
             }
             for (var _f = 0, _g = Object.values(ship._shotsSent); _f < _g.length; _f++) {
                 var shot = _g[_f];
-                var shotInstruction = new DrawingInstruction_1["default"](shot, ship._color);
+                var shotInstruction = new DrawingInstruction_1["default"](shot, ship._color, Game._mapWidth, Game._mapHeight);
                 if (MyMath_1["default"].getDistanceBetween(shot, ship) < ship._vision + shot._radius) {
                     instructions.push(shotInstruction);
                 }
@@ -131,7 +131,7 @@ var Game = (function () {
             var enemies = this.getVisibleEnemyProjectiles(ship);
             for (var _k = 0, enemies_1 = enemies; _k < enemies_1.length; _k++) {
                 var enemy = enemies_1[_k];
-                var enemyInstruction = new DrawingInstruction_1["default"](enemy, this._enemyColor);
+                var enemyInstruction = new DrawingInstruction_1["default"](enemy, this._enemyColor, Game._mapWidth, Game._mapHeight);
                 instructions.push(enemyInstruction);
             }
             this._drawingInstructions[shipId] = instructions;
@@ -161,10 +161,10 @@ var Game = (function () {
         var position1 = new Position_1["default"](testShip._radius, Game._mapHeight - testShip._radius);
         var position2 = new Position_1["default"](Game._mapWidth - testShip._radius, testShip._radius);
         var position3 = new Position_1["default"](Game._mapWidth - testShip._radius, Game._mapHeight - testShip._radius);
-        this.addShip("0", position0);
-        this.addShip("1", position1);
-        this.addShip("2", position2);
-        this.addShip("3", position3);
+        this.addShip("0", position0, "red");
+        this.addShip("1", position1, "blue");
+        this.addShip("2", position2, "green");
+        this.addShip("3", position3, "yellow");
     };
     Game.prototype.deleteEmptyShips = function () {
         var occupiedShips = Object.values(this._players);

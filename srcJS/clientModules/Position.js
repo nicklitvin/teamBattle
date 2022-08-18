@@ -13,6 +13,12 @@ var Position = (function () {
     Position.prototype.copy = function () {
         return new Position(this.x, this.y);
     };
+    Position.prototype.convertToPercent = function (serverWidth, serverHeight) {
+        return new Position(this.x / serverWidth, this.y / serverHeight);
+    };
+    Position.prototype.expandByDimensions = function (serverWidth, serverHeight) {
+        return new Position(this.x * serverWidth, this.y * serverHeight);
+    };
     return Position;
 }());
 exports["default"] = Position;

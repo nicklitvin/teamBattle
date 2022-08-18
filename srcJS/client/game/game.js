@@ -20,7 +20,7 @@ class Game {
     }
 
     setup() {
-        let gameCanvas = document.getElementById("game").getContext("2d");
+        let gameCanvas = document.getElementById("game");
         this._drawer = new Drawer(gameCanvas);
         
         this._socket.on(SocketMessages.showReturnButton, () => {
@@ -30,11 +30,10 @@ class Game {
             window.location.href = SocketMessages.baseUrl + msg[0];
         })
         this._socket.on(SocketMessages.gameCountdown, (msg) => {
-            console.log(msg[0]);
-            // let time = msg[0];
+            this._gameStartTime = Number(msg[0]);
+            console.log(Math.ceil( (Number(this._gameStartTime) - Date.now()) / 1000));
         })
         this._socket.on(SocketMessages.gameState, (msg) => {
-            console.log(msg[0]);
             let drawInstructions = JSON.parse(msg[0]);
             this._drawer.updateInstructions(drawInstructions);
         })
@@ -89,7 +88,11 @@ gameCanvas.addEventListener("click", (e) => {
     game.sendClickCoordinates(e);
 })
 
-setInterval( () => {
+let drawerId = setInterval( () => {
     game._drawer.draw()
+    let countdown = Math.ceil( (Number(game._gameStartTime) - Date.now()) / 1000);
+    if (countdown > 0) {
+        game._drawer.drawCountdown(countdown);
+    }
     console.log("drawing");
 }, 10);

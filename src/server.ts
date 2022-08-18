@@ -9,5 +9,4 @@ const io = new Server(server);
 new LobbyManager(io);
 
 app.use("/",express.static(__dirname + "/client"));
-//console.log("running");
-
+console.log("running");

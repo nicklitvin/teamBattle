@@ -77,6 +77,7 @@ export default class GameManager {
         let game = new Game();
         this._games[lobbyId] = game;
         this.makeTeams(lobby);
+        game.updateDrawingInstructions();
 
         if (this._setTimerBeforeGameStart) {
             setTimeout( () => {
@@ -99,7 +100,8 @@ export default class GameManager {
 
         if (this.areAllOffline(lobby)) {
             this.deleteLobby(lobby);
-        } else if (this._runGameAfterTransition) {
+        } 
+        else if (this._runGameAfterTransition) {
             let game = this._games[lobby._id];
             this.runGame(game);
         }
@@ -107,8 +109,8 @@ export default class GameManager {
 
     /**
      * Updates player's status if joining a legit game they are a part of and
-     * adds entry to match socket id to player id. Else sends client to error
-     * page.
+     * adds entry to match socket id to player id and sends state of game to client.
+     * Else sends client to error page.
      * 
      * @param socketWrap 
      * @param playerId 
@@ -122,6 +124,14 @@ export default class GameManager {
             let player = this._lobbyManager._players[playerId];
             player.socketWrap = socketWrap;
             player.online = true;
+
+            let game = this._games[lobbyId];
+            let shipId = game._players[playerId];
+            let startTime = game._creationTime + this._transitionTime;
+
+            player.socketWrap.emit(SocketMessages.gameCountdown,startTime);
+            player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(game._drawingInstructions[shipId]));
+
             //console.log("player joined game",playerId);
         } else {
             socketWrap.emit(SocketMessages.redirect,SocketMessages.errorUrlBit);
@@ -250,6 +260,8 @@ export default class GameManager {
         let lobbyId = this._lobbyManager._players[somePlayerId].lobbyId;
         let lobby = this._lobbyManager._lobbies[lobbyId];
 
+        if (!lobby) return;
+
         if (game.isGameOver() || this._immediatelyEndGame) {
             lobby.switchBackFromInGameStatus();
             //console.log("ending game");
@@ -265,9 +277,11 @@ export default class GameManager {
                 this.runGame(game);
             } else {
                 setTimeout( () => {
-                    game.updateDrawingInstructions();
-                    this.sendGameState(lobby);
-                    this.runGame(game);
+                    try {
+                        game.updateDrawingInstructions();
+                        this.sendGameState(lobby);
+                        this.runGame(game);
+                    } catch {}                    
                 }, this._refreshTime);
             }
         }
@@ -281,17 +295,12 @@ export default class GameManager {
      */
     public sendGameState(lobby : Lobby) {
         let game = this._games[lobby._id];
-        let countdown = Math.ceil((Date.now() - game._creationTime + this._transitionTime) / 1000 );
 
         for (let playerId of lobby.getPlayerList()) {
             let player = this._lobbyManager._players[playerId];
             if (!player.online) continue;
 
             let shipId = game._players[player.id];
-
-            if (countdown > 0) {
-                player.socketWrap.emit(SocketMessages.gameCountdown,countdown);
-            }
 
             let shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(shipDrawInstructions));

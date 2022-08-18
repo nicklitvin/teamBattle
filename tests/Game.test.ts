@@ -237,13 +237,13 @@ describe("testing drawing instructions", () => {
     game.updateDrawingInstructions();
     let instructions = game._drawingInstructions[shipId];
 
-    expect(instructions[0]._position).toEqual(ship._position);
-    expect(instructions[0]._radius).toEqual(ship._vision);
+    expect(instructions[0]._position.expandByDimensions(Game._mapWidth,Game._mapHeight)).toEqual(ship._position);
+    expect(instructions[0]._target.expandByDimensions(Game._mapWidth,Game._mapHeight)).toEqual(ship._target);
     expect(instructions[0]._color).toEqual(game._visionColor);
-    expect(instructions[0]._target).toEqual(ship._target);
+    expect(instructions[0]._radius * Game._mapWidth).toEqual(ship._vision);
     expect(instructions[0]._target === ship._target).toBeFalsy();
 
-    expect(instructions[1]._radius).toEqual(ship._radius);
+    expect(instructions[1]._radius * Game._mapWidth).toEqual(ship._radius);
     expect(instructions[1]._color).toEqual(ship._color);
     expect(instructions[1]._target).toEqual(instructions[0]._target);
     // could add more for multiple shots/scouts,enemies

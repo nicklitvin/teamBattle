@@ -5,9 +5,9 @@ Server
     make lines shorter (80 words max)
 
 Visuals
+    fix visuals
     send player actions to server
     send visuals to client to draw
-    send countdown to client
     send hp of ship to client
     highlight button that is currently active, socketMessage.activeRole
 
@@ -18,17 +18,12 @@ Later
     Reverse y when sending coordinates
     ship 2v2 games
 
-Visuals 
-    Create game, add starting time
-    Redirect
-    Join Game
-    game state from perspective + countdown
-        set Timeout( send time, check time if above 0 and repeat)
-        get visible 
-    update countdown
-    game state from perspective
+simple code)
 
-Canvas
+ongamejoin {
+    send player gamestate once
+    send time, game will start, user will count himself
+}
 
-
+reducing values by mapWidth
 
