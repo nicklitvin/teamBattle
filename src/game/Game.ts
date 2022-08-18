@@ -3,6 +3,7 @@ import MyMath from "../clientModules/MyMath";
 import Position from "../clientModules/Position";
 import Projectile from "../clientModules/Projectile";
 import Ship from "./Ship";
+import * as SocketMessages from "../client/socketMessages.json";
 
 /**
  * Game stores ships and which ships each player is associated with.
@@ -14,8 +15,8 @@ export default class Game {
     public _players : { [playerId : string]: string} = {};
     public _ships : { [shipId: string]: Ship } = {};
     public _defaultShipNumber = 4;
-    public static _mapWidth = 12;
-    public static _mapHeight = 9;
+    public static _mapWidth = Number(SocketMessages.gameWidth);
+    public static _mapHeight = Number(SocketMessages.gameHeight);
     public _winnerText : string;
     public _drawingInstructions : { [shipId: string] : DrawingInstruction[]} = {};
     public _visionColor = "grey";

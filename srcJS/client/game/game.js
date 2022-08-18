@@ -20,8 +20,7 @@ class Game {
     }
 
     setup() {
-        let gameCanvas = document.getElementById("game");
-        this._drawer = new Drawer(gameCanvas);
+        this._drawer = new Drawer();
         
         this._socket.on(SocketMessages.showReturnButton, () => {
             // let element = document.getElementById("return");
@@ -66,8 +65,8 @@ class Game {
 
     sendClickCoordinates(e) {
         let bound = game.getBoundingClientRect();
-        let x = (e.clientX - bound.x) * (16 / bound.width);
-        let y = (bound.height - e.clientY -  bound.y) * (9 / bound.height)
+        let x = (e.clientX - bound.x) * (SocketMessages.gameWidth / bound.width);
+        let y = (bound.height - e.clientY -  bound.y) * (SocketMessages.gameHeight / bound.height)
 
         this._socket.emit(SocketMessages.gameInput,x,y);
     }
@@ -88,17 +87,32 @@ gameCanvas.addEventListener("click", (e) => {
 })
 
 let drawerId = setInterval( () => {
-    // resize gameCanvas
-    let gameCanvas = document.getElementById("game");
     let top = document.getElementById("top");
-    gameCanvas.width = top.getBoundingClientRect().width * 14/16;
-    gameCanvas.height = top.getBoundingClientRect().height;
+    let topRect = top.getBoundingClientRect();
 
-    // resize statusCanvas
+    // setup gameCanvas
+    let gameCanvas = document.getElementById("game");
+    let gameCtx = gameCanvas.getContext("2d");
+    gameCanvas.width = topRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
+    gameCanvas.height = topRect.height;
+    gameCtx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+    gameCtx.fillStyle = "black";
+    gameCtx.fillRect(0,0,gameCanvas.width,gameCanvas.height);
+
+    // setup statusCanvas
     let statusCanvas = document.getElementById("status");
-    statusCanvas.width = bottom.getBoundingClientRect().width * 14/16;
-    statusCanvas.height = bottom.getBoundingClientRect().height;
+    let statusCtx = statusCanvas.getContext("2d");
+    let bottom = document.getElementById("bottom");
+    let bottomRect = bottom.getBoundingClientRect();
 
+    statusCanvas.width = bottomRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
+    statusCanvas.height = bottomRect.height;
+    statusCtx.clearRect(0,0,statusCanvas.width,statusCanvas.height);
+    statusCtx.fillStyle = "green";
+    statusCtx.fillRect(0,0,statusCanvas.width,statusCanvas.height);
+
+    // draw on gameCanvas
+    game._drawer.updateContext(gameCanvas,gameCtx);
     game._drawer.draw()
     let countdown = Math.ceil( (Number(game._gameStartTime) - Date.now()) / 1000);
     if (countdown > 0) {

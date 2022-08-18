@@ -3,11 +3,12 @@ Game
 Server
     make emit only contain one object, array if multiple needed
     make lines shorter (80 words max)
+    commentate, delete unecessary clientModule classes
 
 Visuals
-    send player actions to server
     send visuals to client to draw
     send hp of ship to client
+    send player actions to server
     highlight button that is currently active, socketMessage.activeRole
 
 Later

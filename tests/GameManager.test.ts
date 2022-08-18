@@ -131,7 +131,7 @@ describe("testing gameManager", () => {
         expect(ship._captain.getPlayerCount()).toEqual(1);
 
         // red chooses target
-        let positionMessage = [4,8];
+        let positionMessage = [4,6];
         gameManager.socketProcessGameInput(socketWrapRed,positionMessage[0],positionMessage[1]);
         
         expect(ship._target.x).toEqual(positionMessage[0]);

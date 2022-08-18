@@ -31,10 +31,10 @@ describe("testing Ship move", () => {
         );
     })
     it("should move straight up", () => {
-        ship._position =new Position(2,2);
-        ship.setTarget(new Position(2,7));
+        ship._position =new Position(1,1);
+        ship.setTarget(new Position(1,6));
         ship.move();
-        expect(ship._position).toEqual(new Position(2,7));
+        expect(ship._position).toEqual(new Position(1,6));
     })
     it("should not pass target", () => {
         ship._position =new Position(2,2);

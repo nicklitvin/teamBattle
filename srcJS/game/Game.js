@@ -4,6 +4,7 @@ var DrawingInstruction_1 = require("../clientModules/DrawingInstruction");
 var MyMath_1 = require("../clientModules/MyMath");
 var Position_1 = require("../clientModules/Position");
 var Ship_1 = require("./Ship");
+var SocketMessages = require("../client/socketMessages.json");
 var Game = (function () {
     function Game() {
         this._players = {};
@@ -179,8 +180,8 @@ var Game = (function () {
     Game.prototype.isGameOver = function () {
         return Object.keys(this._ships).length <= 1;
     };
-    Game._mapWidth = 12;
-    Game._mapHeight = 9;
+    Game._mapWidth = Number(SocketMessages.gameWidth);
+    Game._mapHeight = Number(SocketMessages.gameHeight);
     return Game;
 }());
 exports["default"] = Game;
