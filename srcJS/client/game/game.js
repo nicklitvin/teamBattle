@@ -45,8 +45,46 @@ class Game {
         this._socket.on(SocketMessages.gamePermanentMessage, (msg) => {
             this._drawer._permanentMessage = msg[0];
         })
-        
+        this._socket.on(SocketMessages.gameButtonAvailability, (msg) => {
+            let buttonAvailability = msg[0];
+            this.updateRoleButtonColors(buttonAvailability);
+        })
+        this._socket.on(SocketMessages.showReturnButton, () => {
+            let button = document.getElementById("return");
+            button.style.backgroundColor = SocketMessages.gameReturnButtonColor;
+        })
         this.draw();
+    }
+
+    updateRoleButtonColors(buttonAvailability) {
+        let captainElement = document.getElementById("captainRole");
+        let scoutElement = document.getElementById("scoutRole");
+        let shooterElement = document.getElementById("shooterRole");
+        let medicElement = document.getElementById("medicRole");
+        let defaultColor = SocketMessages.gameButtonDefaultColor;
+        captainElement.style.backgroundColor = defaultColor;
+        scoutElement.style.backgroundColor = defaultColor ;
+        shooterElement.style.backgroundColor = defaultColor;
+        medicElement.style.backgroundColor = defaultColor;
+
+        for (let button of buttonAvailability) {
+            switch (button[0]) {
+                case SocketMessages.captainTitle:
+                    captainElement.style.backgroundColor = button[1];
+                    break;
+                case SocketMessages.scoutTitle:
+                    scoutElement.style.backgroundColor = button[1];
+                    break;
+                case SocketMessages.shooterTitle:
+                    shooterElement.style.backgroundColor = button[1];
+                    break;
+                case SocketMessages.medicTitle:
+                    medicElement.style.backgroundColor = button[1];
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     returnFromGame() {

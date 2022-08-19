@@ -12,6 +12,8 @@ var Game = (function () {
         this._defaultShipNumber = 4;
         this._drawingInstructions = {};
         this._visionColor = "grey";
+        this._currentRoleColor = "#009900";
+        this._takenRoleColor = "#696969";
     }
     Game.prototype.addPlayer = function (playerId, shipId) {
         this._creationTime = Date.now();
@@ -97,7 +99,7 @@ var Game = (function () {
                     _target: scout._target,
                     _radius: ship._vision,
                     _speed: scout._speed,
-                    _color: scout._color
+                    _color: this._visionColor
                 };
                 var instruction = new DrawingInstruction_1["default"](scoutVision, Game._mapWidth, Game._mapHeight);
                 instructions.push(instruction);
@@ -179,6 +181,23 @@ var Game = (function () {
                 delete this._ships[shipId];
             }
         }
+    };
+    Game.prototype.getAvailableRoles = function (playerId) {
+        var shipId = this._players[playerId];
+        var ship = this._ships[shipId];
+        var info = [];
+        if (ship) {
+            for (var _i = 0, _a = ship._roles; _i < _a.length; _i++) {
+                var role = _a[_i];
+                if (role.isPlayerHere(playerId)) {
+                    info.push([role.title, this._currentRoleColor]);
+                }
+                else if (role.isFull()) {
+                    info.push([role.title, this._takenRoleColor]);
+                }
+            }
+        }
+        return info;
     };
     Game.prototype.isGameOver = function () {
         return Object.keys(this._ships).length <= 1;

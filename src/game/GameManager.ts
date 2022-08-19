@@ -313,11 +313,14 @@ export default class GameManager {
         if (!ship) {
             player.socketWrap.emit(SocketMessages.gameShipHealth,0);
             player.socketWrap.emit(SocketMessages.gamePermanentMessage,this._shipDeadMessage);
+            player.socketWrap.emit(SocketMessages.gameButtonAvailability,game.getAvailableRoles(playerId));
         } else {
             let shipHealth = ship._health;
             let shipDrawInstructions = game._drawingInstructions[shipId];
+            
             player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(shipDrawInstructions));
             player.socketWrap.emit(SocketMessages.gameShipHealth,shipHealth/100);
+            player.socketWrap.emit(SocketMessages.gameButtonAvailability,game.getAvailableRoles(playerId));
         }
     }
 

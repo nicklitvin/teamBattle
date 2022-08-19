@@ -15,7 +15,7 @@ var Ship = (function () {
         this._vision = 3;
         this._captainCount = 1;
         this._medicCount = 10;
-        this._medicHeal = 1;
+        this._medicHeal = 0.02;
         this._medicDiminishPercent = 0.5;
         this._shooterCount = 5;
         this._shooterSpeed = 0.02;
@@ -44,6 +44,7 @@ var Ship = (function () {
         this._target = newTarget.copy();
     };
     Ship.prototype.move = function () {
+        this.heal();
         if (this._target) {
             this._position = MyMath_1["default"].move(this._position, this._target, this._speed);
         }

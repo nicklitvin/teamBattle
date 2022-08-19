@@ -199,12 +199,14 @@ var GameManager = (function () {
         if (!ship) {
             player.socketWrap.emit(SocketMessages.gameShipHealth, 0);
             player.socketWrap.emit(SocketMessages.gamePermanentMessage, this._shipDeadMessage);
+            player.socketWrap.emit(SocketMessages.gameButtonAvailability, game.getAvailableRoles(playerId));
         }
         else {
             var shipHealth = ship._health;
             var shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(shipDrawInstructions));
             player.socketWrap.emit(SocketMessages.gameShipHealth, shipHealth / 100);
+            player.socketWrap.emit(SocketMessages.gameButtonAvailability, game.getAvailableRoles(playerId));
         }
     };
     GameManager.prototype.clearAllData = function () {

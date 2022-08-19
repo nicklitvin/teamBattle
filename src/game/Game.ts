@@ -21,6 +21,8 @@ export default class Game {
     public _drawingInstructions : { [shipId: string] : DrawingInstruction[]} = {};
     public _visionColor = "grey";
     public _creationTime : number;
+    public _currentRoleColor = "#009900";
+    public _takenRoleColor = "#696969";
 
     public addPlayer(playerId : string, shipId : string) {
         this._creationTime = Date.now();
@@ -137,7 +139,7 @@ export default class Game {
                     _target : scout._target,
                     _radius : ship._vision,
                     _speed : scout._speed,
-                    _color : scout._color
+                    _color : this._visionColor
                 }
                 let instruction = new DrawingInstruction(scoutVision,Game._mapWidth, Game._mapHeight);
                 instructions.push(instruction);
@@ -254,6 +256,23 @@ export default class Game {
                 delete this._ships[shipId];
             }
         }
+    }
+
+    public getAvailableRoles(playerId : string) : string[][] {
+        let shipId = this._players[playerId];
+        let ship = this._ships[shipId];
+        let info : string[][] = [];
+
+        if (ship) {
+            for (let role of ship._roles) {
+                if (role.isPlayerHere(playerId)) {
+                    info.push([role.title,this._currentRoleColor]);
+                } else if (role.isFull()) {
+                    info.push([role.title,this._takenRoleColor]);
+                }
+            }
+        } 
+        return info;
     }
 
     /**

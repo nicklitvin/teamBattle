@@ -113,6 +113,23 @@ describe("testing game combat", () => {
         expect(game._ships[enemyId]).toBeFalsy();
         expect(ship._shotsSent[playerId]).toBeFalsy();
     })
+    it("should heal ship", () => {
+        let game = new Game();
+
+        let playerId = "player1";
+        let shipId = "ship1";
+        game.addShip(shipId,new Position(5,5));
+        
+        let ship = game._ships[shipId];
+        let initialHealth = 50;
+        ship._health = initialHealth;
+        game.addPlayer(playerId,shipId);
+
+        game.processPlayerInput(playerId, [SocketMessages.roleSelectKeyword,SocketMessages.medicTitle]);
+        game.update();
+
+        expect(ship._health).toBeGreaterThan(initialHealth);
+    })
 })
 describe("testing game end", () => {
     it("should end", () => {

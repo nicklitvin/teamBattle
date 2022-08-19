@@ -26,7 +26,7 @@ export default class Ship implements Projectile {
     public _vision = 3;
     public _captainCount = 1;
     public _medicCount = 10;
-    public _medicHeal = 1;
+    public _medicHeal = 0.02;
     public _medicDiminishPercent = 0.5;
     public _shooterCount = 5;
     public _shooterSpeed = 0.02;
@@ -61,10 +61,11 @@ export default class Ship implements Projectile {
     }
 
     /**
-     * Moves ship and all of its projectiles. Projectiles are removed when 
-     * their expiration time = 0
+     * Heals ship and moves ship and all of its projectiles. Projectiles are removed when 
+     * their expiration time = 0. 
      */
     public move()  {
+        this.heal();
         if (this._target) {
             this._position = MyMath.move(
                 this._position, this._target, this._speed
