@@ -218,7 +218,7 @@ export default class GameManager {
      * @param socketWrap 
      * @param args 
      */
-    public socketProcessGameInput(socketWrap : SocketWrap, ...args : any) {
+    public socketProcessGameInput(socketWrap : SocketWrap, args : any[]) {
         let playerId = this._lobbyManager._sockets[socketWrap.id];
         if (playerId) {
             let player = this._lobbyManager._players[playerId];

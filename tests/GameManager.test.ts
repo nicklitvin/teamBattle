@@ -124,15 +124,15 @@ describe("testing gameManager", () => {
         let ship = game._ships[game._players[socketWrapRed.id]];
         gameManager.socketProcessGameInput(
             socketWrapRed,
-            SocketMessages.roleSelectKeyword, 
-            SocketMessages.captainTitle
+            [SocketMessages.roleSelectKeyword, 
+            SocketMessages.captainTitle]
         );
         
         expect(ship._captain.getPlayerCount()).toEqual(1);
 
         // red chooses target
         let positionMessage = [4,6];
-        gameManager.socketProcessGameInput(socketWrapRed,positionMessage[0],positionMessage[1]);
+        gameManager.socketProcessGameInput(socketWrapRed,[positionMessage[0],positionMessage[1]]);
         
         expect(ship._target.x).toEqual(positionMessage[0]);
         expect(ship._target.y).toEqual(positionMessage[1]);
@@ -140,8 +140,8 @@ describe("testing gameManager", () => {
         // red chooses different role
         gameManager.socketProcessGameInput(
             socketWrapRed,
-            SocketMessages.roleSelectKeyword,
-            SocketMessages.shooterTitle
+            [SocketMessages.roleSelectKeyword,
+            SocketMessages.shooterTitle]
         );
 
         expect(ship._captain.getPlayerCount()).toEqual(0);
@@ -163,8 +163,8 @@ describe("testing gameManager", () => {
         let bluShip = game._ships[game._players[socketWrapBlu.id]];
         gameManager.socketProcessGameInput(
             socketWrapBlu,
-            SocketMessages.roleSelectKeyword,
-            SocketMessages.scoutTitle
+            [SocketMessages.roleSelectKeyword,
+            SocketMessages.scoutTitle]
         )
         expect(bluShip._scout.getPlayerCount()).toEqual(1);
     })
@@ -196,13 +196,13 @@ describe("testing gameManager", () => {
         // red shoots blu
         gameManager.socketProcessGameInput(
             socketWrapRed,
-            SocketMessages.roleSelectKeyword,
-            SocketMessages.shooterTitle
+            [SocketMessages.roleSelectKeyword,
+            SocketMessages.shooterTitle]
         )
         gameManager.socketProcessGameInput(
             socketWrapRed,
-            bluShip._position.x,
-            bluShip._position.y
+            [bluShip._position.x,
+            bluShip._position.y]
         );
 
         expect(Object.keys(redShip._shotsSent).length).toEqual(1);

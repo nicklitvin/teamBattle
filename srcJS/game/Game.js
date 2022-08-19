@@ -145,7 +145,7 @@ var Game = (function () {
             if (ship._id == enemy._id)
                 continue;
             if (MyMath_1["default"].getDistanceBetween(ship, enemy) < ship._vision + enemy._radius) {
-                list.push(ship);
+                list.push(enemy);
             }
             for (var _b = 0, _c = Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent)); _b < _c.length; _b++) {
                 var thing = _c[_b];

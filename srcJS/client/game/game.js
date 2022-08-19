@@ -33,8 +33,6 @@ class Game {
         })
         this._socket.on(SocketMessages.gameState, (msg) => {
             let drawInstructions = JSON.parse(msg[0]);
-            console.log("received");
-            // let gameCanvas = document.getElementById("game");
             this._drawer.updateInstructions(drawInstructions);
         })
     }
@@ -50,26 +48,26 @@ class Game {
     }
 
     selectCaptainRole() {
-        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.captainTitle);
+        this._socket.emit(SocketMessages.gameInput,SocketMessages.roleSelectKeyword,SocketMessages.captainTitle);
     }
 
     selectScoutRole() {
-        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.scoutTitle);
+        this._socket.emit(SocketMessages.gameInput,SocketMessages.roleSelectKeyword,SocketMessages.scoutTitle);
     }
 
     selectShooterRole() {
-        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle);
+        this._socket.emit(SocketMessages.gameInput,SocketMessages.roleSelectKeyword,SocketMessages.shooterTitle);
     }
 
     selectMedicRole() {
-        this._socket.emit(SocketMessages.roleSelectKeyword,SocketMessages.medicTitle);
+        this._socket.emit(SocketMessages.gameInput,SocketMessages.roleSelectKeyword,SocketMessages.medicTitle);
     }
 
     sendClickCoordinates(e) {
-        let bound = game.getBoundingClientRect();
+        let gameCanvas = document.getElementById("game");
+        let bound = gameCanvas.getBoundingClientRect();
         let x = (e.clientX - bound.x) * (SocketMessages.gameWidth / bound.width);
-        let y = (bound.height - e.clientY -  bound.y) * (SocketMessages.gameHeight / bound.height)
-
+        let y = ( bound.height - (e.clientY -  bound.y) ) * (SocketMessages.gameHeight / bound.height)
         this._socket.emit(SocketMessages.gameInput,x,y);
     }
 }

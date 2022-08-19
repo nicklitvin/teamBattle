@@ -127,11 +127,7 @@ var GameManager = (function () {
         }
         delete this._games[lobby._id];
     };
-    GameManager.prototype.socketProcessGameInput = function (socketWrap) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
+    GameManager.prototype.socketProcessGameInput = function (socketWrap, args) {
         var playerId = this._lobbyManager._sockets[socketWrap.id];
         if (playerId) {
             var player = this._lobbyManager._players[playerId];

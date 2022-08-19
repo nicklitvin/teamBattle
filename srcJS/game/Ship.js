@@ -9,8 +9,8 @@ var Game_1 = require("./Game");
 var Ship = (function () {
     function Ship(position) {
         if (position === void 0) { position = new Position_1["default"](1, 1); }
-        this._radius = 0.2;
-        this._speed = 0.5;
+        this._radius = 0.5;
+        this._speed = 0.02;
         this._health = 100;
         this._vision = 3;
         this._captainCount = 1;
@@ -18,12 +18,12 @@ var Ship = (function () {
         this._medicHeal = 1;
         this._medicDiminishPercent = 0.5;
         this._shooterCount = 5;
-        this._shooterSpeed = 5;
-        this._shooterExpirationTime = 1;
+        this._shooterSpeed = 0.02;
+        this._shooterExpirationTime = 120;
         this._shooterDamage = 10;
         this._scoutCount = 3;
-        this._scoutSpeed = 3;
-        this._scoutExpirationTime = 1;
+        this._scoutSpeed = 0.02;
+        this._scoutExpirationTime = 120;
         this._shotsSent = {};
         this._scoutsSent = {};
         this._captain = new Role_1["default"](this._captainCount, SocketMessages.captainTitle);

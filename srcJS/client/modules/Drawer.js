@@ -21,9 +21,10 @@ export default class Drawer {
         for (let instruction of this._instructions) {
             let instructionObject = DrawingInstruction.make(instruction);
             instructionObject._position.x *= this._canvas.width;
-            instructionObject._position.y *= this._canvas.height;  
+
+            instructionObject._position.y = (1 - instructionObject._position.y)*this._canvas.height;  
             instructionObject._target.x *= this._canvas.width;  
-            instructionObject._target.y *= this._canvas.height;
+            instructionObject._target.y = (1 - instructionObject._target.y)*this._canvas.height;
             instructionObject._radius *= this._canvas.width;
             instructionObject._speed *= this._canvas.width;  
             instructions.push(instructionObject);
@@ -43,8 +44,9 @@ export default class Drawer {
                 instruction._speed,
                 timeDiff
             );
-            this._ctx.fillStyle = instruction._color;
             this._ctx.beginPath();
+            this._ctx.fillStyle = instruction._color;
+            console.log(instruction,newPosition);
             this._ctx.arc(
                 newPosition.x,
                 newPosition.y,
@@ -52,7 +54,6 @@ export default class Drawer {
                 0,
                 2*Math.PI
             )
-            this._ctx.stroke();
             this._ctx.fill();
         }
     }

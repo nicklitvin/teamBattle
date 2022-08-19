@@ -17,8 +17,8 @@ import Game from "./Game";
 
 export default class Ship implements Projectile {
     public _id : string;
-    public _radius = 0.2;
-    public _speed = 0.5;
+    public _radius = 0.5;
+    public _speed = 0.02;
     public _position : Position;
     public _target : Position;
     public _color : string;
@@ -29,12 +29,12 @@ export default class Ship implements Projectile {
     public _medicHeal = 1;
     public _medicDiminishPercent = 0.5;
     public _shooterCount = 5;
-    public _shooterSpeed = 5;
-    public _shooterExpirationTime = 1;
+    public _shooterSpeed = 0.02;
+    public _shooterExpirationTime = 120;
     public _shooterDamage = 10;
     public _scoutCount = 3;
-    public _scoutSpeed = 3;
-    public _scoutExpirationTime = 1;
+    public _scoutSpeed = 0.02;
+    public _scoutExpirationTime = 120;
     public _shotsSent : { [playerId : string] : Shot} = {};
     public _scoutsSent : { [playerId : string] : Shot} = {};
     public _captain = new Role(this._captainCount, SocketMessages.captainTitle);
@@ -101,14 +101,13 @@ export default class Ship implements Projectile {
      */
     public processPlayerInput(playerId : string, args : any[])  {
         try {
-            // console.log("processing player request",playerId,args);
             if (args[0] == SocketMessages.roleSelectKeyword) {
                 this.processPlayerSelect(playerId,args[1]);
             } else {
                 this.processPlayerRoleInput(playerId,args);
             }
         } catch {
-            // //console.log("player input error");
+            //console.log("player input error");
         }
     }
 
@@ -121,7 +120,6 @@ export default class Ship implements Projectile {
      * @param role 
      */
     private processPlayerSelect(playerId : string, requestedRoleTitle : string) {
-        //console.log("processing player request");
         if (
             Object.keys(this._shotsSent).includes(playerId) ||
             Object.keys(this._scoutsSent).includes(playerId)) 

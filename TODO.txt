@@ -6,8 +6,9 @@ Server
     commentate, delete unecessary clientModule classes
 
 Visuals
+    changing of colors when seeing each other
+    fix move spasm
     send hp of ship to client
-    send player actions to server
     highlight button that is currently active, socketMessage.activeRole
 
 Later

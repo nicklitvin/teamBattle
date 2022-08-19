@@ -197,7 +197,7 @@ export default class Game {
             if (ship._id == enemy._id) continue;
 
             if (MyMath.getDistanceBetween(ship,enemy) < ship._vision + enemy._radius) {
-                list.push(ship);
+                list.push(enemy);
             }
             for (let thing of 
                 Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent))
