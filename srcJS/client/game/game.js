@@ -4,6 +4,7 @@ import Drawer from "./Drawer.js";
 class Game {        
     constructor() {
         this._refreshTime = 10;
+        this._health = 1;
         this._socket = io();
         this.setup();
         this.joinGame();
@@ -37,6 +38,12 @@ class Game {
         this._socket.on(SocketMessages.gameState, (msg) => {
             let drawInstructions = JSON.parse(msg[0]);
             this._drawer.updateInstructions(drawInstructions);
+        })
+        this._socket.on(SocketMessages.gameShipHealth, (msg) => {
+            this._health = msg[0];
+        })
+        this._socket.on(SocketMessages.gamePermanentMessage, (msg) => {
+            this._drawer._permanentMessage = msg[0];
         })
         
         this.draw();
@@ -87,7 +94,6 @@ class Game {
         gameCanvas.height = topRect.height;
         gameCtx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
         gameCtx.fillStyle = SocketMessages.gameBackgroundColor;
-        console.log(gameCtx.fillStyle,SocketMessages.gameBackgroundColor);
         gameCtx.fillRect(0,0,gameCanvas.width,gameCanvas.height);
     
         // setup statusCanvas
@@ -97,16 +103,21 @@ class Game {
         let bottomRect = bottom.getBoundingClientRect();
         statusCanvas.width = bottomRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
         statusCanvas.height = bottomRect.height;
-        statusCtx.clearRect(0,0,statusCanvas.width,statusCanvas.height);
-        statusCtx.fillStyle = "green";
-        statusCtx.fillRect(0,0,statusCanvas.width,statusCanvas.height);
+
+        statusCtx.fillStyle = SocketMessages.gameHealthColor;
+        statusCtx.fillRect(0,0,statusCanvas.width * Number(this._health),statusCanvas.height);
+
+        statusCtx.fillStyle = SocketMessages.gameNoHealthColor;
+        statusCtx.fillRect(statusCanvas.width * Number(this._health),0,statusCanvas.width,statusCanvas.height);
     
         // draw on gameCanvas
         this._drawer.updateContext(gameCanvas,gameCtx);
         this._drawer.draw()
         let countdown = Math.ceil( (Number(this._gameStartTime) - Date.now()) / 1000);
         if (countdown > 0) {
-            this._drawer.drawCountdown(countdown);
+            this._drawer.writeCountdown(countdown);
+        } else if (this._drawer._permanentMessage) {
+            this._drawer.writeMessage();
         }
 
         setTimeout( () => {this.draw()},this._refreshTime);

@@ -31,7 +31,7 @@ export default class Ship implements Projectile {
     public _shooterCount = 5;
     public _shooterSpeed = 0.02;
     public _shooterExpirationTime = 120;
-    public _shooterDamage = 10;
+    public _shooterDamage = 50;
     public _scoutCount = 3;
     public _scoutSpeed = 0.02;
     public _scoutExpirationTime = 120;
@@ -216,7 +216,8 @@ export default class Ship implements Projectile {
             this._position,
             target,
             this._shooterExpirationTime,
-            this._shooterSpeed
+            this._shooterSpeed,
+            this._color
         );
     }
 
@@ -225,7 +226,8 @@ export default class Ship implements Projectile {
             this._position,
             target,
             this._scoutExpirationTime,
-            this._scoutSpeed
+            this._scoutSpeed,
+            this._color
         );
     }
 

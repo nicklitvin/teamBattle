@@ -20,7 +20,6 @@ export default class Game {
     public _winnerText : string;
     public _drawingInstructions : { [shipId: string] : DrawingInstruction[]} = {};
     public _visionColor = "grey";
-    public _enemyColor = "black";
     public _creationTime : number;
 
     public addPlayer(playerId : string, shipId : string) {
@@ -106,7 +105,8 @@ export default class Game {
      */
     public updateWinnerText() {
         let shipId = Object.keys(this._ships)[0];
-        this._winnerText = `Ship ${shipId} is the winner`;
+        let ship = this._ships[shipId];
+        this._winnerText = `Ship ${ship._color} is the winner`;
     }
 
 
@@ -124,9 +124,10 @@ export default class Game {
                 _position : ship._position,
                 _target : shipTarget,
                 _radius : ship._vision, 
-                _speed : ship._speed
+                _speed : ship._speed,
+                _color : this._visionColor
             }
-            let shipVisionInstruction = new DrawingInstruction(shipVision,this._visionColor,Game._mapWidth, Game._mapHeight);
+            let shipVisionInstruction = new DrawingInstruction(shipVision,Game._mapWidth, Game._mapHeight);
             instructions.push(shipVisionInstruction);
 
             // scoutVision
@@ -134,10 +135,11 @@ export default class Game {
                 let scoutVision : Projectile = {
                     _position : scout._position,
                     _target : scout._target,
-                    _radius : ship._vision ,
-                    _speed : scout._speed 
+                    _radius : ship._vision,
+                    _speed : scout._speed,
+                    _color : scout._color
                 }
-                let instruction = new DrawingInstruction(scoutVision,this._visionColor,Game._mapWidth, Game._mapHeight);
+                let instruction = new DrawingInstruction(scoutVision,Game._mapWidth, Game._mapHeight);
                 instructions.push(instruction);
             }
 
@@ -146,19 +148,20 @@ export default class Game {
                 _position : ship._position,
                 _target : shipTarget,
                 _radius : ship._radius,
-                _speed : ship._speed
+                _speed : ship._speed,
+                _color : ship._color
             }
-            let shipInstruction = new DrawingInstruction(shipProjectile, ship._color,Game._mapWidth, Game._mapHeight);
+            let shipInstruction = new DrawingInstruction(shipProjectile, Game._mapWidth, Game._mapHeight);
             instructions.push(shipInstruction);
 
             // ship scouts
             for (let scout of Object.values(ship._scoutsSent)) {
-                let scoutInstruction = new DrawingInstruction(scout,ship._color,Game._mapWidth, Game._mapHeight);
+                let scoutInstruction = new DrawingInstruction(scout, Game._mapWidth, Game._mapHeight);
                 instructions.push(scoutInstruction);
             }
             // ship shots
             for (let shot of Object.values(ship._shotsSent)) {
-                let shotInstruction = new DrawingInstruction(shot,ship._color,Game._mapWidth, Game._mapHeight);
+                let shotInstruction = new DrawingInstruction(shot, Game._mapWidth, Game._mapHeight);
 
                 if (MyMath.getDistanceBetween(shot,ship) < ship._vision + shot._radius) {
                     instructions.push(shotInstruction);
@@ -175,7 +178,7 @@ export default class Game {
             // enemy projectiles
             let enemies = this.getVisibleEnemyProjectiles(ship);
             for (let enemy of enemies) {
-                let enemyInstruction = new DrawingInstruction(enemy,this._enemyColor,Game._mapWidth, Game._mapHeight);
+                let enemyInstruction = new DrawingInstruction(enemy,Game._mapWidth, Game._mapHeight);
                 instructions.push(enemyInstruction);
             }
 

@@ -13,6 +13,7 @@ var GameManager = (function () {
         this._instantGameUpdates = false;
         this._immediatelyEndGame = false;
         this._runGameAfterTransition = true;
+        this._shipDeadMessage = "Your ship has been destroyed";
         this._lobbyManager = data;
         io.on("connection", function (socket) {
             var socketWrap = new socketWrap_1["default"](socket);
@@ -74,10 +75,9 @@ var GameManager = (function () {
             player.socketWrap = socketWrap;
             player.online = true;
             var game = this._games[lobbyId];
-            var shipId = game._players[playerId];
             var startTime = game._creationTime + this._transitionTime;
             player.socketWrap.emit(SocketMessages.gameCountdown, startTime);
-            player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(game._drawingInstructions[shipId]));
+            this.sendGameStateToPlayer(game, playerId);
         }
         else {
             socketWrap.emit(SocketMessages.redirect, SocketMessages.errorUrlBit);
@@ -157,12 +157,13 @@ var GameManager = (function () {
         if (!lobby)
             return;
         if (game.isGameOver() || this._immediatelyEndGame) {
+            game.updateWinnerText();
             lobby.switchBackFromInGameStatus();
             for (var _i = 0, _a = Object.keys(game._players); _i < _a.length; _i++) {
                 var playerId = _a[_i];
                 var player = this._lobbyManager._players[playerId];
                 player.socketWrap.emit(SocketMessages.showReturnButton);
-                player.socketWrap.emit(SocketMessages.winnerText, game._winnerText);
+                player.socketWrap.emit(SocketMessages.gamePermanentMessage, game._winnerText);
             }
         }
         else {
@@ -186,12 +187,24 @@ var GameManager = (function () {
         var game = this._games[lobby._id];
         for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
             var playerId = _a[_i];
-            var player = this._lobbyManager._players[playerId];
-            if (!player.online)
-                continue;
-            var shipId = game._players[player.id];
+            this.sendGameStateToPlayer(game, playerId);
+        }
+    };
+    GameManager.prototype.sendGameStateToPlayer = function (game, playerId) {
+        var player = this._lobbyManager._players[playerId];
+        if (!player.online)
+            return;
+        var shipId = game._players[player.id];
+        var ship = game._ships[shipId];
+        if (!ship) {
+            player.socketWrap.emit(SocketMessages.gameShipHealth, 0);
+            player.socketWrap.emit(SocketMessages.gamePermanentMessage, this._shipDeadMessage);
+        }
+        else {
+            var shipHealth = ship._health;
             var shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(shipDrawInstructions));
+            player.socketWrap.emit(SocketMessages.gameShipHealth, shipHealth / 100);
         }
     };
     GameManager.prototype.clearAllData = function () {

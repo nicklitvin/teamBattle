@@ -12,10 +12,12 @@ export default class Shot implements Projectile {
     public _speed : number;
     public _radius = 0.1;
     public _expirationTime : number;
+    public _color : string;
 
-    constructor(position : Position, target : Position, time : number, speed : number) {
+    constructor(position : Position, target : Position, time : number, speed : number, color = "black") {
         this._expirationTime = time;
         this._speed = speed;
+        this._color = color;
 
         this._position = position;
         this._target = MyMath.extendToMaxRange(this._position,target,

@@ -12,7 +12,6 @@ var Game = (function () {
         this._defaultShipNumber = 4;
         this._drawingInstructions = {};
         this._visionColor = "grey";
-        this._enemyColor = "black";
     }
     Game.prototype.addPlayer = function (playerId, shipId) {
         this._creationTime = Date.now();
@@ -73,7 +72,8 @@ var Game = (function () {
     };
     Game.prototype.updateWinnerText = function () {
         var shipId = Object.keys(this._ships)[0];
-        this._winnerText = "Ship ".concat(shipId, " is the winner");
+        var ship = this._ships[shipId];
+        this._winnerText = "Ship ".concat(ship._color, " is the winner");
     };
     Game.prototype.updateDrawingInstructions = function () {
         for (var _i = 0, _a = Object.keys(this._ships); _i < _a.length; _i++) {
@@ -85,9 +85,10 @@ var Game = (function () {
                 _position: ship._position,
                 _target: shipTarget,
                 _radius: ship._vision,
-                _speed: ship._speed
+                _speed: ship._speed,
+                _color: this._visionColor
             };
-            var shipVisionInstruction = new DrawingInstruction_1["default"](shipVision, this._visionColor, Game._mapWidth, Game._mapHeight);
+            var shipVisionInstruction = new DrawingInstruction_1["default"](shipVision, Game._mapWidth, Game._mapHeight);
             instructions.push(shipVisionInstruction);
             for (var _b = 0, _c = Object.values(ship._scoutsSent); _b < _c.length; _b++) {
                 var scout = _c[_b];
@@ -95,27 +96,29 @@ var Game = (function () {
                     _position: scout._position,
                     _target: scout._target,
                     _radius: ship._vision,
-                    _speed: scout._speed
+                    _speed: scout._speed,
+                    _color: scout._color
                 };
-                var instruction = new DrawingInstruction_1["default"](scoutVision, this._visionColor, Game._mapWidth, Game._mapHeight);
+                var instruction = new DrawingInstruction_1["default"](scoutVision, Game._mapWidth, Game._mapHeight);
                 instructions.push(instruction);
             }
             var shipProjectile = {
                 _position: ship._position,
                 _target: shipTarget,
                 _radius: ship._radius,
-                _speed: ship._speed
+                _speed: ship._speed,
+                _color: ship._color
             };
-            var shipInstruction = new DrawingInstruction_1["default"](shipProjectile, ship._color, Game._mapWidth, Game._mapHeight);
+            var shipInstruction = new DrawingInstruction_1["default"](shipProjectile, Game._mapWidth, Game._mapHeight);
             instructions.push(shipInstruction);
             for (var _d = 0, _e = Object.values(ship._scoutsSent); _d < _e.length; _d++) {
                 var scout = _e[_d];
-                var scoutInstruction = new DrawingInstruction_1["default"](scout, ship._color, Game._mapWidth, Game._mapHeight);
+                var scoutInstruction = new DrawingInstruction_1["default"](scout, Game._mapWidth, Game._mapHeight);
                 instructions.push(scoutInstruction);
             }
             for (var _f = 0, _g = Object.values(ship._shotsSent); _f < _g.length; _f++) {
                 var shot = _g[_f];
-                var shotInstruction = new DrawingInstruction_1["default"](shot, ship._color, Game._mapWidth, Game._mapHeight);
+                var shotInstruction = new DrawingInstruction_1["default"](shot, Game._mapWidth, Game._mapHeight);
                 if (MyMath_1["default"].getDistanceBetween(shot, ship) < ship._vision + shot._radius) {
                     instructions.push(shotInstruction);
                 }
@@ -132,7 +135,7 @@ var Game = (function () {
             var enemies = this.getVisibleEnemyProjectiles(ship);
             for (var _k = 0, enemies_1 = enemies; _k < enemies_1.length; _k++) {
                 var enemy = enemies_1[_k];
-                var enemyInstruction = new DrawingInstruction_1["default"](enemy, this._enemyColor, Game._mapWidth, Game._mapHeight);
+                var enemyInstruction = new DrawingInstruction_1["default"](enemy, Game._mapWidth, Game._mapHeight);
                 instructions.push(enemyInstruction);
             }
             this._drawingInstructions[shipId] = instructions;

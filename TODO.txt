@@ -3,13 +3,10 @@ Game
 Server
     make emit only contain one object, array if multiple needed
     make lines shorter (80 words max)
-    commentate, delete unecessary clientModule classes
 
 Visuals
-    fix move spasm
-    send hp of ship to client
     highlight button that is currently active, socketMessage.activeRole
-    end text (winner)
+    can view ship slightly out of range bug
     clean socketmessages
 
 Later

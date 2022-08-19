@@ -94,13 +94,14 @@ describe("testing gameManager", () => {
         // remove one ship to display winner text
         let game = gameManager._games[socketWrapRed.id];
         delete game._ships[Object.keys(game._ships)[1]];
-        let lastShip = Object.keys(game._ships)[0];
+        let lastShipId = Object.keys(game._ships)[0];
+        let lastShip = game._ships[lastShipId];
 
         game.updateWinnerText();
         gameManager.endTransitionPhase(lobby);
 
         let expect0 = [SocketMessages.showReturnButton];
-        let expect1 = [SocketMessages.winnerText,`Ship ${lastShip} is the winner`];
+        let expect1 = [SocketMessages.gamePermanentMessage,`Ship ${lastShip._color} is the winner`];
         expect(socketWrapRed.savedMessages[0]).toEqual(expect0);
         expect(socketWrapBlu.savedMessages[0]).toEqual(expect0);
         expect(socketWrapRed.savedMessages[1]).toEqual(expect1);
@@ -225,6 +226,7 @@ describe("testing gameManager", () => {
         gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
         gameManager.socketJoinGame(socketWrapBlu,socketWrapBlu.id,lobbyId);
 
+        // ongame join messages
         let game = gameManager._games[socketWrapRed.id];
         let countdownExpect = [SocketMessages.gameCountdown,gameManager._transitionTime + game._creationTime];
         let redShip = game._ships[game._players[socketWrapRed.id]];
@@ -238,6 +240,47 @@ describe("testing gameManager", () => {
         expect(shipVision._position.y * Game._mapHeight).toEqual(redShip._position.y);
         expect(shipVision._color).toEqual(game._visionColor);
         expect(shipVision._radius * Game._mapWidth).toEqual(redShip._vision);
+
+        let expectHealthMessage = [SocketMessages.gameShipHealth,redShip._health/100];
+        expect(socketWrapRed.savedMessages[2]).toEqual(expectHealthMessage);
+
+        // ingame messages
+        redShip._health = 42;
+        socketWrapRed.clearSavedMessages();
+        game.updateDrawingInstructions();
+        gameManager.sendGameState(lobby);
+        expectHealthMessage = [SocketMessages.gameShipHealth,redShip._health/100];
+        expect(socketWrapRed.savedMessages[1]).toEqual(expectHealthMessage);
+
+        // ship dead messages
+        delete game._ships[redShip._id];
+        socketWrapRed.clearSavedMessages();
+        game.updateDrawingInstructions();
+        gameManager.sendGameState(lobby);
+        expectHealthMessage = [SocketMessages.gameShipHealth,0];
+        expect(socketWrapRed.savedMessages[0]).toEqual(expectHealthMessage);
+        let expectDeadMessage = [SocketMessages.gamePermanentMessage,gameManager._shipDeadMessage];
+        expect(socketWrapRed.savedMessages[1]).toEqual(expectDeadMessage);
+    })
+    it("should update winner text alone", () => {
+        gameManager._setTimerBeforeGameStart = false;
+        gameManager._runGameAfterTransition = false;
+        gameManager._instantGameUpdates = true;
+
+        lobbyManager.socketRemovePlayer(socketWrapBlu);
+        lobbyManager.socketStartGame(socketWrapRed);
+        lobbyManager.socketRemovePlayer(socketWrapRed);
+        socketWrapRed.clearSavedMessages();
+        gameManager.socketJoinGame(socketWrapRed,socketWrapRed.id,lobbyId);
+
+        expect(lobby.getPlayerCount()).toEqual(1);
+
+        let game = gameManager._games[lobby._id];
+        socketWrapRed.clearSavedMessages();
+        gameManager.runGame(game);
+
+        let expected = [SocketMessages.gamePermanentMessage,game._winnerText];
+        expect(socketWrapRed.savedMessages[1]).toEqual(expected);
     })
 })
 server.close();

@@ -41,6 +41,8 @@ export default class GameManager {
 
     public _runGameAfterTransition = true;
 
+    public _shipDeadMessage = "Your ship has been destroyed";
+
     constructor(io : Server, data : LobbyManager) {
         this._lobbyManager = data;
 
@@ -126,11 +128,10 @@ export default class GameManager {
             player.online = true;
 
             let game = this._games[lobbyId];
-            let shipId = game._players[playerId];
             let startTime = game._creationTime + this._transitionTime;
 
             player.socketWrap.emit(SocketMessages.gameCountdown,startTime);
-            player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(game._drawingInstructions[shipId]));
+            this.sendGameStateToPlayer(game,playerId);
 
             //console.log("player joined game",playerId);
         } else {
@@ -263,13 +264,14 @@ export default class GameManager {
         if (!lobby) return;
 
         if (game.isGameOver() || this._immediatelyEndGame) {
+            game.updateWinnerText();
             lobby.switchBackFromInGameStatus();
             //console.log("ending game");
             
             for (let playerId of Object.keys(game._players)) {
                 let player = this._lobbyManager._players[playerId];
                 player.socketWrap.emit(SocketMessages.showReturnButton);
-                player.socketWrap.emit(SocketMessages.winnerText,game._winnerText);
+                player.socketWrap.emit(SocketMessages.gamePermanentMessage,game._winnerText);
             }
         } else {
             game.update();
@@ -297,13 +299,25 @@ export default class GameManager {
         let game = this._games[lobby._id];
 
         for (let playerId of lobby.getPlayerList()) {
-            let player = this._lobbyManager._players[playerId];
-            if (!player.online) continue;
+            this.sendGameStateToPlayer(game,playerId);
+        }
+    }
 
-            let shipId = game._players[player.id];
+    public sendGameStateToPlayer(game : Game, playerId : string) {
+        let player = this._lobbyManager._players[playerId];
+        if (!player.online) return;
 
+        let shipId = game._players[player.id];
+        let ship = game._ships[shipId];
+
+        if (!ship) {
+            player.socketWrap.emit(SocketMessages.gameShipHealth,0);
+            player.socketWrap.emit(SocketMessages.gamePermanentMessage,this._shipDeadMessage);
+        } else {
+            let shipHealth = ship._health;
             let shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(shipDrawInstructions));
+            player.socketWrap.emit(SocketMessages.gameShipHealth,shipHealth/100);
         }
     }
 

@@ -7,6 +7,7 @@ class TestProjectile implements Projectile {
     _radius: number;
     _speed: number;
     _target: Position;
+    _color: string;
 }
 
 describe("testing math functions", () => {

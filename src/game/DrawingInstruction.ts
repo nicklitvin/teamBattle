@@ -6,9 +6,9 @@ export default class DrawingInstruction {
     public _position: Position;
     public _color : string;
 
-    constructor(projectile : Projectile, color : string, mapWidth : number, mapHeight : number) {
+    constructor(projectile : Projectile, mapWidth : number, mapHeight : number) {
         this._radius = projectile._radius / mapWidth;
         this._position = projectile._position.copy().convertToPercent(mapWidth,mapHeight);
-        this._color = color;
+        this._color = projectile._color;
     }
 }

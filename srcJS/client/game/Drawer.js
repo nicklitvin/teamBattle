@@ -10,6 +10,8 @@ export default class Drawer {
         this._instructions = [];
         this._canvas = null;
         this._ctx = null;
+        this._permanentMessage = "";
+        this._permanentMessageFont = "24px Comic Sans MS";
     }
 
     /**
@@ -50,15 +52,25 @@ export default class Drawer {
     }
 
     /**
-     * Writes time in the middle of the canvas based on default settings.
+     * Writes countdown in the middle of the canvas based on default settings.
      * 
      * @param {string} time
      */
-    drawCountdown(time) {
+    writeCountdown(time) {
         this._ctx.font = this._font;
         this._ctx.textAlign = this._textAlign;        
         this._ctx.fillStyle = this._textColor;
         this._ctx.fillText(time, this._canvas.width/2, this._canvas.height/2);
+    }
+
+    /**
+     * Writes permanent message in the middle of the canvas.
+     */
+    writeMessage() {
+        this._ctx.font = this._permanentMessageFont;
+        this._ctx.textAlign = this._textAlign;        
+        this._ctx.fillStyle = this._textColor;
+        this._ctx.fillText(this._permanentMessage, this._canvas.width/2, this._canvas.height/2);
     }
 
     /**

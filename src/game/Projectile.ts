@@ -8,6 +8,7 @@ import Position from "./Position";
 export default interface Projectile {
     _speed : number;
     _radius : number;
+    _color : string;
     _position : Position;
     _target : Position;
 }

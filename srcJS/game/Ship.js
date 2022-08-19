@@ -20,7 +20,7 @@ var Ship = (function () {
         this._shooterCount = 5;
         this._shooterSpeed = 0.02;
         this._shooterExpirationTime = 120;
-        this._shooterDamage = 10;
+        this._shooterDamage = 50;
         this._scoutCount = 3;
         this._scoutSpeed = 0.02;
         this._scoutExpirationTime = 120;
@@ -150,10 +150,10 @@ var Ship = (function () {
         return true;
     };
     Ship.prototype.shootProjectile = function (playerId, target) {
-        this._shotsSent[playerId] = new Shot_1["default"](this._position, target, this._shooterExpirationTime, this._shooterSpeed);
+        this._shotsSent[playerId] = new Shot_1["default"](this._position, target, this._shooterExpirationTime, this._shooterSpeed, this._color);
     };
     Ship.prototype.sendScout = function (playerId, target) {
-        this._scoutsSent[playerId] = new Shot_1["default"](this._position, target, this._scoutExpirationTime, this._scoutSpeed);
+        this._scoutsSent[playerId] = new Shot_1["default"](this._position, target, this._scoutExpirationTime, this._scoutSpeed, this._color);
     };
     Ship.prototype.takeDamage = function () {
         this._health -= this._shooterDamage;

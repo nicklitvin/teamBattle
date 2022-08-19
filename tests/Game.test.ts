@@ -261,7 +261,7 @@ describe("testing drawing instructions", () => {
         instructions = game._drawingInstructions[shipId];
         expect(instructions.length).toEqual(3);
         expect(instructions[1]._color).toEqual(ship._color);
-        expect(instructions[2]._color).toEqual(game._enemyColor);
+        expect(instructions[2]._color).toEqual(enemyShip._color);
         expect(instructions[2]._position.expandByDimensions(
             SocketMessages.gameWidth,SocketMessages.gameHeight)
         ).toEqual(enemyShip._position);
@@ -270,6 +270,6 @@ describe("testing drawing instructions", () => {
         instructions = game._drawingInstructions[enemyId];
         expect(instructions.length).toEqual(3);
         expect(instructions[1]._color).toEqual(enemyShip._color);
-        expect(instructions[2]._color).toEqual(game._enemyColor);
+        expect(instructions[2]._color).toEqual(ship._color);
     })
 })
