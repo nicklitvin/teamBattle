@@ -1,8 +1,9 @@
 import SocketMessages from "../socketMessages.json" assert { type: "json" };
-import Drawer from "../modules/Drawer.js";
+import Drawer from "./Drawer.js";
 
 class Game {        
     constructor() {
+        this._refreshTime = 10;
         this._socket = io();
         this.setup();
         this.joinGame();
@@ -20,11 +21,13 @@ class Game {
     }
 
     setup() {
+        let gameCanvas = document.getElementById("game");
+        gameCanvas.addEventListener("click", (e) => {
+            this.sendClickCoordinates(e);
+        })
+
         this._drawer = new Drawer();
         
-        this._socket.on(SocketMessages.showReturnButton, () => {
-            // let element = document.getElementById("return");
-        })
         this._socket.on(SocketMessages.redirect, (msg) => {
             window.location.href = SocketMessages.baseUrl + msg[0];
         })
@@ -35,6 +38,8 @@ class Game {
             let drawInstructions = JSON.parse(msg[0]);
             this._drawer.updateInstructions(drawInstructions);
         })
+        
+        this.draw();
     }
 
     returnFromGame() {
@@ -70,52 +75,50 @@ class Game {
         let y = ( bound.height - (e.clientY -  bound.y) ) * (SocketMessages.gameHeight / bound.height)
         this._socket.emit(SocketMessages.gameInput,x,y);
     }
+
+    draw() {
+        let top = document.getElementById("top");
+        let topRect = top.getBoundingClientRect();
+    
+        // setup gameCanvas
+        let gameCanvas = document.getElementById("game");
+        let gameCtx = gameCanvas.getContext("2d");
+        gameCanvas.width = topRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
+        gameCanvas.height = topRect.height;
+        gameCtx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+        gameCtx.fillStyle = SocketMessages.gameBackgroundColor;
+        console.log(gameCtx.fillStyle,SocketMessages.gameBackgroundColor);
+        gameCtx.fillRect(0,0,gameCanvas.width,gameCanvas.height);
+    
+        // setup statusCanvas
+        let statusCanvas = document.getElementById("status");
+        let statusCtx = statusCanvas.getContext("2d");
+        let bottom = document.getElementById("bottom");
+        let bottomRect = bottom.getBoundingClientRect();
+        statusCanvas.width = bottomRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
+        statusCanvas.height = bottomRect.height;
+        statusCtx.clearRect(0,0,statusCanvas.width,statusCanvas.height);
+        statusCtx.fillStyle = "green";
+        statusCtx.fillRect(0,0,statusCanvas.width,statusCanvas.height);
+    
+        // draw on gameCanvas
+        this._drawer.updateContext(gameCanvas,gameCtx);
+        this._drawer.draw()
+        let countdown = Math.ceil( (Number(this._gameStartTime) - Date.now()) / 1000);
+        if (countdown > 0) {
+            this._drawer.drawCountdown(countdown);
+        }
+
+        setTimeout( () => {this.draw()},this._refreshTime);
+    }
 }
 
-const game = new Game();
-window.game = game;
-
+/** reloads page when returning to page to trigger game.setup again */
 window.onpageshow = function(e) {
     if (e.persisted) {
         window.location.reload();
     }
 };
 
-let gameCanvas = document.getElementById("game");
-gameCanvas.addEventListener("click", (e) => {
-    game.sendClickCoordinates(e);
-})
-
-let drawerId = setInterval( () => {
-    let top = document.getElementById("top");
-    let topRect = top.getBoundingClientRect();
-
-    // setup gameCanvas
-    let gameCanvas = document.getElementById("game");
-    let gameCtx = gameCanvas.getContext("2d");
-    gameCanvas.width = topRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
-    gameCanvas.height = topRect.height;
-    gameCtx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
-    gameCtx.fillStyle = "black";
-    gameCtx.fillRect(0,0,gameCanvas.width,gameCanvas.height);
-
-    // setup statusCanvas
-    let statusCanvas = document.getElementById("status");
-    let statusCtx = statusCanvas.getContext("2d");
-    let bottom = document.getElementById("bottom");
-    let bottomRect = bottom.getBoundingClientRect();
-    statusCanvas.width = bottomRect.width * SocketMessages.gameWidth / SocketMessages.mainDivWidth;
-    statusCanvas.height = bottomRect.height;
-    statusCtx.clearRect(0,0,statusCanvas.width,statusCanvas.height);
-    statusCtx.fillStyle = "green";
-    statusCtx.fillRect(0,0,statusCanvas.width,statusCanvas.height);
-
-    // draw on gameCanvas
-    game._drawer.updateContext(gameCanvas,gameCtx);
-    game._drawer.draw()
-    let countdown = Math.ceil( (Number(game._gameStartTime) - Date.now()) / 1000);
-    if (countdown > 0) {
-        game._drawer.drawCountdown(countdown);
-    }
-    // console.log("drawing");
-}, 10);
+const game = new Game();
+window.game = game;

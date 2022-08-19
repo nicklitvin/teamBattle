@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
-var MyMath_1 = require("../clientModules/MyMath");
-var Position_1 = require("../clientModules/Position");
+var MyMath_1 = require("./MyMath");
+var Position_1 = require("./Position");
 var Role_1 = require("./Role");
 var Shot_1 = require("./Shot");
 var SocketMessages = require("../client/socketMessages.json");

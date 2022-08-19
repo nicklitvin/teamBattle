@@ -13,20 +13,24 @@ var MyMath = (function () {
             val = 0;
         return val;
     };
-    MyMath.move = function (from, to, speed) {
+    MyMath.move = function (from, to, speed, time) {
+        if (time === void 0) { time = 1; }
         var xDiff = to.x - from.x;
         var yDiff = to.y - from.y;
         var newPosition = from.copy();
-        if (Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), (1 / 2)) <= speed) {
+        if (time == 0) {
+            return newPosition;
+        }
+        if (Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), (1 / 2)) <= speed * time) {
             newPosition = to.copy();
         }
         else if (xDiff == 0) {
-            newPosition.y += speed * Math.sign(yDiff);
+            newPosition.y += speed * Math.sign(yDiff) * time;
         }
         else {
             var angle = MyMath.round(Math.atan(yDiff / xDiff));
-            newPosition.x += Math.cos(angle) * speed * Math.sign(xDiff);
-            newPosition.y += Math.sin(angle) * speed * Math.sign(xDiff);
+            newPosition.x += Math.cos(angle) * speed * Math.sign(xDiff) * time;
+            newPosition.y += Math.sin(angle) * speed * Math.sign(xDiff) * time;
         }
         newPosition.round();
         return newPosition;

@@ -6,10 +6,11 @@ Server
     commentate, delete unecessary clientModule classes
 
 Visuals
-    changing of colors when seeing each other
     fix move spasm
     send hp of ship to client
     highlight button that is currently active, socketMessage.activeRole
+    end text (winner)
+    clean socketmessages
 
 Later
     Show # of players returning

@@ -17,6 +17,7 @@
     "gameState" : "gameState",
     "gameWidth" : 14,
     "gameHeight": 7,
+    "gameBackgroundColor": "black",
     "mainDivWidth": 16,
 
     "roleSelectKeyword": "selectKeyword",

@@ -1,7 +1,7 @@
-import DrawingInstruction from "../clientModules/DrawingInstruction";
-import MyMath from "../clientModules/MyMath";
-import Position from "../clientModules/Position";
-import Projectile from "../clientModules/Projectile";
+import DrawingInstruction from "./DrawingInstruction";
+import MyMath from "./MyMath";
+import Position from "./Position";
+import Projectile from "./Projectile";
 import Ship from "./Ship";
 import * as SocketMessages from "../client/socketMessages.json";
 

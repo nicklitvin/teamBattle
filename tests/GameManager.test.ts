@@ -4,8 +4,8 @@ import { Server } from "socket.io";
 import SocketWrap from "../src/SocketWrap";
 import Lobby from "../src/lobby/Lobby";
 import * as SocketMessages from "../src/client/socketMessages.json";
-import Position from "../src/clientModules/Position";
-import DrawingInstruction from "../src/clientModules/DrawingInstruction";
+import Position from "../src/game/Position";
+import DrawingInstruction from "../src/game/DrawingInstruction";
 import Game from "../src/game/Game";
 
 const app : any = express();
@@ -234,12 +234,10 @@ describe("testing gameManager", () => {
         JSON.parse(socketWrapRed.savedMessages[1][1]);
 
         let shipVision = drawingInformation[0];
-        expect(drawingInformation[0]._target).toEqual(drawingInformation[0]._position);
         expect(shipVision._position.x * Game._mapWidth).toEqual(redShip._position.x);
         expect(shipVision._position.y * Game._mapHeight).toEqual(redShip._position.y);
         expect(shipVision._color).toEqual(game._visionColor);
         expect(shipVision._radius * Game._mapWidth).toEqual(redShip._vision);
-        expect(shipVision._speed * Game._mapWidth).toEqual(redShip._speed);
     })
 })
 server.close();

@@ -1,6 +1,6 @@
-import MyMath from "../src/clientModules/MyMath";
-import Position from "../src/clientModules/Position";
-import Projectile from "../src/clientModules/Projectile";
+import MyMath from "../src/game/MyMath";
+import Position from "../src/game/Position";
+import Projectile from "../src/game/Projectile";
 
 class TestProjectile implements Projectile {
     _position: Position;
