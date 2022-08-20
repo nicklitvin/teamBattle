@@ -12,8 +12,8 @@ var Game = (function () {
         this._defaultShipNumber = 4;
         this._drawingInstructions = {};
         this._visionColor = "grey";
-        this._currentRoleColor = "#009900";
-        this._takenRoleColor = "#696969";
+        this._currentRoleColor = SocketMessages.gameButtonSelected;
+        this._takenRoleColor = SocketMessages.gameButtonNotClikableColor;
     }
     Game.prototype.addPlayer = function (playerId, shipId) {
         this._creationTime = Date.now();

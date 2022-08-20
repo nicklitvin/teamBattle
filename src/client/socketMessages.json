@@ -25,7 +25,10 @@
     "gameButtonAvailability": "gameButtonAvailability",
     "gameButtonDefaultColor": "#D3D3D3",
     "gameReturnButtonColor": "#FDB44E",
+    "gameButtonNotClickableColor": "#696969",
+    "gameButtonSelected": "green",
     "gameButtonInProgress": "red",
+    "gameVisionColor": "grey",
     "gameShipEndMessage" : "Your ship has been destroyed",
 
     "roleSelectKeyword": "selectKeyword",

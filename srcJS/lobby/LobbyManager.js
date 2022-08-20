@@ -118,7 +118,6 @@ var LobbyManager = (function () {
         if (this._sockets[socketWrap.id]) {
             var playerId = this._sockets[socketWrap.id];
             var player = this._players[playerId];
-            console.log(this._lobbies);
             var lobby = this._lobbies[player.lobbyId];
             delete this._sockets[socketWrap.id];
             if (lobby._transition) {

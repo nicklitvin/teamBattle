@@ -19,10 +19,10 @@ export default class Game {
     public static _mapHeight = Number(SocketMessages.gameHeight);
     public _winnerText : string;
     public _drawingInstructions : { [shipId: string] : DrawingInstruction[]} = {};
-    public _visionColor = "grey";
+    public _visionColor = SocketMessages.gameVisionColor;
     public _creationTime : number;
-    public _currentRoleColor = "#009900";
-    public _takenRoleColor = "#696969";
+    public _currentRoleColor = SocketMessages.gameButtonSelected;
+    public _takenRoleColor = SocketMessages.gameButtonNotClickableColor;
 
     public addPlayer(playerId : string, shipId : string) {
         this._creationTime = Date.now();

@@ -7,8 +7,6 @@ ship to stay afloat wins.
 
 Basic version complete.
 
-More updates to be made at later date.
-
 # Setup
 
 install all packages (Typescript, Jest, Socket.io, Express, and more)
