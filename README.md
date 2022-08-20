@@ -15,6 +15,12 @@ install all packages (Typescript, Jest, Socket.io, Express, and more)
 npm install 
 ```
 
+run server
+
+```
+npm start
+```
+
 # More Info
 
 TS files are located in /src 
