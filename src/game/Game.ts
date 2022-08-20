@@ -184,7 +184,6 @@ export default class Game {
                 let enemyInstruction = new DrawingInstruction(enemy,Game._mapWidth, Game._mapHeight);
                 instructions.push(enemyInstruction);
             }
-
             this._drawingInstructions[shipId] = instructions;
         }
     }
@@ -277,7 +276,18 @@ export default class Game {
         if (ship) {
             for (let role of ship._roles) {
                 if (role.isPlayerHere(playerId)) {
-                    info.push([role.title,this._currentRoleColor]);
+                    if (
+                        role.title == SocketMessages.scoutTitle &&
+                        ship._scoutsSent[playerId]
+                        ||
+                        role.title == SocketMessages.shooterTitle &&
+                        ship._shotsSent[playerId]
+                    ) {
+                        info.push([role.title,SocketMessages.gameButtonInProgress]);
+                    }
+                    else {
+                        info.push([role.title,this._currentRoleColor]);
+                    }
                 } else if (role.isFull()) {
                     info.push([role.title,this._takenRoleColor]);
                 }

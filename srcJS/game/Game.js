@@ -57,7 +57,7 @@ var Game = (function () {
                     if (MyMath_1["default"].doCirclesIntersect(shot, ship)) {
                         ship.takeDamage();
                         enemy.deleteShot(shooter);
-                        if (ship._health == 0) {
+                        if (ship._health <= 0) {
                             delete this._ships[ship._id];
                             if (Object.keys(this._ships).length == 1) {
                                 this.updateWinnerText();
@@ -200,7 +200,16 @@ var Game = (function () {
             for (var _i = 0, _a = ship._roles; _i < _a.length; _i++) {
                 var role = _a[_i];
                 if (role.isPlayerHere(playerId)) {
-                    info.push([role.title, this._currentRoleColor]);
+                    if (role.title == SocketMessages.scoutTitle &&
+                        ship._scoutsSent[playerId]
+                        ||
+                            role.title == SocketMessages.shooterTitle &&
+                                ship._shotsSent[playerId]) {
+                        info.push([role.title, SocketMessages.gameButtonInProgress]);
+                    }
+                    else {
+                        info.push([role.title, this._currentRoleColor]);
+                    }
                 }
                 else if (role.isFull()) {
                     info.push([role.title, this._takenRoleColor]);

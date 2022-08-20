@@ -1,3 +1,4 @@
+import DrawingInstruction from "./DrawingInstruction";
 import Position from "./Position";
 import Projectile from "./Projectile";
 
@@ -98,7 +99,7 @@ export default class MyMath {
      * @param c2 projectile
      * @returns distance between centers of projectiles
      */
-    public static getDistanceBetween(c1 : Projectile, c2 : Projectile) : number {
+    public static getDistanceBetween(c1 : Projectile | DrawingInstruction, c2 : Projectile | DrawingInstruction) : number {
         let val = ((c2._position.x - c1._position.x)**2 + 
             (c2._position.y - c1._position.y)**2) ** (1/2);
         return this.round(val);

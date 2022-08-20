@@ -25,6 +25,7 @@
     "gameButtonAvailability": "gameButtonAvailability",
     "gameButtonDefaultColor": "#D3D3D3",
     "gameReturnButtonColor": "#FDB44E",
+    "gameButtonInProgress": "red",
 
     "roleSelectKeyword": "selectKeyword",
     "captainTitle": "captain",

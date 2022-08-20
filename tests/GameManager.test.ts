@@ -261,6 +261,18 @@ describe("testing gameManager", () => {
         ]
         expect(socketWrapRed.savedMessages[2]).toEqual(expectButtonMessage1);
 
+        // inprogress role
+        redShip.shootProjectile(socketWrapRed.id,new Position(0,0));
+        socketWrapRed.clearSavedMessages();
+        game.updateDrawingInstructions();
+        gameManager.sendGameState(lobby);
+        let expectButtonMessage2 = [ SocketMessages.gameButtonAvailability,
+            [
+                [SocketMessages.captainTitle, game._takenRoleColor],
+                [SocketMessages.shooterTitle, SocketMessages.gameButtonInProgress]
+            ]
+        ]
+        expect(socketWrapRed.savedMessages[2]).toEqual(expectButtonMessage2);
         // ingame messages
         redShip._health = 42;
         socketWrapRed.clearSavedMessages();
