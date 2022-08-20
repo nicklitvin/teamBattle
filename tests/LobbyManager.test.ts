@@ -202,7 +202,8 @@ describe("testing lobbyManager", () => {
         expect(Object.keys(lobbyManager._lobbies).length).toEqual(1);
         expect(Object.keys(lobbyManager._gameManager._games).length).toEqual(1);
         expect(lobbyManager._players[redSocketId].online).toBeTruthy();
-        expect(lobbyManager._players[redSocketId].socketWrap.id).toEqual(newRedSocketId);
+        expect(lobbyManager._players[redSocketId].socketWrap.id).
+            toEqual(newRedSocketId);
         expect(lobbyManager._players[bluSocketId].online).toBeFalsy();
 
         // game starts, blu reconnects
@@ -234,7 +235,8 @@ describe("testing lobbyManager", () => {
         expect(Object.keys(lobbyManager._players).length).toEqual(1);
         expect(lobbyManager._players[redSocketId].online).toBeTruthy();
         expect(lobbyManager._players[redSocketId].returning).toBeFalsy();
-        expect(lobbyManager._players[redSocketId].socketWrap.id).toEqual(newestRedSocketId);
+        expect(lobbyManager._players[redSocketId].socketWrap.id).
+            toEqual(newestRedSocketId);
     })
 })
 server.close();

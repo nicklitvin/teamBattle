@@ -1,18 +1,14 @@
 Game
 
 Server
-    make emit only contain one object, array if multiple needed
-    make lines shorter (80 words max)
 
 Visuals
     can view ship slightly out of range bug
-    clean socketmessages
 
 Later
     Show # of players returning
     game instructions on lobby
     match-making
-    Reverse y when sending coordinates
     ship 2v2 games
 
 Game Dimensions 16x9

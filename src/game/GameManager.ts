@@ -35,13 +35,14 @@ export default class GameManager {
     public _instantGameUpdates = false;
 
     /**
-     * Immediately ends the game after starting.
+     * When true, immediately ends the game during the first call to runGame.
      */
     public _immediatelyEndGame = false;
 
+    /**
+     * When true, runs game after transition phase ends.
+     */
     public _runGameAfterTransition = true;
-
-    public _shipDeadMessage = "Your ship has been destroyed";
 
     constructor(io : Server, data : LobbyManager) {
         this._lobbyManager = data;
@@ -118,7 +119,9 @@ export default class GameManager {
      * @param playerId 
      * @param lobbyId 
      */
-    public socketJoinGame(socketWrap : SocketWrap, playerId : string, lobbyId : string) {
+    public socketJoinGame(socketWrap : SocketWrap, playerId : string,
+        lobbyId : string) 
+    {
         let lobby = this._lobbyManager._lobbies[lobbyId];
 
         if (lobby && lobby._players.has(playerId)) {
@@ -252,7 +255,9 @@ export default class GameManager {
     }
 
     /**
-     * Updates game until end condition is achieved.
+     * Updates game until end condition is achieved. If game is over, players
+     * receive return option and game winner text. Otherwise, players receive
+     * drawing instructions for the ongoing game.
      * 
      * @param game 
      */
@@ -271,7 +276,9 @@ export default class GameManager {
             for (let playerId of Object.keys(game._players)) {
                 let player = this._lobbyManager._players[playerId];
                 player.socketWrap.emit(SocketMessages.showReturnButton);
-                player.socketWrap.emit(SocketMessages.gamePermanentMessage,game._winnerText);
+                player.socketWrap.emit(
+                    SocketMessages.gamePermanentMessage,game._winnerText
+                );
             }
         } else {
             game.update();
@@ -303,6 +310,13 @@ export default class GameManager {
         }
     }
 
+    /**
+     * Sends game state to player to draw the game.
+     * 
+     * @param game 
+     * @param playerId 
+     * @returns 
+     */
     public sendGameStateToPlayer(game : Game, playerId : string) {
         let player = this._lobbyManager._players[playerId];
         if (!player.online) return;
@@ -312,15 +326,27 @@ export default class GameManager {
 
         if (!ship) {
             player.socketWrap.emit(SocketMessages.gameShipHealth,0);
-            player.socketWrap.emit(SocketMessages.gamePermanentMessage,this._shipDeadMessage);
-            player.socketWrap.emit(SocketMessages.gameButtonAvailability,game.getAvailableRoles(playerId));
+            player.socketWrap.emit(
+                SocketMessages.gamePermanentMessage,
+                SocketMessages.gameShipEndMessage
+            );
+            player.socketWrap.emit(
+                SocketMessages.gameButtonAvailability,
+                game.getTakenRoles(playerId)
+            );
         } else {
             let shipHealth = ship._health;
             let shipDrawInstructions = game._drawingInstructions[shipId];
             
-            player.socketWrap.emit(SocketMessages.gameState,JSON.stringify(shipDrawInstructions));
+            player.socketWrap.emit(
+                SocketMessages.gameState,
+                JSON.stringify(shipDrawInstructions)
+            );
             player.socketWrap.emit(SocketMessages.gameShipHealth,shipHealth/100);
-            player.socketWrap.emit(SocketMessages.gameButtonAvailability,game.getAvailableRoles(playerId));
+            player.socketWrap.emit(
+                SocketMessages.gameButtonAvailability,
+                game.getTakenRoles(playerId)
+            );
         }
     }
 

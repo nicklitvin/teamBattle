@@ -51,6 +51,11 @@ export default class Ship implements Projectile {
         this._id = id;
     }
 
+    /**
+     * Sets target for ship movement. newTarget object will be modified and copied
+     * to ship.
+     * @param newTarget 
+     */
     public setTarget(newTarget : Position)  {
         newTarget.x = Math.max(this._radius, newTarget.x);
         newTarget.x = Math.min(Game._mapWidth - this._radius, newTarget.x);
@@ -61,8 +66,8 @@ export default class Ship implements Projectile {
     }
 
     /**
-     * Heals ship and moves ship and all of its projectiles. Projectiles are removed when 
-     * their expiration time = 0. 
+     * Heals ship and moves ship and all of its projectiles. Projectiles are
+     * removed when their expiration time = 0. 
      */
     public move()  {
         this.heal();
@@ -198,6 +203,11 @@ export default class Ship implements Projectile {
         }
     }
 
+    /**
+     * Returns false if player has taken a shot that is still in progress.
+     * @param playerId 
+     * @returns 
+     */
     public isShotAvailable(playerId : string) : boolean {
         if (this._shotsSent[playerId]) {
             return false;
@@ -205,6 +215,11 @@ export default class Ship implements Projectile {
         return true; 
     } 
 
+    /**
+     * Returns false if player has sent a scout that is still in progress.
+     * @param playerId 
+     * @returns 
+     */
     public isScoutAvailable(playerId : string) : boolean {
         if (this._scoutsSent[playerId]) {
             return false;
@@ -212,6 +227,11 @@ export default class Ship implements Projectile {
         return true; 
     }
 
+    /**
+     * Adds a shot object to this._shotsSent with playerId as key.
+     * @param playerId 
+     * @param target 
+     */
     public shootProjectile(playerId : string, target : Position)  {
         this._shotsSent[playerId] = new Shot(
             this._position,
@@ -222,6 +242,11 @@ export default class Ship implements Projectile {
         );
     }
 
+    /**
+     * Adds a scout object to this._scoutsSent with playerId as key.
+     * @param playerId 
+     * @param target 
+     */
     public sendScout(playerId : string, target : Position)  {
         this._scoutsSent[playerId] = new Shot(
             this._position,

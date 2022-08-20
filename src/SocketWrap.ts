@@ -8,12 +8,12 @@ import { Socket } from "socket.io";
  * 
  * Else, any call to a socket's variables/methods will
  * return what has been customly set. Emit messages are
- * stored. This is used for testing purposes.
+ * stored under this.savedMessages in the form 
+ * [[event,...args], ...]. This is used for testing purposes.
  */
 export default class SocketWrap {
     public id : string;
     public emit : Function;
-    /** [ [event, ...args], [event, ...args], ...]*/
     public savedMessages : string[][] = [];
     public socket : Socket;
 
@@ -22,7 +22,7 @@ export default class SocketWrap {
             this.socket = socket;
             this.id = this.socket.id;
             this.emit = (event : string, ...args : any) => {
-                this.socket.emit(event,args);
+                this.socket.emit(event,...args);
             }
         } else {
             this.emit = (...args : any) => {

@@ -13,11 +13,11 @@ var Position = (function () {
     Position.prototype.copy = function () {
         return new Position(this.x, this.y);
     };
-    Position.prototype.convertToPercent = function (serverWidth, serverHeight) {
-        return new Position(this.x / serverWidth, this.y / serverHeight);
+    Position.prototype.convertToPercent = function (maxWidth, maxHeight) {
+        return new Position(this.x / maxWidth, this.y / maxHeight);
     };
-    Position.prototype.expandByDimensions = function (serverWidth, serverHeight) {
-        return new Position(this.x * serverWidth, this.y * serverHeight);
+    Position.prototype.expandByDimensions = function (maxWidth, maxHeight) {
+        return new Position(this.x * maxWidth, this.y * maxHeight);
     };
     return Position;
 }());

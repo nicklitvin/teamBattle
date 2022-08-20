@@ -27,8 +27,10 @@ export default class LobbyManager {
     public _lobbies : {[lobbyId : string] : Lobby} = {};
     public _gameManager : GameManager;
     public _lobbyIdLength = 6;
+
     /** how much time is given for leader to join created lobby in ms */
     public _transitionTime = 1000*1;
+
     /** sets timer after which lobby is deleted if leader does not join */
     public _setLeaderJoinTimer = true;
 
@@ -125,16 +127,18 @@ export default class LobbyManager {
     }
 
     /**
-     * Processes lobby join request. If request includes a playerId that belongs to the lobby, their 
-     * status is updated. Else, a new player is added to the lobby and their id is 
-     * equivalent to their socket id.
+     * Processes lobby join request. If request includes a playerId that
+     * belongs to the lobby, their status is updated. Else, a new player
+     * is added to the lobby and their id is equivalent to their socket id.
      * 
      * @param socketWrap 
      * @param lobbyId 
      * @param playerId 
      * @returns 
      */
-    public socketJoinLobby(socketWrap : SocketWrap, lobbyId : string | undefined , playerId : string | undefined) {
+    public socketJoinLobby(socketWrap : SocketWrap,
+        lobbyId : string | undefined , playerId : string | undefined) 
+    {
         let lobby = this._lobbies[lobbyId];
         // check if returning player
         if (playerId) {
@@ -175,7 +179,8 @@ export default class LobbyManager {
     /**
      * Socket is deleted from saved list of sockets. Player information
      * is not deleted if they are transitioning or returning from game.
-     * If no online players remain in the lobby, the lobby is deleted.
+     * If no online players remain in the lobby when ingame, the lobby
+     * is deleted.
      * 
      * @param socketWrap 
      * @returns 

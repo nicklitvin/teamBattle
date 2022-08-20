@@ -101,7 +101,10 @@ describe("testing gameManager", () => {
         gameManager.endTransitionPhase(lobby);
 
         let expect0 = [SocketMessages.showReturnButton];
-        let expect1 = [SocketMessages.gamePermanentMessage,`Ship ${lastShip._color} is the winner`];
+        let expect1 = [
+            SocketMessages.gamePermanentMessage,
+            `Ship ${lastShip._color} is the winner`
+        ];
         expect(socketWrapRed.savedMessages[0]).toEqual(expect0);
         expect(socketWrapBlu.savedMessages[0]).toEqual(expect0);
         expect(socketWrapRed.savedMessages[1]).toEqual(expect1);
@@ -133,7 +136,10 @@ describe("testing gameManager", () => {
 
         // red chooses target
         let positionMessage = [4,6];
-        gameManager.socketProcessGameInput(socketWrapRed,[positionMessage[0],positionMessage[1]]);
+        gameManager.socketProcessGameInput(
+            socketWrapRed,
+            [positionMessage[0],positionMessage[1]]
+        );
         
         expect(ship._target.x).toEqual(positionMessage[0]);
         expect(ship._target.y).toEqual(positionMessage[1]);
@@ -228,7 +234,10 @@ describe("testing gameManager", () => {
 
         // ongame join messages
         let game = gameManager._games[socketWrapRed.id];
-        let countdownExpect = [SocketMessages.gameCountdown,gameManager._transitionTime + game._creationTime];
+        let countdownExpect = [
+            SocketMessages.gameCountdown,
+            gameManager._transitionTime + game._creationTime
+        ];
         let redShip = game._ships[game._players[socketWrapRed.id]];
         expect(socketWrapRed.savedMessages[0]).toEqual(countdownExpect);
 
@@ -236,12 +245,17 @@ describe("testing gameManager", () => {
         JSON.parse(socketWrapRed.savedMessages[1][1]);
 
         let shipVision = drawingInformation[0];
-        expect(shipVision._position.x * Game._mapWidth).toEqual(redShip._position.x);
-        expect(shipVision._position.y * Game._mapHeight).toEqual(redShip._position.y);
+        expect(shipVision._position.x * Game._mapWidth).
+            toEqual(redShip._position.x);
+        expect(shipVision._position.y * Game._mapHeight).
+            toEqual(redShip._position.y);
         expect(shipVision._color).toEqual(game._visionColor);
         expect(shipVision._radius * Game._mapWidth).toEqual(redShip._vision);
 
-        let expectHealthMessage = [SocketMessages.gameShipHealth,redShip._health/100];
+        let expectHealthMessage = [
+            SocketMessages.gameShipHealth,
+            redShip._health/100
+        ];
         expect(socketWrapRed.savedMessages[2]).toEqual(expectHealthMessage);
 
         let expectButtonMessage = [SocketMessages.gameButtonAvailability, []];
@@ -288,7 +302,10 @@ describe("testing gameManager", () => {
         gameManager.sendGameState(lobby);
         expectHealthMessage = [SocketMessages.gameShipHealth,0];
         expect(socketWrapRed.savedMessages[0]).toEqual(expectHealthMessage);
-        let expectDeadMessage = [SocketMessages.gamePermanentMessage,gameManager._shipDeadMessage];
+        let expectDeadMessage = [
+            SocketMessages.gamePermanentMessage,
+            SocketMessages.gameShipEndMessage
+        ];
         expect(socketWrapRed.savedMessages[1]).toEqual(expectDeadMessage);
     })
     it("should update winner text alone", () => {

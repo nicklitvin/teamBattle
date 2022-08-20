@@ -13,7 +13,6 @@ var GameManager = (function () {
         this._instantGameUpdates = false;
         this._immediatelyEndGame = false;
         this._runGameAfterTransition = true;
-        this._shipDeadMessage = "Your ship has been destroyed";
         this._lobbyManager = data;
         io.on("connection", function (socket) {
             var socketWrap = new socketWrap_1["default"](socket);
@@ -198,15 +197,15 @@ var GameManager = (function () {
         var ship = game._ships[shipId];
         if (!ship) {
             player.socketWrap.emit(SocketMessages.gameShipHealth, 0);
-            player.socketWrap.emit(SocketMessages.gamePermanentMessage, this._shipDeadMessage);
-            player.socketWrap.emit(SocketMessages.gameButtonAvailability, game.getAvailableRoles(playerId));
+            player.socketWrap.emit(SocketMessages.gamePermanentMessage, SocketMessages.gameShipEndMessage);
+            player.socketWrap.emit(SocketMessages.gameButtonAvailability, game.getTakenRoles(playerId));
         }
         else {
             var shipHealth = ship._health;
             var shipDrawInstructions = game._drawingInstructions[shipId];
             player.socketWrap.emit(SocketMessages.gameState, JSON.stringify(shipDrawInstructions));
             player.socketWrap.emit(SocketMessages.gameShipHealth, shipHealth / 100);
-            player.socketWrap.emit(SocketMessages.gameButtonAvailability, game.getAvailableRoles(playerId));
+            player.socketWrap.emit(SocketMessages.gameButtonAvailability, game.getTakenRoles(playerId));
         }
     };
     GameManager.prototype.clearAllData = function () {

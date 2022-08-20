@@ -121,13 +121,15 @@ var Game = (function () {
             for (var _f = 0, _g = Object.values(ship._shotsSent); _f < _g.length; _f++) {
                 var shot = _g[_f];
                 var shotInstruction = new DrawingInstruction_1["default"](shot, Game._mapWidth, Game._mapHeight);
-                if (MyMath_1["default"].getDistanceBetween(shot, ship) < ship._vision + shot._radius) {
+                var distanceToShot = MyMath_1["default"].getDistanceBetween(shot, ship);
+                if (distanceToShot < ship._vision + shot._radius) {
                     instructions.push(shotInstruction);
                 }
                 else {
                     for (var _h = 0, _j = Object.values(ship._scoutsSent); _h < _j.length; _h++) {
                         var scout = _j[_h];
-                        if (MyMath_1["default"].getDistanceBetween(shot, scout) < ship._vision + shot._radius) {
+                        var distance = MyMath_1["default"].getDistanceBetween(shot, scout);
+                        if (distance < ship._vision + shot._radius) {
                             instructions.push(shotInstruction);
                             break;
                         }
@@ -153,16 +155,19 @@ var Game = (function () {
             shipVisions.push(ship);
             for (var _b = 0, shipVisions_1 = shipVisions; _b < shipVisions_1.length; _b++) {
                 var sight = shipVisions_1[_b];
-                if (MyMath_1["default"].getDistanceBetween(sight, enemy) < ship._vision + enemy._radius) {
+                var distance = MyMath_1["default"].getDistanceBetween(sight, enemy);
+                if (distance < ship._vision + enemy._radius) {
                     list.push(enemy);
                     break;
                 }
             }
-            for (var _c = 0, _d = Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent)); _c < _d.length; _c++) {
+            for (var _c = 0, _d = Object.values(enemy._shotsSent).
+                concat(Object.values(enemy._scoutsSent)); _c < _d.length; _c++) {
                 var object = _d[_c];
                 for (var _e = 0, shipVisions_2 = shipVisions; _e < shipVisions_2.length; _e++) {
                     var sight = shipVisions_2[_e];
-                    if (MyMath_1["default"].getDistanceBetween(object, sight) < ship._vision + object._radius) {
+                    var distance = MyMath_1["default"].getDistanceBetween(object, sight);
+                    if (distance < ship._vision + object._radius) {
                         list.push(object);
                         break;
                     }
@@ -192,7 +197,7 @@ var Game = (function () {
             }
         }
     };
-    Game.prototype.getAvailableRoles = function (playerId) {
+    Game.prototype.getTakenRoles = function (playerId) {
         var shipId = this._players[playerId];
         var ship = this._ships[shipId];
         var info = [];

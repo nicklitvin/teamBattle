@@ -5,9 +5,9 @@ ship to stay afloat wins.
 
 # Project State
 
-Complete: Game fundamentals, server functionality
+Basic version complete.
 
-Currently designing and testing game visuals.
+More updates to be made at later date.
 
 # Setup
 

@@ -21,11 +21,16 @@ export default class Position {
         return new Position(this.x, this.y);
     }
 
-    public convertToPercent(serverWidth : number, serverHeight : number) {
-        return new Position(this.x / serverWidth, this.y / serverHeight);
+    /** Returns new position as percentages of the max width and height */
+    public convertToPercent(maxWidth : number, maxHeight : number) {
+        return new Position(this.x / maxWidth, this.y / maxHeight);
     }
 
-    public expandByDimensions(serverWidth: number, serverHeight : number) {
-        return new Position(this.x * serverWidth, this.y * serverHeight);
+    /**
+     * Returns new position by multiplying x by maxWidth, and y by maxHeight.
+     * To be used for positions that have been converted to percentages.
+     */
+    public expandByDimensions(maxWidth: number, maxHeight : number) {
+        return new Position(this.x * maxWidth, this.y * maxHeight);
     } 
 }

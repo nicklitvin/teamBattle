@@ -129,7 +129,9 @@ export default class Game {
                 _speed : ship._speed,
                 _color : this._visionColor
             }
-            let shipVisionInstruction = new DrawingInstruction(shipVision,Game._mapWidth, Game._mapHeight);
+            let shipVisionInstruction = new DrawingInstruction(
+                shipVision,Game._mapWidth, Game._mapHeight
+            );
             instructions.push(shipVisionInstruction);
 
             // scoutVision
@@ -142,7 +144,9 @@ export default class Game {
                     _color : this._visionColor
                 };
 
-                let instruction = new DrawingInstruction(scoutVision,Game._mapWidth, Game._mapHeight);
+                let instruction = new DrawingInstruction(
+                    scoutVision,Game._mapWidth, Game._mapHeight
+                );
                 instructions.push(instruction);
             }
 
@@ -154,23 +158,31 @@ export default class Game {
                 _speed : ship._speed,
                 _color : ship._color
             }
-            let shipInstruction = new DrawingInstruction(shipProjectile, Game._mapWidth, Game._mapHeight);
+            let shipInstruction = new DrawingInstruction(
+                shipProjectile, Game._mapWidth, Game._mapHeight
+            );
             instructions.push(shipInstruction);
 
             // ship scouts
             for (let scout of Object.values(ship._scoutsSent)) {
-                let scoutInstruction = new DrawingInstruction(scout, Game._mapWidth, Game._mapHeight);
+                let scoutInstruction = new DrawingInstruction(
+                    scout, Game._mapWidth, Game._mapHeight
+                );
                 instructions.push(scoutInstruction);
             }
             // ship shots
             for (let shot of Object.values(ship._shotsSent)) {
-                let shotInstruction = new DrawingInstruction(shot, Game._mapWidth, Game._mapHeight);
+                let shotInstruction = new DrawingInstruction(
+                    shot, Game._mapWidth, Game._mapHeight
+                );
 
-                if (MyMath.getDistanceBetween(shot,ship) < ship._vision + shot._radius) {
+                let distanceToShot = MyMath.getDistanceBetween(shot,ship);
+                if (distanceToShot < ship._vision + shot._radius) {
                     instructions.push(shotInstruction);
                 } else {
                     for (let scout of Object.values(ship._scoutsSent)) {
-                        if (MyMath.getDistanceBetween(shot,scout) < ship._vision + shot._radius) {
+                        let distance = MyMath.getDistanceBetween(shot,scout);
+                        if (distance < ship._vision + shot._radius) {
                             instructions.push(shotInstruction);
                             break;
                         }
@@ -181,7 +193,9 @@ export default class Game {
             // enemy projectiles
             let enemies = this.getVisibleEnemyProjectiles(ship);
             for (let enemy of enemies) {
-                let enemyInstruction = new DrawingInstruction(enemy,Game._mapWidth, Game._mapHeight);
+                let enemyInstruction = new DrawingInstruction(
+                    enemy,Game._mapWidth, Game._mapHeight
+                );
                 instructions.push(enemyInstruction);
             }
             this._drawingInstructions[shipId] = instructions;
@@ -206,16 +220,20 @@ export default class Game {
 
             // check whether enemy ship can be seen
             for (let sight of shipVisions) {
-                if (MyMath.getDistanceBetween(sight,enemy) < ship._vision + enemy._radius) {
+                let distance = MyMath.getDistanceBetween(sight,enemy);
+                if (distance < ship._vision + enemy._radius) {
                     list.push(enemy);
                     break;
                 }
             }
 
             // check whether any of enemy's objects can be seen
-            for(let object of Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent))) {
+            for(let object of Object.values(enemy._shotsSent).
+                concat(Object.values(enemy._scoutsSent))) 
+            {
                 for (let sight of shipVisions) {
-                    if (MyMath.getDistanceBetween(object,sight) < ship._vision + object._radius) {
+                    let distance = MyMath.getDistanceBetween(object,sight);
+                    if (distance < ship._vision + object._radius) {
                         list.push(object);
                         break;
                     }
@@ -268,7 +286,14 @@ export default class Game {
         }
     }
 
-    public getAvailableRoles(playerId : string) : string[][] {
+    /**
+     * Returns list of roles that are selected by player, in progress
+     * of action by player, or full. Each role is accompanied with a color
+     * to be colored in by the client.
+     * @param playerId 
+     * @returns 
+     */
+    public getTakenRoles(playerId : string) : string[][] {
         let shipId = this._players[playerId];
         let ship = this._ships[shipId];
         let info : string[][] = [];

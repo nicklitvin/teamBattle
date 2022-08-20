@@ -18,14 +18,19 @@ export default class Drawer {
      * Scales instructions to canvas size and inverts y position.
      * Saves results under this._instructions.
      * 
-     * @param {{radius: number, position: {x: number, y: number}, color: string }}instructions
+     * @param {{
+     * radius: number, 
+     * position: {x: number, y: number},
+     * color: string 
+     * }}instructions
      */
     updateInstructions(instructions) {
         this._instructions = instructions;
 
         for (let instruction of this._instructions) {
             instruction._position.x *= this._canvas.width;
-            instruction._position.y = (1 - instruction._position.y)*this._canvas.height;  
+            instruction._position.y = (1 - instruction._position.y) * 
+                this._canvas.height;  
             instruction._radius *= this._canvas.width;
         }
     }
@@ -70,7 +75,11 @@ export default class Drawer {
         this._ctx.font = this._permanentMessageFont;
         this._ctx.textAlign = this._textAlign;        
         this._ctx.fillStyle = this._textColor;
-        this._ctx.fillText(this._permanentMessage, this._canvas.width/2, this._canvas.height/2);
+        this._ctx.fillText(
+            this._permanentMessage, 
+            this._canvas.width/2,
+            this._canvas.height/2
+        );
     }
 
     /**

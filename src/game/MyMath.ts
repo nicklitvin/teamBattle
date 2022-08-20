@@ -32,7 +32,9 @@ export default class MyMath {
      * @param to 
      * @param speed 
      */
-    public static move(from : Position, to : Position, speed : number, time = 1) : Position {
+    public static move(from : Position, to : Position, speed : number,
+        time = 1) : Position 
+    {
         let xDiff = to.x - from.x;
         let yDiff = to.y - from.y;
         let newPosition = from.copy();
@@ -99,7 +101,7 @@ export default class MyMath {
      * @param c2 projectile
      * @returns distance between centers of projectiles
      */
-    public static getDistanceBetween(c1 : Projectile | DrawingInstruction, c2 : Projectile | DrawingInstruction) : number {
+    public static getDistanceBetween(c1 : Projectile, c2 : Projectile) : number {
         let val = ((c2._position.x - c1._position.x)**2 + 
             (c2._position.y - c1._position.y)**2) ** (1/2);
         return this.round(val);

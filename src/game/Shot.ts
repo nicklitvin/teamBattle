@@ -4,7 +4,8 @@ import Projectile from "./Projectile";
 
 /**
  * A shot is a projectile that moves towards a particular target
- * and contains an expiration data for external purposes.
+ * and contains an expiration data for external purposes. Default
+ * color of shot is black.
  */
 export default class Shot implements Projectile {
     public _position : Position;
@@ -14,7 +15,9 @@ export default class Shot implements Projectile {
     public _expirationTime : number;
     public _color : string;
 
-    constructor(position : Position, target : Position, time : number, speed : number, color = "black") {
+    constructor(position : Position, target : Position, time : number,
+         speed : number, color = "black") 
+    {
         this._expirationTime = time;
         this._speed = speed;
         this._color = color;
@@ -26,8 +29,8 @@ export default class Shot implements Projectile {
     }
 
     /**
-     * Updates position according to projectile's target and speed. Updates expiration
-     * time.
+     * Updates position according to projectile's target and speed. 
+     * Reduces expiration time by 1.
      */
     public move() {
         this._position = MyMath.move(this._position, this._target, this._speed);

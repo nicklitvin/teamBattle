@@ -125,7 +125,10 @@ describe("testing game combat", () => {
         ship._health = initialHealth;
         game.addPlayer(playerId,shipId);
 
-        game.processPlayerInput(playerId, [SocketMessages.roleSelectKeyword,SocketMessages.medicTitle]);
+        game.processPlayerInput(
+            playerId, 
+            [SocketMessages.roleSelectKeyword,SocketMessages.medicTitle]
+        );
         game.update();
 
         expect(ship._health).toBeGreaterThan(initialHealth);
@@ -310,7 +313,8 @@ describe("testing drawing instructions", () => {
         game.updateDrawingInstructions();
         let instructions = game._drawingInstructions[shipId];
     
-        expect(instructions[0]._position.expandByDimensions(Game._mapWidth,Game._mapHeight)).toEqual(ship._position);
+        expect(instructions[0]._position.expandByDimensions(
+            Game._mapWidth,Game._mapHeight)).toEqual(ship._position);
         expect(instructions[0]._color).toEqual(game._visionColor);
         expect(instructions[0]._radius * Game._mapWidth).toEqual(ship._vision);
     

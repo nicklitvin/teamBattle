@@ -25,6 +25,7 @@
     "gameButtonDefaultColor": "#D3D3D3",
     "gameReturnButtonColor": "#FDB44E",
     "gameButtonInProgress": "red",
+    "gameShipEndMessage": "Your ship has been destroyed",
     "roleSelectKeyword": "selectKeyword",
     "captainTitle": "captain",
     "shooterTitle": "shooter",

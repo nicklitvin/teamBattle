@@ -6,8 +6,8 @@ import SocketWrap from "../socketWrap";
  * lobby and game.
  */
 export default class Player {
-    public id : string;
-    public lobbyId : string;
+    public readonly id : string;
+    public readonly lobbyId : string;
     public socketWrap : SocketWrap;
 
     /** online = is player still on website */

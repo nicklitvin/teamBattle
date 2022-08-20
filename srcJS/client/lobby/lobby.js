@@ -37,19 +37,19 @@ class Lobby {
     setup() {
         this.updateTitle();
 
-        this.socket.on(SocketMessages.setId, (msg) => {
-            localStorage.setItem(SocketMessages.localStorageId,msg[0]);
+        this.socket.on(SocketMessages.setId, (id) => {
+            localStorage.setItem(SocketMessages.localStorageId,id);
         })
-        this.socket.on(SocketMessages.countUpdate, (msg) => {
+        this.socket.on(SocketMessages.countUpdate, (status) => {
             let element = document.getElementById("lobbyStatus");
-            element.innerHTML = msg[0];
+            element.innerHTML = status;
         })
         this.socket.on(SocketMessages.lobbyLeaderRole, () => {
             let element = document.getElementById("gameStarter");
             element.style.visibility= "visible";
         })
-        this.socket.on(SocketMessages.redirect, (msg) => {
-            window.location.href = SocketMessages.baseUrl + msg[0];
+        this.socket.on(SocketMessages.redirect, (url) => {
+            window.location.href = SocketMessages.baseUrl + url;
         })
     }
 }
