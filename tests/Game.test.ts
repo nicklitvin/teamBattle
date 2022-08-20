@@ -157,6 +157,22 @@ describe("testing game end", () => {
         expect(enemy._health).toEqual(0);
         expect(game.isGameOver()).toBeTruthy();
     })
+    it("should end when negative health", () => {
+        let game = new Game();
+
+        let shipId = "ship1";
+        let enemyId = "ship2";
+        game.addShip(shipId,new Position(6,5));
+        game.addShip(enemyId,new Position(6,5));
+    
+        let ship = game._ships[shipId];
+        let enemy = game._ships[enemyId];
+        enemy._health = -10;
+
+        ship.shootProjectile("1",enemy._position);
+        game.update();
+        expect(game.isGameOver()).toBeTruthy();
+    })
 })
 describe("testing vision", () => {
     it("ship should see", () => {
@@ -242,6 +258,41 @@ describe("testing vision", () => {
         // ship + shipVision + 2scouts + 2scoutVision + shot
         game.updateDrawingInstructions();
         expect(game._drawingInstructions[shipId].length).toEqual(7);
+    })
+    it("scout should see opponent", () => {
+        let game = new Game();
+        let shipId = "ship1";
+        let enemyId = "ship2";
+        let playerId = "id";
+        game.addShip(shipId,new Position(0,0));
+        game.addShip(enemyId,new Position(5,5));
+    
+        let ship = game._ships[shipId];
+        let enemyShip = game._ships[enemyId];
+        ship._radius = 0.5;
+        ship._vision = 1;
+        ship._color = "red";
+        ship._scoutExpirationTime = 3;
+        enemyShip._radius = 0.5;
+        enemyShip._color = "blue";
+
+        // enemy on edge of scout's vision
+        ship.sendScout(playerId,new Position(0,0));
+        ship._scoutsSent[playerId]._position = new Position(
+            enemyShip._position.x,
+            enemyShip._position.y - enemyShip._radius - ship._vision + 0.01
+        );
+        game.updateDrawingInstructions();
+
+        // shipVision + scoutVision + ship + scout + enemy
+        expect(game._drawingInstructions[shipId].length).toEqual(5);
+
+        ship._scoutsSent[playerId]._position = new Position(
+            enemyShip._position.x,
+            enemyShip._position.y - enemyShip._radius - ship._vision - 0.01
+        )
+        game.updateDrawingInstructions();
+        expect(game._drawingInstructions[shipId].length).toEqual(4);
     })
 })
 describe("testing drawing instructions", () => {

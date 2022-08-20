@@ -5,7 +5,6 @@ Server
     make lines shorter (80 words max)
 
 Visuals
-    scout not seeing ships
     can view ship slightly out of range bug
     clean socketmessages
 

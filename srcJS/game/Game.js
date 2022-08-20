@@ -149,13 +149,23 @@ var Game = (function () {
             var enemy = _a[_i];
             if (ship._id == enemy._id)
                 continue;
-            if (MyMath_1["default"].getDistanceBetween(ship, enemy) < ship._vision + enemy._radius) {
-                list.push(enemy);
+            var shipVisions = Object.values(ship._scoutsSent);
+            shipVisions.push(ship);
+            for (var _b = 0, shipVisions_1 = shipVisions; _b < shipVisions_1.length; _b++) {
+                var sight = shipVisions_1[_b];
+                if (MyMath_1["default"].getDistanceBetween(sight, enemy) < ship._vision + enemy._radius) {
+                    list.push(enemy);
+                    break;
+                }
             }
-            for (var _b = 0, _c = Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent)); _b < _c.length; _b++) {
-                var thing = _c[_b];
-                if (MyMath_1["default"].getDistanceBetween(ship, thing) < ship._vision + thing._radius) {
-                    list.push(thing);
+            for (var _c = 0, _d = Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent)); _c < _d.length; _c++) {
+                var object = _d[_c];
+                for (var _e = 0, shipVisions_2 = shipVisions; _e < shipVisions_2.length; _e++) {
+                    var sight = shipVisions_2[_e];
+                    if (MyMath_1["default"].getDistanceBetween(object, sight) < ship._vision + object._radius) {
+                        list.push(object);
+                        break;
+                    }
                 }
             }
         }

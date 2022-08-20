@@ -86,7 +86,7 @@ export default class Game {
                         ship.takeDamage();
                         enemy.deleteShot(shooter);
 
-                        if (ship._health == 0) {
+                        if (ship._health <= 0) {
                             delete this._ships[ship._id];
                     
                             if (Object.keys(this._ships).length == 1) {
@@ -140,7 +140,8 @@ export default class Game {
                     _radius : ship._vision,
                     _speed : scout._speed,
                     _color : this._visionColor
-                }
+                };
+
                 let instruction = new DrawingInstruction(scoutVision,Game._mapWidth, Game._mapHeight);
                 instructions.push(instruction);
             }
@@ -201,14 +202,24 @@ export default class Game {
         for (let enemy of Object.values(this._ships)) {
             if (ship._id == enemy._id) continue;
 
-            if (MyMath.getDistanceBetween(ship,enemy) < ship._vision + enemy._radius) {
-                list.push(enemy);
+            let shipVisions : Projectile[] = Object.values(ship._scoutsSent);
+            shipVisions.push(ship);
+
+            // check whether enemy ship can be seen
+            for (let sight of shipVisions) {
+                if (MyMath.getDistanceBetween(sight,enemy) < ship._vision + enemy._radius) {
+                    list.push(enemy);
+                    break;
+                }
             }
-            for (let thing of 
-                Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent))
-            ){
-                if (MyMath.getDistanceBetween(ship,thing) < ship._vision + thing._radius) {
-                    list.push(thing)
+
+            // check whether any of enemy's objects can be seen
+            for(let object of Object.values(enemy._shotsSent).concat(Object.values(enemy._scoutsSent))) {
+                for (let sight of shipVisions) {
+                    if (MyMath.getDistanceBetween(object,sight) < ship._vision + object._radius) {
+                        list.push(object);
+                        break;
+                    }
                 }
             }
         }
