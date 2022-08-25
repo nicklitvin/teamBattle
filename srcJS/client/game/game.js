@@ -29,7 +29,7 @@ class Game {
         this._drawer = new Drawer();
         
         this._socket.on(SocketMessages.redirect, (url) => {
-            window.location.href = SocketMessages.baseUrl + url;
+            window.location.href = window.location.href.split("game")[0] + url;
         })
         this._socket.on(SocketMessages.gameCountdown, (time) => {
             this._gameStartTime = Number(time);

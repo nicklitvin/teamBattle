@@ -5,7 +5,7 @@ import LobbyManager from "./lobby/LobbyManager";
 export default class MyServer {
     public static startServer() {
         const app : any = express();
-        const server = app.listen(5000);
+        const server = app.listen(80);
         const io = new Server(server);
         
         new LobbyManager(io);

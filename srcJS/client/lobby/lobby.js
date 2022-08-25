@@ -47,7 +47,7 @@ class Lobby {
             element.style.visibility= "visible";
         })
         this.socket.on(SocketMessages.redirect, (url) => {
-            window.location.href = SocketMessages.baseUrl + url;
+            window.location.href = window.location.href.split("lobby")[0] + url;
         })
     }
 }

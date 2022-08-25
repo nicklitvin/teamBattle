@@ -10,7 +10,7 @@ class ClientLobby {
 
     setup() {
         this.socket.on(SocketMessages.redirect, (url) => {
-            window.location.href = SocketMessages.baseUrl + url;
+            window.location.href += url;
         })
     }
 }

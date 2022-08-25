@@ -35,6 +35,5 @@
     "scoutTitle": "scout",
     "medicTitle": "medic",
     "localStorageId": "id",
-    "baseUrl": "http://localhost:5000/",
     "errorUrlBit": "error"
 }
