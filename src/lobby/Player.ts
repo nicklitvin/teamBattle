@@ -1,4 +1,4 @@
-import SocketWrap from "../socketWrap";
+import SocketWrap from "../SocketWrap";
 
 /**
  * Player class is used to keep track of clients who want to receive

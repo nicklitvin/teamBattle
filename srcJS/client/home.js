@@ -1,5 +1,3 @@
-import SocketMessages from "./socketMessages.json" assert { type: "json" };
-
 class ClientLobby {
     constructor() {
         this.socket = io();
@@ -17,8 +15,14 @@ class ClientLobby {
     }
 }
 
-const lobby = new ClientLobby();
-window.lobby = lobby;
+let SocketMessages; 
+fetch("./socketMessages.json")
+    .then( (res) => res.json())
+    .then( (data) => {
+        SocketMessages = data;
+        const lobby = new ClientLobby();
+        window.lobby = lobby;
+    })
 
 window.onpageshow = function(e) {
     if (e.persisted) {

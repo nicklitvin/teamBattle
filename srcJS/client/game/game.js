@@ -1,4 +1,3 @@
-import SocketMessages from "../socketMessages.json" assert { type: "json" };
 import Drawer from "./Drawer.js";
 
 class Game {        
@@ -202,5 +201,12 @@ window.onpageshow = function(e) {
     }
 };
 
-const game = new Game();
-window.game = game;
+let SocketMessages; 
+fetch("../socketMessages.json")
+    .then( (res) => res.json())
+    .then( (data) => {
+        SocketMessages = data;
+        const game = new Game();
+        window.game = game;
+    })
+

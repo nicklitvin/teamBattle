@@ -2,7 +2,7 @@ import * as express from "express";
 import { Server } from "socket.io";
 import LobbyManager from "./lobby/LobbyManager";
 
-class MyServer {
+export default class MyServer {
     public static startServer() {
         const app : any = express();
         const server = app.listen(5000);

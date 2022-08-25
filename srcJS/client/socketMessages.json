@@ -27,6 +27,7 @@
     "gameButtonNotClickableColor": "#696969",
     "gameButtonSelected": "green",
     "gameButtonInProgress": "red",
+    "gameVisionColor": "grey",
     "gameShipEndMessage": "Your ship has been destroyed",
     "roleSelectKeyword": "selectKeyword",
     "captainTitle": "captain",

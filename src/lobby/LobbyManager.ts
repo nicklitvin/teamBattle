@@ -3,7 +3,7 @@ import * as hash from "object-hash";
 import Lobby from "./Lobby";
 import * as SocketMessages from "../client/socketMessages.json";
 import Player from "./Player";
-import SocketWrap from "../socketWrap";
+import SocketWrap from "../SocketWrap";
 import GameManager from "../game/GameManager";
 
 /**

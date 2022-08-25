@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import Game from "./Game";
 import * as SocketMessages from "../client/socketMessages.json";
 import Lobby from "../lobby/Lobby";
-import SocketWrap from "../socketWrap";
+import SocketWrap from "../SocketWrap";
 import LobbyManager from "../lobby/LobbyManager";
 
 /**

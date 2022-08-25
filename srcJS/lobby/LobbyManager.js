@@ -4,7 +4,7 @@ var hash = require("object-hash");
 var Lobby_1 = require("./Lobby");
 var SocketMessages = require("../client/socketMessages.json");
 var Player_1 = require("./Player");
-var socketWrap_1 = require("../socketWrap");
+var SocketWrap_1 = require("../SocketWrap");
 var GameManager_1 = require("../game/GameManager");
 var LobbyManager = (function () {
     function LobbyManager(io) {
@@ -20,7 +20,7 @@ var LobbyManager = (function () {
     LobbyManager.prototype.setupIoCommunication = function (io) {
         var _this = this;
         io.on("connection", function (socket) {
-            var socketWrap = new socketWrap_1["default"](socket);
+            var socketWrap = new SocketWrap_1["default"](socket);
             socket.on(SocketMessages.disconnect, function () {
                 _this.socketRemovePlayer(socketWrap);
             });
@@ -164,8 +164,8 @@ var LobbyManager = (function () {
             this._gameManager.startGame(lobbyId);
             for (var _i = 0, _a = lobby.getPlayerList(); _i < _a.length; _i++) {
                 var playerId = _a[_i];
-                var socketWrap_2 = this._players[playerId].socketWrap;
-                socketWrap_2.emit(SocketMessages.redirect, lobby._redirectToGame);
+                var socketWrap_1 = this._players[playerId].socketWrap;
+                socketWrap_1.emit(SocketMessages.redirect, lobby._redirectToGame);
             }
         }
         else {

@@ -1,7 +1,7 @@
 {
   "name": "teambattle",
   "scripts": {
-    "start": "tsc && node ./srcJs/server.js",
+    "start": "tsc && node ./srcJS/server.js",
     "test": "jest"
   },
   "license": "ISC",

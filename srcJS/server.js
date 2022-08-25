@@ -16,4 +16,5 @@ var MyServer = (function () {
     };
     return MyServer;
 }());
+exports["default"] = MyServer;
 MyServer.startServer();

@@ -2,7 +2,7 @@
 exports.__esModule = true;
 var Game_1 = require("./Game");
 var SocketMessages = require("../client/socketMessages.json");
-var socketWrap_1 = require("../socketWrap");
+var SocketWrap_1 = require("../SocketWrap");
 var GameManager = (function () {
     function GameManager(io, data) {
         var _this = this;
@@ -15,7 +15,7 @@ var GameManager = (function () {
         this._runGameAfterTransition = true;
         this._lobbyManager = data;
         io.on("connection", function (socket) {
-            var socketWrap = new socketWrap_1["default"](socket);
+            var socketWrap = new SocketWrap_1["default"](socket);
             socket.on(SocketMessages.joinGame, function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
